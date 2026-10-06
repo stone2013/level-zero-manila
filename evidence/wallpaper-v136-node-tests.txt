@@ -1,0 +1,56 @@
+
+> test
+> node --test tests/*.test.mjs
+
+✔ app boots and follows menu / pause / continue / settings / restart with a mocked DOM and GPU (422.125235ms)
+✔ lighting stays bounded, instancing retains static geometry, and resolution budget is enforced (143.948526ms)
+✔ baked fluorescent surfaces avoid double ambient lighting and retain bounded prop fill (144.716419ms)
+✔ raised physical ceilings align maze, room, exit, fixtures, trim and door lintel (261.503411ms)
+✔ height change preserves natural menu and gameplay eye height and field of view (506.220432ms)
+✔ separate touch pointers stop on cancellation and blur in mocked event dispatch (562.293835ms)
+✔ portrait mobile gates the menu without reshaping desktop or hybrid laptop windows (1399.083074ms)
+✔ portrait freezes all simulation, drops captured input, and blocks every gameplay input (518.134709ms)
+✔ repeated rotations retain manual pause, help, note, menu, won and lost states (526.253318ms)
+✔ backgrounding while portrait requires manual resume and never catches up time (542.245923ms)
+✔ orientation lock is feature-detected, user-triggered, serialized and fullscreen-aware (504.27181ms)
+✔ unsupported or denied orientation and fullscreen locks fail safely (1035.562674ms)
+✔ iPad desktop identification and pointer-lock release do not break orientation pause (535.404698ms)
+✔ local light falloff follows actual fixture positions with a bounded static geometry cost (266.865779ms)
+✔ context actions show the nearby target and empty supplies cannot be pressed (510.525246ms)
+✔ WebGL failure remains explicit and prevents starting a broken game, while settings remain usable (1.662156ms)
+✔ Escape closes settings without resuming simulation behind the overlay (444.693675ms)
+✔ doorway flank/lintel tint is local and bounded while wood geometry/material and draw count stay intact (215.475612ms)
+✔ yellow ceiling is panel albedo only, retaining neutral global fill and panel bake variation (279.765867ms)
+✔ 100 seeds: deterministic 49-cell connected maze with reciprocal passages and physically traversable ordinary path (349.160695ms)
+✔ food identities conserved through drop, loop, pickup, consume (0.824308ms)
+✔ spatial loop only true forward boundary crossing; translation and yaw preserved (0.207381ms)
+✔ pause freezes all simulation and restart resets inventory/door (0.864909ms)
+✔ manual door, complete close only inside, finite water, next-room completion (45.308608ms)
+✔ walls prevent clipping even for large displacements (5.676886ms)
+✔ lamp variations are seed-stable, position-stable, within ±8%, and do not consume game RNG (3.916201ms)
+✔ area fixture pools overlap smoothly but remain brighter below each fixture (3.857473ms)
+✔ wall obstruction blocks the direct component while preserving nonblack bounce (1.609898ms)
+✔ corner/contact shade is soft and locally 15–25% darker without self-shadowing a flat wall (0.220591ms)
+✔ ceiling bounce retains local variation and never treats an underside lamp as upward direct light (0.242925ms)
+✔ door surroundings are gently dimmed, positive and continuous with no special lamp (0.204617ms)
+✔ every sampled maze surface stays finite/readable, and caches/ray work are bounded (175.74751ms)
+✔ menu/material release preserves simulation, baked lighting, manifest, and original gameplay tests byte-for-byte (1.302736ms)
+✔ menu restoration and wall scale change no other app behavior or lighting (0.895145ms)
+✔ HUD, touch controls, dialogs and landscape safeguards retain their prior CSS (0.860342ms)
+✔ manifest icons, scope, and all offline assets are local and exist (1.775406ms)
+✔ service-worker lifecycle and offline fetch run in mocked Cache API (7.137458ms)
+✔ visible version matches the active offline cache version (0.31329ms)
+✔ mobile UI keeps original controls, unique identifiers and explicit recovery/context labels (0.475884ms)
+✔ reference menu keeps open typography, a yellow rail, safe insets and generous touch targets (0.739501ms)
+✔ approved chevron wallpaper is preserved with a small local runtime copy (7.042075ms)
+✔ wallpaper is 25% smaller in both world axes and the rest of the v1.3.5 app is byte-identical (1.863228ms)
+✔ world-scale wall and floor UVs remain proportional and line up across differently sized pieces (14.947578ms)
+✔ ceiling uses downward-facing instanced panels with a real 25mm seam and bounded coverage (10.989133ms)
+ℹ tests 44
+ℹ suites 0
+ℹ pass 44
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9017.720817

@@ -63,7 +63,7 @@ function box(group,x,y,z,w,h,d,material){
  if(material===mat.wall||material===mat.floor){
   const wall=material===mat.wall;
   geo=new THREE.BoxGeometry(w,h,d,Math.max(1,Math.ceil(w/1.25)),wall?8:1,Math.max(1,Math.ceil(d/1.25)));
-  const p=geo.attributes.position,n=geo.attributes.normal,uv=geo.attributes.uv,metres=wall?2.5:2,colours=new Float32Array(p.count*3);
+  const p=geo.attributes.position,n=geo.attributes.normal,uv=geo.attributes.uv,metres=wall?1.875:2,colours=new Float32Array(p.count*3);
   for(let i=0;i<p.count;i++){
    const px=p.getX(i)+x,py=p.getY(i)+y,pz=p.getZ(i)+z;
    if(Math.abs(n.getY(i))>.5)uv.setXY(i,px/metres,pz/metres);

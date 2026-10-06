@@ -113,3 +113,14 @@
 - 实际查看 2×2 运行时像素拼接：无明显缺失纹样或硬亮暗边；仍有轻微纸纹/色调周期，不能称为数学无缝。两方向边界相邻像素平均通道差约 5.15 / 4.46（8-bit），仅作统计，不是视觉验收阈值。
 
 证据：evidence/menu-v135-node-tests.txt、evidence/menu-v135-scope-check.json、evidence/wallpaper-v135-checks.json、evidence/wallpaper-v135-2x2.png。
+
+
+## 墙纸纹理缩小（1.3.6，2026-10-06）
+
+- 修改前重新读取 GitHub main b0978f4a9c2a2ae3a9df138b905e0831ac67da9b，38 个已跟踪文件的 Git blob 哈希与本地 v1.3.5 全部匹配。
+- npm test：44 / 44 通过。保留已有 43 项覆盖并更新版本/尺度断言，增加严格范围锁定：将新墙面尺度 1.875 恢复为 2.5 后，app.js 的 SHA-256 必须与已发布 v1.3.5 完全一致。
+- 世界尺度 UV 测试覆盖不同长短墙和地板，墙纸两方向尺寸为旧值的 75%；地毯仍为 2 米。原图和运行时墙纸 WebP 的 SHA-256 均未变化。
+- 五个固定种子 0、1、5、42、3735928559：墙 UV 为旧值的 4/3（Float32 容差 2e-6），其他所有几何缓冲、索引、顶点/实例颜色、网格/实例变换、灯位、材质颜色和游戏状态一致；天花板及地毯 UV 一致。
+- node --check dist/app.js 与 dist/sw.js 通过。HTML 可见版本与 SW 缓存同步为 v1.3.6；回归覆盖旧 v1.3.5 缓存清理，仍不 skipWaiting。
+- 真实 GPU 场景观感、手机 FPS、发热和真机 PWA 更新未执行。本次没有绕过既有 WebGL / 预览限制，也没有把自动化测试称为画面验收。
+- 本次已获用户批准发布；线上状态以对应提交的部署结果为准。证据：evidence/wallpaper-v136-node-tests.txt 与 evidence/wallpaper-v136-scope-check.json。
