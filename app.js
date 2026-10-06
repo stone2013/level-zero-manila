@@ -56,6 +56,19 @@ ceilTex.wrapS=ceilTex.wrapT=THREE.ClampToEdgeWrapping;
 ceilTex.offset.set(32/1254,(1254-592)/1254);ceilTex.repeat.set(560/1254,560/1254);
 // Only the panel albedo is yellowed; the lamp bake and global lighting stay neutral.
 const mat={wall:new THREE.MeshBasicMaterial({map:wallTex,vertexColors:true}),floor:new THREE.MeshBasicMaterial({map:floorTex,vertexColors:true}),ceiling:new THREE.MeshBasicMaterial({map:ceilTex,color:0xd6be7b}),ceilingGrid:new THREE.MeshBasicMaterial({color:new THREE.Color(0x98988c).multiplyScalar(.44)}),trim:new THREE.MeshLambertMaterial({color:0x5c5938}),wood:new THREE.MeshLambertMaterial({color:0x665033}),panel:new THREE.MeshLambertMaterial({color:0x4b3a26}),metal:new THREE.MeshLambertMaterial({color:0x3c402f}),light:new THREE.MeshBasicMaterial({color:0xffffff}),housing:new THREE.MeshLambertMaterial({color:0x535745}),room:new THREE.MeshLambertMaterial({color:0xa69869}),exit:new THREE.MeshLambertMaterial({color:0x6e7777}),paper:new THREE.MeshLambertMaterial({color:0xc7c39c}),food:new THREE.MeshLambertMaterial({color:0x9d7548}),water:new THREE.MeshLambertMaterial({color:0x719293})};
+// WALLPAPER_FADE_BEGIN: albedo only, before the existing vertex-light bake.
+// Median unprinted yellow-paper pixels from the approved texture: sRGB #997a21.
+// Three.js decodes the sRGB map and this Color to Linear-sRGB before mixing.
+const WALLPAPER_CONTRAST=.5,WALLPAPER_PAPER_SRGB=0x997a21;
+mat.wall.onBeforeCompile=shader=>{
+ shader.uniforms.wallpaperPaper={value:new THREE.Color(WALLPAPER_PAPER_SRGB)};
+ shader.uniforms.wallpaperContrast={value:WALLPAPER_CONTRAST};
+ const wallMap=THREE.ShaderChunk.map_fragment.replace('diffuseColor *= sampledDiffuseColor;',
+  'sampledDiffuseColor.rgb = mix( wallpaperPaper, sampledDiffuseColor.rgb, wallpaperContrast );\n\tdiffuseColor *= sampledDiffuseColor;');
+ shader.fragmentShader='uniform vec3 wallpaperPaper;\nuniform float wallpaperContrast;\n'+shader.fragmentShader.replace('#include <map_fragment>',wallMap);
+};
+mat.wall.customProgramCacheKey=()=> 'level0-wallpaper-contrast-v1';
+// WALLPAPER_FADE_END
 const boxGeo=new THREE.BoxGeometry(1,1,1);
 // World-scale UVs keep every wall and floor at the same density, including short doorway pieces.
 function box(group,x,y,z,w,h,d,material){
@@ -63,7 +76,7 @@ function box(group,x,y,z,w,h,d,material){
  if(material===mat.wall||material===mat.floor){
   const wall=material===mat.wall;
   geo=new THREE.BoxGeometry(w,h,d,Math.max(1,Math.ceil(w/1.25)),wall?8:1,Math.max(1,Math.ceil(d/1.25)));
-  const p=geo.attributes.position,n=geo.attributes.normal,uv=geo.attributes.uv,metres=wall?1.875:2,colours=new Float32Array(p.count*3);
+  const p=geo.attributes.position,n=geo.attributes.normal,uv=geo.attributes.uv,metres=wall?1.40625:2,colours=new Float32Array(p.count*3);
   for(let i=0;i<p.count;i++){
    const px=p.getX(i)+x,py=p.getY(i)+y,pz=p.getZ(i)+z;
    if(Math.abs(n.getY(i))>.5)uv.setXY(i,px/metres,pz/metres);
