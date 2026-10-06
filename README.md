@@ -13,7 +13,7 @@
 浏览器访问 http://localhost:4173。不能直接双击 index.html：ES 模块需要 HTTP 服务。
 生产环境请使用 HTTPS，以启用 PWA 离线缓存。首次成功在线加载全部资源后才具备离线启动条件。清除站点数据、浏览器主动回收存储或从未完整缓存的设备不能保证离线启动。
 
-iPhone：在 Safari 打开游戏，分享 → 添加到主屏幕。没有声称完成真机安装或 iOS 离线验证。横屏更舒适，竖屏也可操作。
+iPhone：在 Safari 打开游戏，分享 → 添加到主屏幕。没有声称完成真机安装或 iOS 离线验证。手机和平板需横屏使用；竖屏会显示旋转提示并冻结当前探索。
 
 ## 操作
 
@@ -58,3 +58,17 @@ Three.js 几何 / UV 测试在 Node 中执行，不能代替真实浏览器画�
 - https://threejs.org/docs/pages/MeshLambertMaterial.html
 - https://threejs.org/docs/pages/WebGLRenderer.html
 - https://threejs.org/docs/pages/InstancedMesh.html
+
+
+## 横屏模式（1.3.0）
+
+- PWA manifest 声明 landscape。支持方向锁的浏览器在开始、继续或点击「尝试自动横屏」时请求横屏；普通浏览器可先进入全屏，已安装 PWA 不重复申请全屏。
+- 手机和平板实际可用视口为竖屏时，整个界面被旋转提示覆盖，底层界面设为 inert。移动、视角、动作、键盘输入以及生存、房门与接近事件计时全部冻结；已有触控捕获与按键立即释放。
+- 旋回横屏只解除方向暂停。手动暂停、后台暂停、纸条、设置和结束状态保持原状。不会补算竖屏或后台经过的时间，也不会把窄桌面窗口当成手机强制阻挡。
+- iPhone / Safari 的网页方向锁不能保证生效，按钮只在 API 存在时显示。请把设备横过来；如果仍不旋转，关闭系统竖屏锁定。没有用 CSS 旋转整个画布来伪装系统横屏。
+- 更新到 v1.3.0 使用新缓存。已有版本收到更新后，需关闭所有游戏标签页及主屏幕应用，再重新打开；为保持当前局资源一致，不强制替换正在玩的版本。
+
+平台资料：
+- https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation/lock
+- https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Manifest/Reference/orientation
+- https://webkit.org/blog/13966/webkit-features-in-safari-16-4/#screen-orientation-api

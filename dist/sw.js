@@ -1,4 +1,4 @@
-const PREFIX='level-zero-manila-',CACHE=PREFIX+'v1.2.0';
+const PREFIX='level-zero-manila-',CACHE=PREFIX+'v1.3.0';
 const ASSETS=['./','./index.html','./style.css','./app.js','./game.js','./manifest.webmanifest','./textures/level0-wallpaper.webp','./textures/level0-carpet.webp','./textures/level0-ceiling.webp','./icons/icon-192.png','./icons/icon-512.png','./vendor/three.module.min.js','./vendor/three.core.min.js'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)))});
 // No skipWaiting: a running session keeps one coherent asset version.
