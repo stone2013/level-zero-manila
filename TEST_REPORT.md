@@ -161,3 +161,15 @@
 - RELEASE APPROVED：用户于 2026-10-06 批准提交并发布。部署结果以 GitHub Actions 对应提交为准；preview-room、私人 Site 与 Unity 不在本次修改范围。
 
 最终证据：evidence/expanded-maze-node-tests.txt、evidence/expanded-maze-probe.json、evidence/expanded-maze-scene-budget.json。
+
+## v1.5.0 背包与简化 HUD（2026-10-06 获准发布）
+
+- PASS：86 项 Node 自动化测试；包含原 57 项回归、新增 20 项背包模拟与 9 项输入状态测试。
+- PASS：4×4 占格、水瓶两格、重叠/越界/满包原子性；同一实例放下、拾回、消费；墙/门/家具路径和地面占位检查。
+- PASS：左边界拖放、移回取消、双指、重复 pointerup、pointercancel、失去捕获、重开；选中物品精确动作。
+- PASS：背包内移动/饥渴/门/接近事件冻结，背景与方向暂停保持，桌面指针锁释放及 Esc 关闭优先。
+- PASS：门槛另一侧放下的水瓶在马尼拉换连接后仍可拾回；水瓶落地高度正确、原两瓶有限水保留。
+- PASS：五种子场景数据与 v1.4.0 完全一致；菜单、地图、墙纸、光照和天花等保护范围检查。
+- STATIC ONLY：568×280 / 844×390 的 CSS 布局预算、安全区和 44px 操作目标，不是真实浏览器布局测量。
+- NOT TESTED：浏览器截图、真实 WebGL、手机操作、帧率/发热和 iOS 离线更新。没有绕过现有预览访问限制。
+- RELEASE APPROVED：用户已批准 GitHub 与 Pages 发布，部署结果另行验证；私人 Site 保持。详见 BACKPACK_HUD_REPORT.md。

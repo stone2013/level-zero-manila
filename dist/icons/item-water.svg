@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 256" fill="none">
+<defs>
+<linearGradient id="glass" x1="18" y1="144" x2="94" y2="144" gradientUnits="userSpaceOnUse"><stop stop-color="#a4bfc0" stop-opacity=".72"/><stop offset=".11" stop-color="#dde4dc" stop-opacity=".34"/><stop offset=".23" stop-color="#f7faf0" stop-opacity=".52"/><stop offset=".34" stop-color="#899e9d" stop-opacity=".14"/><stop offset=".66" stop-color="#b0c6bf" stop-opacity=".12"/><stop offset=".83" stop-color="#f0f4e8" stop-opacity=".5"/><stop offset="1" stop-color="#718280" stop-opacity=".8"/></linearGradient>
+<linearGradient id="water" x1="56" y1="95" x2="56" y2="245" gradientUnits="userSpaceOnUse"><stop stop-color="#abc6c1" stop-opacity=".16"/><stop offset=".75" stop-color="#b8d0c7" stop-opacity=".32"/><stop offset="1" stop-color="#d5e0d4" stop-opacity=".53"/></linearGradient>
+<linearGradient id="cap" x1="35" y1="0" x2="78" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#a6aaad"/><stop offset=".22" stop-color="#e2e3de"/><stop offset=".66" stop-color="#c7cdcc"/><stop offset="1" stop-color="#8d9395"/></linearGradient>
+<linearGradient id="shine" x1="18" y1="0" x2="94" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#e7eee0" stop-opacity=".55"/><stop offset=".23" stop-color="#f9faec" stop-opacity=".95"/><stop offset=".5" stop-color="#e0e7df" stop-opacity=".15"/><stop offset=".87" stop-color="#ebf1e5" stop-opacity=".85"/><stop offset="1" stop-color="#d1dad0" stop-opacity=".5"/></linearGradient>
+<filter id="shadow" x="0" y="0" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+</defs>
+<ellipse cx="57" cy="250" rx="36" ry="4" fill="#050805" opacity=".4" filter="url(#shadow)"/>
+<path d="M38 25h36v14c1 7 14 17 18 33 2 8 1 22 0 27l1 15-1 14 1 17-1 15 1 17-1 15 1 18-1 23c-1 9-6 14-13 16-6 2-12-1-15-1l-8 2-8-2c-6 1-11 3-16 0-8-3-11-7-12-15l-1-23 1-18-1-15 1-17-1-15 1-17-1-14 1-15c-1-5-2-19 0-27 4-16 17-26 18-33V25Z" fill="url(#glass)" stroke="#cfd6d0" stroke-width="1.5" stroke-opacity=".86"/>
+<path d="M21 95q35 5 70 0v136c-2 11-9 14-18 11l-10 1-7 3-7-3-10 1c-11 1-16-5-17-13Z" fill="url(#water)"/>
+<path d="M22 94q34 5 68 0M20 102q36 8 72 0M20 118q36 8 72 0M20 135q36 8 72 0M20 151q36 8 72 0M20 168q36 8 72 0M20 184q36 8 72 0M20 201q36 8 72 0M20 217q36 8 72 0" stroke="#2d3a36" stroke-opacity=".55" stroke-width="4"/>
+<path d="M21 91q35 7 70 0M20 100q36 7 72 0M20 115q36 8 72 0M20 132q36 8 72 0M20 148q36 8 72 0M20 165q36 8 72 0M20 181q36 8 72 0M20 198q36 8 72 0M20 214q36 8 72 0" stroke="url(#shine)" stroke-width="2.4"/>
+<path d="m31 80 3-15 11-19M29 89v134M81 70l3 14M83 93v133" stroke="#fbfff3" stroke-opacity=".4" stroke-width="3" stroke-linecap="round"/>
+<path d="M29 229c-5 13 2 17 9 10l10-8c2 11 6 16 9 16 4 0 7-7 8-16l10 8c8 8 15 0 8-9M36 50q20 8 40 0M28 64q28 8 56 0" stroke="url(#shine)" stroke-width="1.5"/>
+<path d="M37 26h38v9H37z" fill="#aab4b1" fill-opacity=".75" stroke="#d3d9d0"/>
+<path d="M36 10q20-5 40 0v18q-20 6-40 0V10Z" fill="url(#cap)" stroke="#e2e4dc" stroke-width="1.2"/>
+<ellipse cx="56" cy="10" rx="20" ry="3" fill="#d1d4d1" stroke="#f1f2e8"/>
+<path d="M40 13v13m4-13v14m4-14v14m4-14v15m4-15v15m4-15v15m4-15v14m4-14v14m4-15v13" stroke="#687274" stroke-opacity=".6" stroke-width="1"/>
+<path d="M38 28q18 5 36 0M39 33q17 4 34 0" stroke="#f0f4e8" stroke-opacity=".72"/>
+</svg>

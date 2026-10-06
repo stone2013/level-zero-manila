@@ -54,8 +54,9 @@ test('expanded map preserves the lighting algorithm and landscape manifest byte-
  assert(!/MeshPhongMaterial|MeshStandardMaterial|EffectComposer|shadowMap\.enabled=true/.test(app),'no carpet specular or extra render passes');
 });
 
-test('HUD, touch controls, dialogs and landscape safeguards retain their prior CSS',()=>{
- const css=fs.readFileSync('dist/style.css','utf8').replace(/\/\*[^]*?\*\//g,'');
+test('prior menu, dialogs and landscape safeguards remain underneath scoped inventory and HUD overrides',()=>{
+ const all=fs.readFileSync('dist/style.css','utf8'),[base,inventory]=all.split('/* v1.5.0');assert(inventory);assert(!/#menu|\.menu-|#rotate|\.panel\s*\{|#game-shell/.test(inventory));
+ const css=base.replace(/\/\*[^]*?\*\//g,'');
  const protectedRules=[...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(m=>!/#menu|\.menu-|#render-warning/.test(m[1])).map(m=>[m[1].trim(),m[2].trim()]);
  assert.equal(createHash('sha256').update(JSON.stringify(protectedRules)).digest('hex'),'6b614710d016299d74e86dab9d1617110d90f48544e1a39272c1be5d52bdea0d');
 });

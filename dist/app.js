@@ -12,11 +12,11 @@ const keys=new Set(),input={forward:0,strafe:0,sprint:false},touch={move:null,lo
 // Gate the rendered mobile viewport, not just the physical screen's orientation.
 const mobile=navigator.userAgentData?.mobile===true||/Android|iPhone|iPad|iPod/i.test(navigator.userAgent||'')||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)||(coarse&&navigator.maxTouchPoints>0&&!matchMedia('(any-hover: hover)').matches);
 let orientationBlocked=false,orientationRequestPending=false,orientationFocus=null;
-function canPlay(){return game.mode==='playing'&&!orientationBlocked&&!document.hidden}
+function canPlay(){return game.mode==='playing'&&!game.inventoryOpen&&!orientationBlocked&&!document.hidden}
 function updateOrientation(){
  const blocked=mobile&&innerHeight>=innerWidth;
  if(blocked!==orientationBlocked){
-  clearInput();last=performance.now();stepClock=0;
+  clearInput();cancelInventoryDrag();last=performance.now();stepClock=0;
   orientationBlocked=blocked;
   if(blocked){orientationFocus=document.activeElement;document.exitPointerLock?.();if(humGain)humGain.gain.setTargetAtTime(0,audio.currentTime,.05)}
   $('game-shell').inert=blocked;
@@ -167,34 +167,152 @@ box(roomGroup,m.doorX+3,-.08,m.doorZ,6,.16,5,mat.floor);ceiling(roomGroup,m.door
 doorPivot=new THREE.Group();doorPivot.position.set(m.doorX,0,m.doorZ-.8);roomGroup.add(doorPivot);box(doorPivot,0,1.28,.8,.11,2.56,1.6,mat.wood);for(const z of [.43,1.15]){box(doorPivot,-.061,1.75,z,.02,.95,.56,mat.panel);box(doorPivot,-.061,.66,z,.02,.78,.56,mat.panel);box(doorPivot,.061,1.75,z,.02,.95,.56,mat.panel)}box(doorPivot,-.105,1.1,1.38,.15,.065,.12,mat.metal);box(doorPivot,.105,1.1,1.38,.15,.065,.12,mat.metal);const sign=new THREE.Mesh(new THREE.PlaneGeometry(1,.22),label('MANILA'));sign.position.set(m.doorX-.13,2.91,m.doorZ);sign.rotation.y=-Math.PI/2;roomGroup.add(sign);
 // Low bench, two finite bottles, and a paper note.
 box(roomGroup,m.doorX+4.4,.61,m.doorZ+.5,.8,.12,2.7,mat.wood);for(const z of [-.55,1.55])for(const x of [4.12,4.68])box(roomGroup,m.doorX+x,.29,m.doorZ+z,.075,.58,.075,mat.wood);box(roomGroup,m.doorX+4.35,.681,m.doorZ+1.4,.42,.012,.48,mat.paper);for(let i=0;i<5;i++)box(roomGroup,m.doorX+4.35,.689,m.doorZ+1.26+i*.056,.29,.002,.009,mat.panel);
-box(exitGroup,m.doorX-4.8,-.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT+.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ-1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ+1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-9.5,ROOM_HEIGHT/2,m.doorZ,.1,ROOM_HEIGHT,2.4,new THREE.MeshBasicMaterial({color:0x899ba0}));makeFixture(exitGroup,m.doorX-3,m.doorZ);makeFixture(exitGroup,m.doorX-7,m.doorZ);itemMeshes.clear();for(const i of game.items){const g=new THREE.Group();if(i.kind==='food'){box(g,0,.05,0,.32,.1,.22,mat.food);box(g,0,.106,0,.12,.009,.20,mat.paper);box(g,-.16,.05,0,.026,.08,.22,mat.panel);const num=new THREE.Mesh(new THREE.PlaneGeometry(.08,.08),label(i.id.slice(-1),64,64));num.rotation.x=-Math.PI/2;num.position.set(0,.117,0);g.add(num)}else{box(g,0,.15,0,.13,.3,.13,mat.water);box(g,0,.325,0,.09,.05,.09,mat.metal);box(g,0,.15,-.067,.13,.09,.008,mat.paper)}scene.add(g);itemMeshes.set(i.id,g)}batchStaticBoxes(mazeGroup);batchBakedSurfaces(mazeGroup);batchStaticBoxes(roomGroup);batchStaticBoxes(exitGroup);for(const g of [mazeGroup,roomGroup,exitGroup])g.userData.bake.clear();mazeGroup.userData.foldBake.clear();$('seed-label').textContent=`SEED ${m.seed.toString(16).toUpperCase()}`;sync();}
-function sync(){mazeGroup.visible=!game.changed;exitGroup.visible=game.changed;doorPivot.rotation.y=game.door*Math.PI/2;for(const i of game.items){const g=itemMeshes.get(i.id);g.visible=i.state==='world'&&(!game.changed||i.area==='room');g.position.set(i.x,i.kind==='water'&&i.area==='room'?.68:.005,i.z)}$('food-meter').style.width=game.food+'%';$('water-meter').style.width=game.hydration+'%';$('food-value').textContent=Math.ceil(game.food);$('water-value').textContent=Math.ceil(game.hydration);$('inventory').textContent=`干粮 ${game.inventory('food').length}  /  饮用水 ${game.inventory('water').length}`;$('zone').textContent=game.inRoom()?'MANILA':game.changed?'UNKNOWN':'LEVEL 0';$('objective').textContent=game.changed?'再打开门，看看外面。':game.entered?'进来之后，把门完全关上。':game.loops?'换一条路，寻找木门。':'找到一扇木门。';const i=game.nearestItem();$('prompt').textContent=game.mode!=='playing'?'':i?(i.kind==='food'?`拾回食物 ${i.id.slice(-1)}`:'拾起饮用水'):game.nearNote()?'阅读纸条':game.nearDoor()?(game.doorTarget>.5?'关门':'开门'):'';const available=Boolean($('prompt').textContent);$('interact').disabled=!available;$('interact-label').textContent=available?$('prompt').textContent:'交互';$('drop').disabled=$('eat').disabled=game.inventory('food').length===0;$('drink').disabled=game.inventory('water').length===0;$('food-value').parentElement?.classList.toggle('low',game.food<25);$('water-value').parentElement?.classList.toggle('low',game.hydration<25);}
-function say(t){$('toast').textContent=t;$('toast').classList.add('show');toastUntil=performance.now()+6500}
+box(exitGroup,m.doorX-4.8,-.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT+.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ-1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ+1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-9.5,ROOM_HEIGHT/2,m.doorZ,.1,ROOM_HEIGHT,2.4,new THREE.MeshBasicMaterial({color:0x899ba0}));makeFixture(exitGroup,m.doorX-3,m.doorZ);makeFixture(exitGroup,m.doorX-7,m.doorZ);itemMeshes.clear();for(const i of game.items){const g=new THREE.Group();if(i.kind==='food'){box(g,0,.05,0,.32,.1,.22,mat.food);box(g,0,.106,0,.12,.009,.20,mat.paper);box(g,-.16,.05,0,.026,.08,.22,mat.panel);const num=new THREE.Mesh(new THREE.PlaneGeometry(.08,.08),label(i.id.slice(-1),64,64));num.rotation.x=-Math.PI/2;num.position.set(0,.117,0);g.add(num)}else{box(g,0,.15,0,.13,.3,.13,mat.water);box(g,0,.325,0,.09,.05,.09,mat.metal);box(g,0,.15,-.067,.13,.09,.008,mat.paper)}scene.add(g);itemMeshes.set(i.id,g)}batchStaticBoxes(mazeGroup);batchBakedSurfaces(mazeGroup);batchStaticBoxes(roomGroup);batchStaticBoxes(exitGroup);for(const g of [mazeGroup,roomGroup,exitGroup])g.userData.bake.clear();mazeGroup.userData.foldBake.clear();sync();}
+// Backpack state belongs to this UI; simulation owns item identities and transactions.
+let selectedItemId=null,inventoryDrag=null,inventorySignature='',objectiveKey='',objectiveUntil=0;
+const inventoryCells=[],inventoryNodes=new Map();
+const itemName=i=>`${i.kind==='water'?'饮用水':'干粮'} ${i.id.split('-').at(-1)}`;
+const itemIcon=i=>`./icons/item-${i.kind}.svg`;
+function canUseInventory(){return game.inventoryOpen&&game.mode==='playing'&&!orientationBlocked&&!document.hidden}
+function selectedItem(){return game.inventory().find(i=>i.id===selectedItemId)}
+function renderInventory(force=false){
+ if(!game.inventoryOpen)return;
+ const items=game.inventory();if(!items.some(i=>i.id===selectedItemId))selectedItemId=items[0]?.id||null;
+ const signature=JSON.stringify([items.map(i=>[i.id,i.gridX,i.gridY]),selectedItemId,Math.ceil(game.food),Math.ceil(game.hydration)]);
+ if(!force&&signature===inventorySignature)return;inventorySignature=signature;
+ for(const [id,node]of inventoryNodes)if(!items.some(i=>i.id===id)){node.remove();inventoryNodes.delete(id)}
+ for(const item of items){
+  let node=inventoryNodes.get(item.id);
+  if(!node){node=document.createElement('button');node.type='button';node.className='inventory-item';node.dataset.itemId=item.id;node.dataset.kind=item.kind;
+   const art=document.createElement('img');art.className='item-art';art.src=itemIcon(item);art.alt='';art.draggable=false;node.append(art);
+   const number=document.createElement('span');number.className='item-number';number.textContent=item.id.split('-').at(-1);node.append(number);
+   node.addEventListener('pointerdown',e=>beginInventoryDrag(e,item.id));
+   node.onclick=e=>{if(e.detail===0&&canUseInventory()&&!inventoryDrag){selectedItemId=item.id;renderInventory(true)}};
+   $('inventory-items').append(node);inventoryNodes.set(item.id,node);
+  }
+  const size=game.itemSize(item);node.style.gridColumn=`${item.gridX+1} / span ${size.w}`;node.style.gridRow=`${item.gridY+1} / span ${size.h}`;
+  node.classList.toggle('selected',item.id===selectedItemId);node.setAttribute('aria-pressed',String(item.id===selectedItemId));node.setAttribute('aria-label',`${itemName(item)}，占用 ${size.w} 乘 ${size.h} 格`);
+ }
+ for(const cell of inventoryCells){const x=Number(cell.dataset.x),y=Number(cell.dataset.y),occupied=items.some(i=>{const s=game.itemSize(i);return x>=i.gridX&&x<i.gridX+s.w&&y>=i.gridY&&y<i.gridY+s.h});cell.tabIndex=occupied?-1:0;cell.setAttribute('aria-label',`第 ${y+1} 行第 ${x+1} 格${occupied?'，已占用':'，空位'}`)}
+ const item=selectedItem();$('item-detail').classList.toggle('empty',!item);$('item-art').hidden=!item;
+ $('item-name').textContent=item?itemName(item):'背包是空的';$('item-size').textContent=item?`占用 ${game.itemSize(item).w} × ${game.itemSize(item).h}`:'16 格空间';
+ $('item-description').textContent=item?(item.kind==='water'?'补充水分':'补充饱腹，吃后会有些口干'):'靠近物品，点交互拾取。';
+ if(item)$('item-art').src=itemIcon(item);
+ $('consume-item').textContent=item?.kind==='water'?'饮用':'进食';
+ $('consume-item').disabled=!item||(item.kind==='water'?game.hydration>98:game.food>98);$('drop-item').disabled=!item;
+ $('arrange-items').disabled=!items.length;
+}
+function clearInventoryTargets(){for(const cell of inventoryCells){cell.classList.remove('drop-valid','drop-invalid')} $('discard-zone').hidden=true;$('discard-zone').classList.remove('active')}
+function cancelInventoryDrag(){
+ const drag=inventoryDrag;inventoryDrag=null;
+ if(drag){inventoryNodes.get(drag.id)?.classList.remove('dragging');try{$('inventory-panel').releasePointerCapture(drag.pointerId)}catch{}}
+ $('inventory-drag-ghost').hidden=true;clearInventoryTargets();
+}
+function inventoryTarget(e,drag){
+ const card=$('backpack-card').getBoundingClientRect();
+ if(e.clientX>=0&&e.clientX<card.left&&e.clientY>=card.top&&e.clientY<=card.bottom)return{discard:true};
+ const rect=$('inventory-grid').getBoundingClientRect();
+ if(e.clientX<rect.left||e.clientX>=rect.right||e.clientY<rect.top||e.clientY>=rect.bottom)return null;
+ return{x:Math.floor((e.clientX-rect.left)/rect.width*4)-drag.offsetX,y:Math.floor((e.clientY-rect.top)/rect.height*4)-drag.offsetY};
+}
+function beginInventoryDrag(e,id){
+ if(!canUseInventory()||inventoryDrag||e.button>0)return;
+ const item=game.inventory().find(i=>i.id===id);if(!item)return;e.preventDefault();e.stopPropagation();selectedItemId=id;renderInventory(true);
+ const node=inventoryNodes.get(id),rect=node.getBoundingClientRect(),size=game.itemSize(item);
+ inventoryDrag={id,pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,moved:false,offsetX:Math.min(size.w-1,Math.max(0,Math.floor((e.clientX-rect.left)/rect.width*size.w))),offsetY:Math.min(size.h-1,Math.max(0,Math.floor((e.clientY-rect.top)/rect.height*size.h)))};
+ try{$('inventory-panel').setPointerCapture(e.pointerId)}catch{cancelInventoryDrag()}
+}
+function moveInventoryDrag(e){
+ const drag=inventoryDrag;if(!drag||e.pointerId!==drag.pointerId)return;
+ if(!canUseInventory()){cancelInventoryDrag();return}e.preventDefault();
+ if(!drag.moved&&Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY)<8)return;
+ drag.moved=true;inventoryNodes.get(drag.id)?.classList.add('dragging');
+ const ghost=$('inventory-drag-ghost');ghost.src=itemIcon(game.items.find(i=>i.id===drag.id));ghost.hidden=false;ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px';
+ clearInventoryTargets();const target=inventoryTarget(e,drag);drag.target=target;
+ if(target?.discard){$('discard-zone').hidden=false;$('discard-zone').classList.add('active');return}
+ if(target){const size=game.itemSize(drag.id),valid=game.canPlaceItem(drag.id,target.x,target.y);for(const cell of inventoryCells){const x=Number(cell.dataset.x),y=Number(cell.dataset.y);if(x>=target.x&&x<target.x+size.w&&y>=target.y&&y<target.y+size.h)cell.classList.add(valid?'drop-valid':'drop-invalid')}}
+}
+function endInventoryDrag(e){
+ const drag=inventoryDrag;if(!drag||e.pointerId!==drag.pointerId)return;
+ const target=drag.moved?inventoryTarget(e,drag):null,allowed=canUseInventory();cancelInventoryDrag();
+ if(allowed&&target){if(target.discard)game.drop(drag.id);else game.moveInventoryItem(drag.id,target.x,target.y)}
+ renderInventory(true);sync();
+}
+function openInventory(){
+ if(!canPlay()||!game.openInventory())return;clearInput();stepClock=0;inventorySignature='';$('inventory-status').textContent='';showState();renderInventory(true);$('inventory-close').focus();
+}
+function closeInventory(){
+ cancelInventoryDrag();if(!game.inventoryOpen)return;game.closeInventory();clearInput();stepClock=0;showState();if(canPlay())$('backpack').focus();
+}
+function initInventory(){
+ for(const [id,label]of [['food-meter','饱腹'],['water-meter','水分']]){const meter=$(id).parentElement;meter?.setAttribute('role','progressbar');meter?.setAttribute('aria-label',label);meter?.setAttribute('aria-valuemin','0');meter?.setAttribute('aria-valuemax','100')}
+
+ for(let y=0;y<4;y++)for(let x=0;x<4;x++){const cell=document.createElement('button');cell.type='button';cell.className='inventory-cell';cell.dataset.x=x;cell.dataset.y=y;cell.style.gridColumn=String(x+1);cell.style.gridRow=String(y+1);cell.onclick=()=>{if(!canUseInventory()||inventoryDrag||!selectedItem())return;if(game.moveInventoryItem(selectedItemId,x,y))renderInventory(true)};$('inventory-grid').append(cell);inventoryCells.push(cell)}
+ const ghost=document.createElement('img');ghost.id='inventory-drag-ghost';ghost.className='inventory-drag-ghost';ghost.alt='';ghost.hidden=true;ghost.draggable=false;$('inventory-panel').append(ghost);
+ $('backpack').onclick=e=>{e.stopPropagation();openInventory()};$('inventory-close').onclick=closeInventory;
+ $('arrange-items').onclick=()=>{if(canUseInventory()&&!inventoryDrag){game.arrangeInventory();renderInventory(true)}};
+ $('consume-item').onclick=()=>{const item=selectedItem();if(canUseInventory()&&!inventoryDrag&&item){game.consume(item.kind,item.id);renderInventory(true);sync()}};
+ $('drop-item').onclick=()=>{const item=selectedItem();if(canUseInventory()&&!inventoryDrag&&item){game.drop(item.id);renderInventory(true);sync()}};
+ $('inventory-panel').addEventListener('pointermove',moveInventoryDrag);$('inventory-panel').addEventListener('pointerup',endInventoryDrag);
+ for(const type of ['pointercancel','lostpointercapture'])$('inventory-panel').addEventListener(type,e=>{if(inventoryDrag?.pointerId===e.pointerId)cancelInventoryDrag()});
+}
+function sync(){
+ mazeGroup.visible=!game.changed;exitGroup.visible=game.changed;doorPivot.rotation.y=game.door*Math.PI/2;
+ for(const i of game.items){const g=itemMeshes.get(i.id);g.visible=i.state==='world'&&(!game.changed||i.area==='room');g.position.set(i.x,i.y??.005,i.z)}
+ $('food-meter').style.width=game.food+'%';$('water-meter').style.width=game.hydration+'%';$('food-value').textContent=Math.ceil(game.food);$('water-value').textContent=Math.ceil(game.hydration);
+ $('food-meter').parentElement?.setAttribute('aria-valuenow',String(Math.ceil(game.food)));$('water-meter').parentElement?.setAttribute('aria-valuenow',String(Math.ceil(game.hydration)));
+ $('zone').textContent=game.inRoom()?'MANILA':game.changed?'UNKNOWN':'LEVEL 0';
+ const objective=game.changed?'重新开门':game.entered?'把门完全关上':game.loops?'换条路寻找木门':'找到一扇木门';
+ if(objective!==objectiveKey){objectiveKey=objective;objectiveUntil=game.elapsed+6;$('objective').textContent=objective}
+ $('objective').hidden=game.elapsed>objectiveUntil;
+ const i=game.nearestItem();$('prompt').textContent=!canPlay()?'':i?(i.kind==='food'?`拾回干粮 ${i.id.split('-').at(-1)}`:'拾起饮用水'):game.nearNote()?'阅读纸条':game.nearDoor()?(game.doorTarget>.5?'关门':'开门'):'';
+ const available=Boolean($('prompt').textContent);$('interact').disabled=!available;$('interact-label').textContent=available?(i?(i.kind==='food'?'拾回':'拾取'):game.nearNote()?'阅读':$('prompt').textContent):'交互';$('interact').setAttribute('aria-label',available?$('prompt').textContent:'交互');
+ $('food-value').parentElement?.classList.toggle('low',game.food<25);$('water-value').parentElement?.classList.toggle('low',game.hydration<25);renderInventory();
+}
+function say(t){$('toast').textContent=t;if(game.inventoryOpen)$('inventory-status').textContent=t;$('toast').classList.add('show');toastUntil=performance.now()+6500}
 function clearInput(){for(const [id,pointer]of [['stick',touch.move],['look',touch.look],...Array.from(touch.sprint,p=>['sprint',p])])if(pointer!==null){try{$(id).releasePointerCapture?.(pointer)}catch{}}keys.clear();touch.move=null;touch.look=null;touch.sprint.clear();input.forward=input.strafe=0;input.sprint=false;$('stick-knob').style.transform='';}
-function showState(){for(const id of ['menu','pause-panel','note','ending','quit-panel'])$(id).hidden=true;$('hud').hidden=['menu','won','lost'].includes(game.mode);if(game.mode==='menu'){$('menu').hidden=false;$('continue').disabled=!hasRun}if(game.mode==='paused')$('pause-panel').hidden=false;if(game.mode==='note')$('note').hidden=false;if(['won','lost'].includes(game.mode)){$('ending').hidden=false;$('end-eyebrow').textContent=game.mode==='won'?'CONNECTION CHANGED':'SIGNAL LOST';$('end-title').textContent=game.mode==='won'?'门外，已经不是来路。':'你再也走不动了。';$('end-copy').innerHTML=game.mode==='won'?'你离开了零层。<br>下一层的风，比这里冷。':'饥饿或脱水结束了这次探索。<br>新的迷宫还在等着你。'}if(game.mode!=='playing'){clearInput();document.exitPointerLock?.();if(humGain)humGain.gain.setTargetAtTime(0,audio.currentTime,.05)}last=performance.now()}
-function pause(){game.pause();showState()}
-function act(a){if(!canPlay())return;if(a==='interact'){if(game.interact()==='note')showState()}else if(a==='drop')game.drop();else if(a==='eat')game.consume('food');else if(a==='drink')game.consume('water');sync()}
+function showState(){$('inventory-panel').hidden=!game.inventoryOpen;$('hud').inert=game.inventoryOpen;$('backpack').setAttribute('aria-expanded',String(game.inventoryOpen));for(const id of ['menu','pause-panel','note','ending','quit-panel'])$(id).hidden=true;$('hud').hidden=['menu','won','lost'].includes(game.mode);if(game.mode==='menu'){$('menu').hidden=false;$('continue').disabled=!hasRun}if(game.mode==='paused')$('pause-panel').hidden=false;if(game.mode==='note')$('note').hidden=false;if(['won','lost'].includes(game.mode)){$('ending').hidden=false;$('end-eyebrow').textContent=game.mode==='won'?'CONNECTION CHANGED':'SIGNAL LOST';$('end-title').textContent=game.mode==='won'?'门外，已经不是来路。':'你再也走不动了。';$('end-copy').innerHTML=game.mode==='won'?'你离开了零层。<br>下一层的风，比这里冷。':'饥饿或脱水结束了这次探索。<br>新的迷宫还在等着你。'}if(game.mode!=='playing'||game.inventoryOpen){clearInput();document.exitPointerLock?.();if(humGain)humGain.gain.setTargetAtTime(0,audio.currentTime,.05)}last=performance.now()}
+function pause(){game.pause();cancelInventoryDrag();game.closeInventory();showState()}
+function act(a){if(!canPlay())return;if(a==='interact'){if(game.interact()==='note')showState()}sync()}
 function soundStart(){if(!soundEnabled)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();if(!hum){hum=audio.createOscillator();hum.type='sine';hum.frequency.value=60;humGain=audio.createGain();humGain.gain.value=.013;hum.connect(humGain).connect(audio.destination);hum.start()}}catch{}}
 function footstep(volume=.015,freq=85){if(!soundEnabled||!audio||audio.state!=='running')return;const o=audio.createOscillator(),g=audio.createGain();o.type='triangle';o.frequency.setValueAtTime(freq,audio.currentTime);o.frequency.exponentialRampToValueAtTime(35,audio.currentTime+.12);g.gain.setValueAtTime(volume,audio.currentTime);g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+.15);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+.17)}
-function restart(){if(orientationBlocked||!graphicsReady)return;void requestLandscape();hasRun=true;clearInput();game.reset(seed());build();game.start();lastLoop=0;showState();soundStart()}
+function restart(){if(orientationBlocked||!graphicsReady)return;void requestLandscape();hasRun=true;clearInput();cancelInventoryDrag();selectedItemId=null;inventorySignature='';objectiveKey='';game.reset(seed());build();game.start();lastLoop=0;showState();soundStart()}
 function requestLook(){try{const pending=$('world').requestPointerLock?.();pending?.catch(()=>say('请再次点击画面以启用鼠标观察。'))}catch{say('此浏览器未允许鼠标锁定。请使用触屏或支持鼠标锁定的浏览器。')}}
-function returnToMenu(){game.pause();game.mode='menu';showState()}
+function returnToMenu(){game.pause();cancelInventoryDrag();game.closeInventory();game.mode='menu';showState()}
 $('start').onclick=()=>{if(!graphicsReady)return;restart();if(!coarse&&!orientationBlocked)requestLook()};
 $('continue').onclick=()=>{if(orientationBlocked||!graphicsReady||!hasRun||['won','lost'].includes(game.mode))return;void requestLandscape();game.mode='playing';showState();soundStart();if(!coarse)requestLook()};
 $('pause').onclick=pause;$('resume').onclick=()=>{if(orientationBlocked)return;void requestLandscape();game.resume();showState();soundStart()};$('restart').onclick=restart;$('again').onclick=restart;$('main-menu').onclick=returnToMenu;
 $('quit').onclick=()=>{$('quit-panel').hidden=false;clearInput()};$('quit-back').onclick=()=>{$('quit-panel').hidden=true};$('error-back').onclick=()=>{$('error').hidden=true};
 $('sound-toggle').onclick=()=>{soundEnabled=!soundEnabled;$('sound-toggle').textContent=soundEnabled?'环境音：开':'环境音：关';$('sound-toggle').setAttribute('aria-pressed',String(soundEnabled));if(soundEnabled)soundStart()};
 $('quality-toggle').onclick=()=>{renderScale=renderScale===1?.75:1;$('quality-toggle').textContent=renderScale===1?'画质：标准':'画质：省电';resize()};
-$('note-close').onclick=()=>{game.resume();showState()};for(const a of ['interact','drop','eat','drink'])$(a).onclick=e=>{e.stopPropagation();act(a)};
+$('note-close').onclick=()=>{game.resume();showState()};$('interact').onclick=e=>{e.stopPropagation();act('interact')};
 function openHelp(){helpFrom=game.mode;$('help').hidden=false;if(game.mode==='playing')pause()}$('help-open').onclick=openHelp;$('pause-help').onclick=openHelp;$('help-close').onclick=()=>{$('help').hidden=true;last=performance.now()};
 $('world').addEventListener('click',()=>{if(canPlay()&&!coarse)requestLook()});document.addEventListener('pointerlockchange',()=>{if(!document.pointerLockElement&&!coarse&&canPlay())pause()});document.addEventListener('mousemove',e=>{if(document.pointerLockElement&&canPlay()){game.player.yaw+=e.movementX*.0024;game.player.pitch=Math.max(-1.1,Math.min(1.1,game.player.pitch-e.movementY*.0024))}});
-window.addEventListener('keydown',e=>{if(orientationBlocked)return;if(!$('help').hidden){if(e.code==='Escape')$('help-close').onclick();return}if(!$('quit-panel').hidden){if(e.code==='Escape')$('quit-back').onclick();return}if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();if(e.code==='Escape'){if(game.mode==='playing')pause();else if(game.mode==='paused'){game.resume();showState()}return}if(!canPlay())return;keys.add(e.code);if(!e.repeat){if(e.code==='KeyE')act('interact');if(e.code==='KeyQ')act('drop');if(e.code==='KeyF')act('eat');if(e.code==='KeyR')act('drink')}});window.addEventListener('keyup',e=>keys.delete(e.code));
+window.addEventListener('keydown',e=>{
+ if(orientationBlocked||document.hidden)return;
+ if(!$('help').hidden){if(e.code==='Escape')$('help-close').onclick();return}
+ if(!$('quit-panel').hidden){if(e.code==='Escape')$('quit-back').onclick();return}
+ if(game.inventoryOpen){
+  if(e.code==='Escape'||e.code==='KeyI'){e.preventDefault();if(!e.repeat)closeInventory();return}
+  if(e.code==='Tab'){
+   e.preventDefault();const focusable=[...inventoryNodes.values(),...inventoryCells.filter(n=>n.tabIndex!==-1),$('consume-item'),$('drop-item'),$('arrange-items'),$('inventory-close')].filter(n=>!n.disabled);
+   const index=focusable.indexOf(document.activeElement),next=(index+(e.shiftKey?-1:1)+focusable.length)%focusable.length;focusable[next]?.focus();
+  }
+  return;
+ }
+ if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
+ if(e.code==='Escape'){if(game.mode==='playing')pause();else if(game.mode==='paused'){game.resume();showState()}return}
+ if(!canPlay())return;
+ if(e.code==='Tab'||e.code==='KeyI'){e.preventDefault();if(!e.repeat)openInventory();return}
+ keys.add(e.code);if(!e.repeat&&e.code==='KeyE')act('interact');
+});window.addEventListener('keyup',e=>keys.delete(e.code));
 const stick=$('stick');stick.addEventListener('pointerdown',e=>{if(!canPlay()||touch.move!==null)return;e.preventDefault();touch.move=e.pointerId;stick.setPointerCapture(e.pointerId);updateStick(e)});function updateStick(e){if(!canPlay()||e.pointerId!==touch.move)return;const r=stick.getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,d=Math.max(1,Math.hypot(dx,dy)/38);input.strafe=dx/d/38;input.forward=-dy/d/38;$('stick-knob').style.transform=`translate(${dx/d}px,${dy/d}px)`}stick.addEventListener('pointermove',updateStick);function endStick(e){if(e.pointerId===touch.move){touch.move=null;input.forward=input.strafe=0;$('stick-knob').style.transform=''}}for(const e of ['pointerup','pointercancel','lostpointercapture'])stick.addEventListener(e,endStick);
 const look=$('look');look.addEventListener('pointerdown',e=>{if(!canPlay()||touch.look!==null)return;e.preventDefault();touch.look=e.pointerId;touch.x=e.clientX;touch.y=e.clientY;look.setPointerCapture(e.pointerId)});look.addEventListener('pointermove',e=>{if(touch.look!==e.pointerId||!canPlay())return;game.player.yaw+=(e.clientX-touch.x)*.005;game.player.pitch=Math.max(-1.1,Math.min(1.1,game.player.pitch-(e.clientY-touch.y)*.005));touch.x=e.clientX;touch.y=e.clientY});for(const e of ['pointerup','pointercancel','lostpointercapture'])look.addEventListener(e,v=>{if(v.pointerId===touch.look)touch.look=null});$('sprint').addEventListener('pointerdown',e=>{if(canPlay()){touch.sprint.add(e.pointerId);$('sprint').setPointerCapture(e.pointerId)}});for(const e of ['pointerup','pointercancel','lostpointercapture'])$('sprint').addEventListener(e,v=>touch.sprint.delete(v.pointerId));window.addEventListener('blur',()=>{clearInput();pause()});document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInput();pause()}resize()});window.addEventListener('orientationchange',resize);window.screen?.orientation?.addEventListener?.('change',resize);document.addEventListener('fullscreenchange',resize);window.visualViewport?.addEventListener('resize',resize);window.addEventListener('pagehide',()=>{clearInput();pause()});$('rotate-lock').onclick=requestLandscape;
-function resize(){clearInput();updateOrientation();if(renderer){renderer.setPixelRatio(pixelRatio(innerWidth,innerHeight,devicePixelRatio,coarse,renderScale));renderer.setSize(innerWidth,innerHeight,false)}if(camera){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}}window.addEventListener('resize',resize);
+function resize(){clearInput();cancelInventoryDrag();updateOrientation();if(renderer){renderer.setPixelRatio(pixelRatio(innerWidth,innerHeight,devicePixelRatio,coarse,renderScale));renderer.setSize(innerWidth,innerHeight,false)}if(camera){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}}window.addEventListener('resize',resize);
 function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;const before=game.mode;if(canPlay())game.update(dt,{forward:input.forward+(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0),strafe:input.strafe+(keys.has('KeyD')?1:0)-(keys.has('KeyA')?1:0),sprint:touch.sprint.size>0||keys.has('ShiftLeft')||keys.has('ShiftRight')});if(before!==game.mode)showState();while(game.events.length){const t=game.events.shift();if(t!=='exit'&&t!=='lost')say(t)}if(now>toastUntil)$('toast').classList.remove('show');sync();if(game.mode==='menu'&&!hasRun){camera.position.set(game.maze.doorX-12.5,EYE_HEIGHT,game.maze.doorZ-1.35);camera.rotation.set(-.025,-Math.PI/2+.14,0,'YXZ')}else{camera.position.set(game.player.x,EYE_HEIGHT,game.player.z);camera.rotation.set(game.player.pitch,-game.player.yaw,0,'YXZ')}if(humGain)humGain.gain.setTargetAtTime(canPlay()&&soundEnabled?.012:0,audio.currentTime,.12);if(canPlay()&&(Math.abs(input.forward)+Math.abs(input.strafe)>0||keys.has('KeyW')||keys.has('KeyS')||keys.has('KeyA')||keys.has('KeyD'))){stepClock+=dt;if(stepClock>.56){footstep();stepClock=0}}else if(canPlay()&&game.entered&&!game.changed){stepClock+=dt;if(stepClock>1.2){footstep(Math.min(.028,.004+game.approach*.0007),60);stepClock=0}}if(game.loops!==lastLoop){lastLoop=game.loops;if(humGain){humGain.gain.setValueAtTime(.002,audio.currentTime);humGain.gain.setTargetAtTime(.012,audio.currentTime+.09,.08)}}if(!document.hidden&&(canPlay()||now-lastRender>80)){renderer.render(scene,camera);lastRender=now}}
+initInventory();
 updateOrientation();
 try{renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:false,powerPreference:'high-performance'});renderer.shadowMap.enabled=false;renderer.shadowMap.autoUpdate=false;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=LIGHTING.exposure;build();graphicsReady=true;resize();requestAnimationFrame(frame)}catch(e){graphicsReady=false;$('start').disabled=true;$('continue').disabled=true;$('render-warning').hidden=false;$('error').hidden=false;console.error(e)}
 // Optional structured browser tools, sharing the same visible game state and actions.
-if(document.modelContext?.registerTool){const abort=new AbortController();for(const tool of [{name:'read_exploration_status',description:'Read the current visible exploration and supplies status.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:()=>({mode:orientationBlocked?'orientation-paused':game.mode,orientationBlocked,zone:$('zone').textContent,food:Math.ceil(game.food),hydration:Math.ceil(game.hydration),foodCount:game.inventory('food').length,waterCount:game.inventory('water').length,objective:$('objective').textContent})},{name:'pause_exploration',description:'Pause the current exploration, freezing survival time.',inputSchema:{type:'object',properties:{},additionalProperties:false},execute:input=>{if(input&&Object.keys(input).length)throw Error('No arguments expected');pause();return{mode:game.mode}}}]){try{Promise.resolve(document.modelContext.registerTool(tool,{signal:abort.signal})).catch(()=>{})}catch{}}window.addEventListener('pagehide',()=>abort.abort(),{once:true})}
+if(document.modelContext?.registerTool){const abort=new AbortController();for(const tool of [{name:'read_exploration_status',description:'Read the current visible exploration and supplies status.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:()=>({mode:orientationBlocked?'orientation-paused':game.inventoryOpen?'inventory':game.mode,orientationBlocked,zone:$('zone').textContent,food:Math.ceil(game.food),hydration:Math.ceil(game.hydration),foodCount:game.inventory('food').length,waterCount:game.inventory('water').length,objective:$('objective').textContent})},{name:'pause_exploration',description:'Pause the current exploration, freezing survival time.',inputSchema:{type:'object',properties:{},additionalProperties:false},execute:input=>{if(input&&Object.keys(input).length)throw Error('No arguments expected');pause();return{mode:game.mode}}}]){try{Promise.resolve(document.modelContext.registerTool(tool,{signal:abort.signal})).catch(()=>{})}catch{}}window.addEventListener('pagehide',()=>abort.abort(),{once:true})}
 if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(async reg=>{await navigator.serviceWorker.ready;$('offline-status').textContent='离线资源已就绪。已安装版本会在所有页面关闭后安全更新。';reg.addEventListener('updatefound',()=>{const worker=reg.installing;worker?.addEventListener('statechange',()=>{if(worker.state==='installed'&&navigator.serviceWorker.controller)say('新版本已缓存。结束探索并关闭所有游戏页面后更新。')})})}).catch(()=>{$('offline-status').textContent='离线缓存未完成。请保持联网，稍后重新打开。'})}else $('offline-status').textContent='此环境不支持离线缓存。请使用 HTTPS 打开。';
