@@ -1,0 +1,25 @@
+✔ opening door stops and reverses before intersecting a player inside its sweep (12.434022ms)
+✔ blocked opening remains frozen across backpack and manual pause, then resumes safely (1.10488ms)
+✔ exit crossing commits one terminal result before survival can overwrite it (3.342981ms)
+✔ depletion before reaching the exit still loses once and freezes thereafter (0.635795ms)
+✔ 256 seeds: 121 deterministic connected reciprocal cells, central clear spawn, and farthest eastern Manila goal (177.837693ms)
+✔ 100 seeds: physically walk the ordinary center-to-Manila path with no transfers or trapped corners (3460.04201ms)
+✔ initial and settled seams are reciprocal rigid translations preserving yaw, pitch, and residual movement (306.836226ms)
+✔ landing exactly on a seam supports immediate reversal from either side in both states (26.943411ms)
+✔ a dropped food object remains at the same coordinates through an initial shortcut and three repeatable settled loops (200.817648ms)
+✔ the connection changes only once, after movement hides both apertures and clears the 4.5 m exclusion (525.078461ms)
+✔ all three endpoint vestibules have physical ordinary escape paths from both sides in both fold states (3124.667944ms)
+✔ inactive endpoint and southern half of active vestibules do not transfer (33.487278ms)
+✔ manual door changes the room only after a full close inside; water is finite and the changed exit is traversable (271.850828ms)
+✔ door closing safely reopens if the player blocks the leaf (24.19266ms)
+✔ pause and notes freeze simulation; restart resets inventory, central spawn, door, and fold state (7.558781ms)
+✔ food and water depletion lose the run, and long frames are capped (2.15747ms)
+✔ solid walls and vestibule partitions prevent clipping under very large movement commands (275.06128ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8546.228386

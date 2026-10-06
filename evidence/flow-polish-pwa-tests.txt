@@ -1,0 +1,14 @@
+✔ manifest icons, scope, and all offline assets are local and exist (1.869547ms)
+✔ service-worker lifecycle and offline fetch run in mocked Cache API (4.120107ms)
+✔ visible version matches the active offline cache version (0.214082ms)
+✔ mobile UI keeps original controls, unique identifiers and explicit recovery/context labels (1.302516ms)
+✔ reference menu keeps open typography, a yellow rail, safe insets and generous touch targets (0.530366ms)
+✔ approved chevron wallpaper is preserved with a small local runtime copy (6.010386ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 136.575265

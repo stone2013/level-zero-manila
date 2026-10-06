@@ -1,0 +1,23 @@
+{
+  "old": {
+    "roomDrawCalls": 41,
+    "roomRenderedTriangles": 1026,
+    "leafDrawCalls": 9,
+    "leafTriangles": 108
+  },
+  "current": {
+    "roomDrawCalls": 36,
+    "roomRenderedTriangles": 6510,
+    "leafDrawCalls": 2,
+    "leafTriangles": 3796
+  },
+  "delta": {
+    "drawCalls": -5,
+    "triangles": 5484
+  },
+  "doorModel": {
+    "drawCalls": 4,
+    "triangles": 5628
+  },
+  "visualVerification": "NOT TESTED: dot cloud browser blocked local preview with net::ERR_BLOCKED_BY_CLIENT; no bypass attempted."
+}

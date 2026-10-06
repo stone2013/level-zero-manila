@@ -1,0 +1,13 @@
+✔ Manila joinery retains the original leaf envelope, pin and full-height opening (40.399719ms)
+✔ four panels are genuinely recessed on both faces with outward bevel normals (24.885922ms)
+✔ handles and moving hinge leaves stay rigidly attached at closed, partial and fully open angles (33.9873ms)
+✔ door model is four draw calls with bounded geometry and finite baked wood grain (20.147246ms)
+✔ app connects the refined leaf to the unchanged door animation and keeps it after space change (49.481639ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 298.17039

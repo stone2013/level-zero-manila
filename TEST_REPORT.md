@@ -187,3 +187,28 @@
 - RELEASE APPROVED：用户已批准 GitHub 与 Pages 发布，部署结果另行验证。main 基线为 85128abbfd24231ac37ae1f28aa70c9713facc72；Pages 基线为 e329ccfb9fa966c76162f6cbd64c6ca3b68b46ec。preview-room、私人 Site 与 Unity 保持。
 
 最终证据：evidence/phone-streaming-final-tests.txt、evidence/phone-real-loading-tests.txt、evidence/clear-view-frustum-probe.json、evidence/phone-streaming-protected-files.json。最终运行规则见 PHONE_STREAMING_REPORT.md 与 CLEAR_VIEW_REPORT.md。STREAMING_WORLD_REPORT.md 明确标为已被替代的中间方案。
+
+## v1.6.1 最终整合验证（2026-10-06 获准发布）
+
+实际执行 `npm test`：198 项通过，0 失败，0 跳过，约 73 秒。完整输出：evidence/flow-polish-final-tests.txt。所有实际生产脚本的 Node 语法检查通过。
+
+本次覆盖：
+
+- 原 156 项生存、迷宫、手机、电量、背包、完整视野、有限资源与离线缓存回归。
+- 门模型 5 项：原门轴及碰撞包围尺寸，双面内凹和倒角法线，五个角度的门把／合页刚性变换，四次绘制与 6,000 三角形预算，空间改变后保留。
+- 模拟与终局界面 5 项：开门被挡的三种帧时长与重复尝试、背包／暂停中断、同帧出口与饥渴顺序、真正到达出口前失败、终局失焦与重开。
+- 键盘及弹层 8 项：Esc 自动重复、手机→背包→探索层次、设置和退出底层隔离、正反 Tab、焦点返回，以及失焦／后台／页面离开／方向中断。
+- canvas 缓冲 6 项：初次完整绘制、实际几何冷视野缩放、连续尺寸／画质合并、节流帧、方向与后台、WebGL 初始化失败。
+- 音效 18 项：三种采样率六种生产 PCM 非零和峰值、渐入、单灯声复用、拒绝／中断／过期解锁、立即静音和节点释放、真实移动／方向键／触屏、同时走路和门外脚步、门事件与锁舌、重复进入和会话静音。音频使用模拟 AudioContext，UI 使用模拟 DOM 和 GPU。
+
+原 20 个受保护文件逐字节保持一致，包括 world.js、lighting.js、style.css、manifest 以及全部纹理、图标、Three.js 文件和原始资产。详见 evidence/flow-protected-files.json。
+
+额外压力探针：`node evidence/probe-streaming-interruptions.mjs`，10,000 次请求、23,584 资源完整释放、35 次实际几何中断生成、64 个区域组释放，最多 49 个渲染区域／16 个布局区块／一个构建器。该探针单独执行，不计入 198 项；详见 evidence/streaming-interruption-probe.txt。
+
+修复前失败记录保留：evidence/flow-simulation-before.txt。首次音效整合全量运行暴露测试夹具未提供 AudioContext，导致新声音错误提示覆盖旧库存测试提示；测试夹具补齐后，最终 198 项全量通过。音频明确不支持／拒绝的情况仍单独测试，而不是隐藏失败。
+
+未验证：真实 GPU 光栅画面、原生浏览器键盘导航、iPhone 触控与实际扬声器可听、真实 FPS／发热、iOS 安装与离线升级。云浏览器本地预览被 ERR_BLOCKED_BY_CLIENT 拦截；Chromium 音频引擎检查被本机 IPC 权限阻止。没有绕过这些限制。生产 PCM 非零不等于实体设备已经听到。
+
+可在合适浏览器中从项目根目录的 HTTP 服务打开 tests/audio-browser.html 并点击按钮，另行进行真实 AudioContext / OfflineAudioContext 检查。这个页面不纳入生产 dist，也没有自动发布。
+
+本版本已于 2026-10-06 获准发布。发布时需保留 gh-pages 的 /preview-room/；相应提交、部署结果及资料库文件身份在发布记录中另行核验。

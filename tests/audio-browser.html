@@ -1,0 +1,27 @@
+<!doctype html><meta charset="utf-8"><title>Audio engine verification</title><button id="start">Start audio verification</button><pre id="output">Loading</pre>
+<script type="module">
+import {GameAudio,synthesizeCue} from '../dist/audio.js';
+const output=document.querySelector('#output');
+window.audioEvidence={userAgent:navigator.userAgent,actualGesture:false,offline:{},errors:[]};
+const summary=data=>{let sum=0,peak=0;for(const value of data){sum+=value*value;peak=Math.max(peak,Math.abs(value))}return{frames:data.length,rms:Math.sqrt(sum/data.length),peak}};
+for(const kind of ['hum','step','pursuit','door','latch','flicker']){
+ const context=new OfflineAudioContext(1,48000,48000),pcm=synthesizeCue(kind,48000),buffer=context.createBuffer(1,pcm.length,48000);buffer.getChannelData(0).set(pcm);
+ const source=context.createBufferSource();source.buffer=buffer;const gain=context.createGain();gain.gain.value=.8;source.connect(gain).connect(context.destination);source.start();
+ const rendered=await context.startRendering();window.audioEvidence.offline[kind]=summary(rendered.getChannelData(0));
+}
+let active=true;
+window.gameAudio=new GameAudio({canPlay:()=>active,onError:error=>audioEvidence.errors.push(String(error))});
+window.audioEvidence.ready=true;output.textContent=JSON.stringify(audioEvidence,null,2);
+document.querySelector('#start').onclick=async event=>{
+ audioEvidence.actualGesture=event.isTrusted;
+ audioEvidence.unlock=await gameAudio.unlock();audioEvidence.contextState=gameAudio.context.state;
+ const analyser=gameAudio.context.createAnalyser();analyser.fftSize=2048;gameAudio.master.connect(analyser);
+ const samples=new Float32Array(analyser.fftSize);
+ await new Promise(resolve=>setTimeout(resolve,220));analyser.getFloatTimeDomainData(samples);audioEvidence.liveHum=summary(samples);
+ gameAudio.door();await new Promise(resolve=>setTimeout(resolve,100));analyser.getFloatTimeDomainData(samples);audioEvidence.liveDoor=summary(samples);
+ active=false;gameAudio.stop();await new Promise(resolve=>setTimeout(resolve,100));analyser.getFloatTimeDomainData(samples);audioEvidence.stopped=summary(samples);audioEvidence.voicesAfterStop=gameAudio.voices.size;
+ active=true;audioEvidence.secondUnlock=await gameAudio.unlock();await new Promise(resolve=>setTimeout(resolve,220));analyser.getFloatTimeDomainData(samples);audioEvidence.resumedHum=summary(samples);
+ gameAudio.setEnabled(false);await new Promise(resolve=>setTimeout(resolve,100));analyser.getFloatTimeDomainData(samples);audioEvidence.muted=summary(samples);audioEvidence.voicesAfterMute=gameAudio.voices.size;
+ audioEvidence.complete=true;output.textContent=JSON.stringify(audioEvidence,null,2);await gameAudio.context.close();
+};
+</script>

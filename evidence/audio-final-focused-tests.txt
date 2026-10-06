@@ -1,0 +1,26 @@
+✔ start unlocks before fullscreen and starts one modest hum after loading (107.297379ms)
+✔ real door action triggers creak, animation endpoint triggers latch, and unrelated interaction stays quiet (91.35972ms)
+✔ ArrowUp and touch movement produce steps; blocked movement does not (66.021531ms)
+✔ doorway pursuit is audible on an independent cadence while walking and stops after world change (72.46697ms)
+✔ pause, inventory, phone, portrait, background and pagehide immediately clear all game sounds (470.334452ms)
+✔ muted choice survives restart/menu/continue, and enabling in settings waits for play (119.699165ms)
+✔ failed start resume has actionable feedback and a new gameplay touch can recover (44.908127ms)
+✔ background interruption stays silent after returning until fresh resume; Escape resumes audio too (73.051517ms)
+✔ all six synthesized cues produce nonzero, bounded PCM at common device sample rates (42.062268ms)
+✔ construction stays silent; unlock resumes in the same call and fades one bounded hum (3.553406ms)
+✔ resume rejection is caught, reported once, and cannot emit queued sounds (4.296932ms)
+✔ synchronous constructor/resume failures and unsupported Web Audio fail quietly (0.3866ms)
+✔ late resume completion after pause, mute or background never starts audio (0.472279ms)
+✔ a stale rejected resume cannot silence a newer successful gesture (3.586315ms)
+✔ pause and mute immediately cancel active voices and master output, then resume cleanly (5.542523ms)
+✔ external interruption stops sound and requires another gesture to resume (4.294679ms)
+✔ only travelled distance makes footsteps; pursuit has its own cadence; door endpoints latch once (8.977291ms)
+✔ repeated clicks are bounded, ended voices release nodes, and reset has no stale cadence (7.026921ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1203.032425

@@ -1,0 +1,138 @@
+{
+  "method": "Direct synthesis of production cue PCM; no browser or physical speaker measurement",
+  "masterGain": 0.8,
+  "sampleRates": {
+    "22050": {
+      "hum": {
+        "duration": 2,
+        "rms": 0.012825755362463397,
+        "peak": 0.020425371825695038,
+        "firstDifferenceRms": 0.0006560601715799479,
+        "postMasterPeak": 0.01634029746055603
+      },
+      "step": {
+        "duration": 0.22,
+        "rms": 0.04522236518093069,
+        "peak": 0.21137122809886932,
+        "firstDifferenceRms": 0.021057987189678898,
+        "postMasterPeak": 0.16909698247909546
+      },
+      "pursuit": {
+        "duration": 0.26,
+        "rms": 0.035752654493898285,
+        "peak": 0.17733779549598694,
+        "firstDifferenceRms": 0.012381068115286492,
+        "postMasterPeak": 0.14187023639678956
+      },
+      "door": {
+        "duration": 0.48,
+        "rms": 0.03971018414055915,
+        "peak": 0.09541141986846924,
+        "firstDifferenceRms": 0.003911139009525351,
+        "postMasterPeak": 0.0763291358947754
+      },
+      "latch": {
+        "duration": 0.19002267573696144,
+        "rms": 0.03949608000499113,
+        "peak": 0.22056588530540466,
+        "firstDifferenceRms": 0.01940094358326301,
+        "postMasterPeak": 0.17645270824432374
+      },
+      "flicker": {
+        "duration": 0.18,
+        "rms": 0.016591554246778772,
+        "peak": 0.08333694934844971,
+        "firstDifferenceRms": 0.008271098500576814,
+        "postMasterPeak": 0.06666955947875977
+      }
+    },
+    "44100": {
+      "hum": {
+        "duration": 2,
+        "rms": 0.01282575536246342,
+        "peak": 0.020425371825695038,
+        "firstDifferenceRms": 0.00032815344717634627,
+        "postMasterPeak": 0.01634029746055603
+      },
+      "step": {
+        "duration": 0.22,
+        "rms": 0.04530659639676462,
+        "peak": 0.2258467972278595,
+        "firstDifferenceRms": 0.021214916649849255,
+        "postMasterPeak": 0.18067743778228762
+      },
+      "pursuit": {
+        "duration": 0.26,
+        "rms": 0.03574909038909361,
+        "peak": 0.17935070395469666,
+        "firstDifferenceRms": 0.012470337844531925,
+        "postMasterPeak": 0.14348056316375732
+      },
+      "door": {
+        "duration": 0.48,
+        "rms": 0.03975287373344569,
+        "peak": 0.09406517446041107,
+        "firstDifferenceRms": 0.002348282944678806,
+        "postMasterPeak": 0.07525213956832887
+      },
+      "latch": {
+        "duration": 0.19,
+        "rms": 0.03971706399128209,
+        "peak": 0.22474411129951477,
+        "firstDifferenceRms": 0.019439697372855985,
+        "postMasterPeak": 0.17979528903961184
+      },
+      "flicker": {
+        "duration": 0.18,
+        "rms": 0.016871527202176568,
+        "peak": 0.08603886514902115,
+        "firstDifferenceRms": 0.007872889109122974,
+        "postMasterPeak": 0.06883109211921692
+      }
+    },
+    "48000": {
+      "hum": {
+        "duration": 2,
+        "rms": 0.012825755310285463,
+        "peak": 0.020424949005246162,
+        "firstDifferenceRms": 0.0003014971712519052,
+        "postMasterPeak": 0.01633995920419693
+      },
+      "step": {
+        "duration": 0.22,
+        "rms": 0.04521654418165086,
+        "peak": 0.23585863411426544,
+        "firstDifferenceRms": 0.021241023059364185,
+        "postMasterPeak": 0.18868690729141235
+      },
+      "pursuit": {
+        "duration": 0.26,
+        "rms": 0.03577966135488868,
+        "peak": 0.1763869971036911,
+        "firstDifferenceRms": 0.012484040221361214,
+        "postMasterPeak": 0.1411095976829529
+      },
+      "door": {
+        "duration": 0.48,
+        "rms": 0.03980361842217854,
+        "peak": 0.09646867960691452,
+        "firstDifferenceRms": 0.002238540102740289,
+        "postMasterPeak": 0.07717494368553163
+      },
+      "latch": {
+        "duration": 0.19,
+        "rms": 0.03973136400453041,
+        "peak": 0.21989110112190247,
+        "firstDifferenceRms": 0.019463051765078312,
+        "postMasterPeak": 0.175912880897522
+      },
+      "flicker": {
+        "duration": 0.18,
+        "rms": 0.016744722132593037,
+        "peak": 0.08536912500858307,
+        "firstDifferenceRms": 0.007855545995341932,
+        "postMasterPeak": 0.06829530000686646
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+✖ opening door stops and reverses before intersecting a player inside its sweep (5.898287ms)
+✖ blocked opening remains frozen across backpack and manual pause, then resumes safely (5.518528ms)
+✖ exit crossing commits one terminal result before survival can overwrite it (1.323767ms)
+✔ depletion before reaching the exit still loses once and freezes thereafter (1.296226ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 1
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 100.629073
+
+✖ failing tests:
+
+test at tests/flow-simulation.test.mjs:11:1
+✖ opening door stops and reverses before intersecting a player inside its sweep (5.898287ms)
+  AssertionError [ERR_ASSERTION]: opening leaf must never advance into player
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-flow-polish/tests/flow-simulation.test.mjs:18:4)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/flow-simulation.test.mjs:33:1
+✖ blocked opening remains frozen across backpack and manual pause, then resumes safely (5.518528ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert(!g.doorCollision(g.player.x,g.player.z))
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-flow-polish/tests/flow-simulation.test.mjs:38:49)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/flow-simulation.test.mjs:42:1
+✖ exit crossing commits one terminal result before survival can overwrite it (1.323767ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  'lost' !== 'won'
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-flow-polish/tests/flow-simulation.test.mjs:47:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'lost',
+    expected: 'won',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

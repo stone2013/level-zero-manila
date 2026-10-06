@@ -1,0 +1,4 @@
+Random scheduler requests passed {"requests":10000,"created":23584,"released":23584,"maxResident":49}
+Actual Three.js geometry interruption requests passed {"created":64,"released":64}
+Wall-clock seconds: 6.592
+Exit code: 0

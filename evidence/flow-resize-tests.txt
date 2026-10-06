@@ -1,0 +1,14 @@
+✔ initial buffer size waits for the first complete world presentation (54.333917ms)
+✔ cold real-geometry resize keeps the previous buffer until a complete resized view renders (10542.663856ms)
+✔ repeated resize and quality changes coalesce into only the latest render dimensions (20.392054ms)
+✔ quality toggling during a throttled frame never clears the buffer without rendering (19.305633ms)
+✔ portrait and hidden interruptions preserve the buffer and apply the final landscape size on return (19.045372ms)
+✔ graphics initialization failure keeps resize and quality controls safe without a renderer (3.118454ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10845.923892

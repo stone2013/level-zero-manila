@@ -28,7 +28,7 @@ test('raised physical ceilings align maze, room, exit, fixtures, trim and door l
  for(const wall of meshes(app.eval('mazeGroup')).filter(o=>o.material===mat.wall)){wall.geometry.computeBoundingBox();assert(Math.abs(wall.geometry.boundingBox.min.y+wall.position.y)<1e-6);assert(Math.abs(wall.geometry.boundingBox.max.y+wall.position.y-H)<1e-6)}
  const lintel=app.eval('roomGroup').children.find(o=>o.userData.doorFacade&&Math.abs(o.geometry.parameters.height-(H-2.66))<1e-6);assert(lintel);assert(Math.abs(lintel.position.y-lintel.geometry.parameters.height/2-2.66)<1e-6);
  const exitBoxes=instances(app.eval('exitGroup'),mat.exit);assert.equal(exitBoxes.filter(b=>Math.abs(b.h-H)<1e-6).length,2);assert(exitBoxes.some(b=>Math.abs(b.y-b.h/2-H)<1e-6));
- const leaf=app.eval('doorPivot').children.find(o=>o.material===mat.wood);assert.equal(leaf.scale.y,2.56);assert(leaf.position.y+leaf.scale.y/2<2.66);
+ const leaf=app.eval('doorPivot').children.find(o=>o.material===mat.doorWood);leaf.geometry.computeBoundingBox();assert(Math.abs(leaf.geometry.boundingBox.max.y-2.56)<1e-6);assert(Math.abs(leaf.geometry.boundingBox.min.y)<1e-6);assert(leaf.geometry.boundingBox.max.y<2.66);
 });
 test('height change preserves natural menu and gameplay eye height and field of view',()=>{
  const app=boot();app.frame(100);assert.equal(app.getRender().camera.position.y,1.63);assert.equal(app.getRender().camera.fov,76);
@@ -47,7 +47,7 @@ test('portrait mobile gates the menu without reshaping desktop or hybrid laptop 
 test('portrait freezes all simulation, drops captured input, and blocks every gameplay input',()=>{
  const app=boot();app.element('start').onclick();app.eval('game.entered=true;game.doorTarget=1;game.food=70;game.hydration=70');
  app.dispatch('stick','pointerdown',pointer(11));app.dispatch('look','pointerdown',pointer(22));app.dispatch('sprint','pointerdown',pointer(33));app.dispatch('window','keydown',key('KeyW'));assert.equal(app.captured.size,3);
- app.frame(100);app.context.gains=[];app.eval('audio={currentTime:0};humGain={gain:{setTargetAtTime:v=>gains.push(v)}}');app.rotate(390,844);assert.deepEqual(app.context.gains,[0]);assert.equal(app.eval('game.mode'),'playing');assert.equal(app.eval('canPlay()'),false);assert.equal(app.captured.size,0);assert.equal(app.eval('keys.size+touch.sprint.size'),0);assert.equal(app.eval('touch.move'),null);assert.equal(app.eval('touch.look'),null);assert.equal(app.eval('input.forward+input.strafe'),0);
+ app.frame(100);app.context.gains=[];app.eval('gameAudio.stop=()=>gains.push(0)');app.rotate(390,844);assert.deepEqual(app.context.gains,[0]);assert.equal(app.eval('game.mode'),'playing');assert.equal(app.eval('canPlay()'),false);assert.equal(app.captured.size,0);assert.equal(app.eval('keys.size+touch.sprint.size'),0);assert.equal(app.eval('touch.move'),null);assert.equal(app.eval('touch.look'),null);assert.equal(app.eval('input.forward+input.strafe'),0);
  const before=app.eval('JSON.stringify(game)');
  for(let t=150;t<=6150;t+=50)app.frame(t);
  app.dispatch('window','keydown',key('KeyF'));app.dispatch('window','keydown',key('Escape'));app.dispatch('stick','pointerdown',pointer(44));app.dispatch('look','pointerdown',pointer(55));app.dispatch('look','pointermove',pointer(55,160,160));app.dispatch('sprint','pointerdown',pointer(66));for(const action of ['interact','consume-item','drop-item','arrange-items'])app.element(action).onclick({stopPropagation(){}});
@@ -109,7 +109,7 @@ test('Escape closes settings without resuming simulation behind the overlay',()=
 });
 
 
-test('doorway flank/lintel tint is local and bounded while wood geometry/material and draw count stay intact',()=>{
+test('doorway flank/lintel tint stays local while existing room wood palette and light batches remain intact',()=>{
  const app=bootGeometry(),group=app.eval('roomGroup'),material=app.eval('mat.room');
  const surfaces=meshes(group).filter(o=>o.material===material);assert.equal(surfaces.length,1);assert(surfaces[0].isInstancedMesh);
  const colours=surfaces[0].instanceColor;assert(colours);const values=Array.from(colours.array);assert(Math.min(...values)>=.93-1e-6);assert(Math.min(...values)>=.99);assert(Math.max(...values)>.99);

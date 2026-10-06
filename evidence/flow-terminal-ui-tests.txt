@@ -1,0 +1,13 @@
+✔ same-frame exit/depletion shows only success and remains stable through blur and restart (78.362534ms)
+✔ opening door stops and reverses before intersecting a player inside its sweep (10.842838ms)
+✔ blocked opening remains frozen across backpack and manual pause, then resumes safely (0.996847ms)
+✔ exit crossing commits one terminal result before survival can overwrite it (4.665527ms)
+✔ depletion before reaching the exit still loses once and freezes thereafter (0.598379ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 211.008446

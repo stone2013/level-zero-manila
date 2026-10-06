@@ -1,0 +1,6 @@
+Actual Chromium audio-engine verification was attempted with an isolated temporary profile and a test-only file page. The initial launch failed under the executor sandbox. One supported escalation request produced the same verified blocker:
+
+FATAL:chrome/browser/process_singleton_posix.cc:297 Check failed: . socket() failed: Operation not permitted (1)
+ERROR:third_party/crashpad/crashpad/util/linux/scoped_ptrace_attach.cc:27 ptrace: Operation not permitted (1)
+
+No further Chromium launch was attempted. tests/audio-browser.html is supplied for a suitable browser over a local HTTP server. No actual Chromium AudioContext/OfflineAudioContext graph result, captured output, iOS Safari gesture behavior, or physical iPhone speaker audibility is claimed.
