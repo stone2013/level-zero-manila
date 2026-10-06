@@ -146,3 +146,18 @@
 - 本版本已获用户批准发布。线上状态以对应提交的实际部署结果为准。
 
 证据：evidence/wallpaper-v137-node-tests.txt、evidence/wallpaper-v137-scope-check.json、evidence/wallpaper-v137-color-check.json。
+
+
+## v1.4.0 验证（2026-10-06，已获发布批准）
+
+- PASS：57 项 Node 测试，含 13 项扩大地图与异常连接模拟测试。
+- PASS：256 个种子的确定性、121 格完整连通、双向普通通道、中央出生无碰撞；100 条实际移动到马尼拉门的普通路线。
+- PASS：双向刚性平移、精确落在连接平面后立即折返、剩余移动/朝向保持；初始与稳定状态所有连接口两侧均可退出，食物同一对象可重复找回。
+- PASS：仅离开近区且两个连接口都被墙遮挡后改接一次；独立解析矩形射线检查了 4,355 个可改接位置，无可见连接口反例。
+- PASS：10,000 种子补充探查，路线 23–97 格，中位 50 格；最多 4 次内部重抽。
+- PASS：门完全关上才换连接、有限水、灰色出口、阻挡门安全重开、暂停/横屏/后台冻结、重开清空状态、物品身份与撞墙回归。
+- PASS：实际 Three.js 几何与材质数据检查：三个转角局部表面/灯一致、55 米地面与天花覆盖、分块合批和三角形/绘制上界；门外墙纸及完整门楣，室内材质/独立房间组保留。
+- NOT TESTED：真实 WebGL 渲染、实际手机帧率/发热、视觉切换无缝程度、iOS 离线更新。已有云浏览器 WebGLDisabled 限制未被替代成 GPU 验收。
+- RELEASE APPROVED：用户于 2026-10-06 批准提交并发布。部署结果以 GitHub Actions 对应提交为准；preview-room、私人 Site 与 Unity 不在本次修改范围。
+
+最终证据：evidence/expanded-maze-node-tests.txt、evidence/expanded-maze-probe.json、evidence/expanded-maze-scene-budget.json。

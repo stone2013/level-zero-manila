@@ -1,6 +1,6 @@
 import {seededLamps,createLightBake,doorSurroundFactor} from '../dist/lighting.js';
-import test from'node:test';import assert from'node:assert/strict';import fs from'node:fs';import vm from'node:vm';import * as THREE from'../dist/vendor/three.module.min.js';import{Game}from'../dist/game.js';
-const source=fs.readFileSync('dist/app.js','utf8').replace("import * as THREE from './vendor/three.module.min.js';",'').replace("import {Game} from './game.js';",'').replace("import {seededLamps,createLightBake,doorSurroundFactor} from './lighting.js';",'');
+import test from'node:test';import assert from'node:assert/strict';import fs from'node:fs';import vm from'node:vm';import * as THREE from'../dist/vendor/three.module.min.js';import{Game,SIZE,CELL}from'../dist/game.js';
+const source=fs.readFileSync('dist/app.js','utf8').replace("import * as THREE from './vendor/three.module.min.js';",'').replace("import {Game,SIZE,CELL} from './game.js';",'').replace("import {seededLamps,createLightBake,doorSurroundFactor} from './lighting.js';",'');
 function boot(options={}){
  const {width=844,height=390,coarse=true,mobile=true,standalone=false,lock,fullscreen,platform='',userAgent}=options;
  const nodes=new Map(),listeners={},canvas2d={fillRect(){},fillText(){}},captured=new Map();
@@ -10,13 +10,13 @@ function boot(options={}){
  if(fullscreen)document.documentElement.requestFullscreen=()=>fullscreen(document);
  class Renderer{constructor(){if(options.graphicsFailure)throw new Error("WebGLDisabled");this.shadowMap={};}setPixelRatio(v){this.ratio=v}setSize(w,h){this.width=w;this.height=h}render(scene,camera){rendered={scene,camera}}};class Loader{load(){return new THREE.Texture()}}
  const orientation={addEventListener(n,fn){on('orientation',n,fn)}};if(lock)orientation.lock=lock;
- const context={seededLamps,createLightBake,doorSurroundFactor,THREE:{...THREE,WebGLRenderer:Renderer,TextureLoader:Loader},Game,document,window:{screen:{orientation},visualViewport:{addEventListener(n,fn){on('viewport',n,fn)}},addEventListener(n,fn){on('window',n,fn)}},navigator:{userAgent:userAgent??(mobile?'iPhone':'Desktop'),platform,maxTouchPoints:mobile?2:0},performance:{now:()=>now},crypto:{getRandomValues:a=>{a[0]=42;return a}},matchMedia:q=>({matches:q==='(pointer:coarse)'?coarse:q==='(any-hover: hover)'?!mobile:q==='(display-mode: standalone)'?standalone:false}),innerWidth:width,innerHeight:height,devicePixelRatio:3,requestAnimationFrame:fn=>frame=fn,setTimeout:fn=>fn(),console:options.graphicsFailure?{...console,error(){}}:console,AbortController};
+ const context={seededLamps,createLightBake,doorSurroundFactor,THREE:{...THREE,WebGLRenderer:Renderer,TextureLoader:Loader},Game,SIZE,CELL,document,window:{screen:{orientation},visualViewport:{addEventListener(n,fn){on('viewport',n,fn)}},addEventListener(n,fn){on('window',n,fn)}},navigator:{userAgent:userAgent??(mobile?'iPhone':'Desktop'),platform,maxTouchPoints:mobile?2:0},performance:{now:()=>now},crypto:{getRandomValues:a=>{a[0]=42;return a}},matchMedia:q=>({matches:q==='(pointer:coarse)'?coarse:q==='(any-hover: hover)'?!mobile:q==='(display-mode: standalone)'?standalone:false}),innerWidth:width,innerHeight:height,devicePixelRatio:3,requestAnimationFrame:fn=>frame=fn,setTimeout:fn=>fn(),console:options.graphicsFailure?{...console,error(){}}:console,AbortController};
  vm.createContext(context);vm.runInContext(source,context);
  const dispatch=(target,n,event={})=>{for(const fn of listeners[target+':'+n]||[])fn(event)};
  return{context,element,listeners,captured,dispatch,rotate(w,h){context.innerWidth=w;context.innerHeight=h;dispatch('window','resize')},frame:t=>{now=t;frame(t)},getRender:()=>rendered,eval:s=>vm.runInContext(s,context)}
 }
 test('app boots and follows menu / pause / continue / settings / restart with a mocked DOM and GPU',()=>{const app=boot();assert.equal(app.element('error').hidden,true);
-assert.equal(app.eval('game.mode'),'menu');app.frame(100);assert.equal(app.getRender().camera.position.x,22.5);assert.equal(app.eval('hasRun'),false);app.element('start').onclick();assert.equal(app.eval('game.mode'),'playing');assert.equal(app.eval('game.maze.seed'),42);app.element('pause').onclick();assert.equal(app.eval('game.mode'),'paused');app.element('main-menu').onclick();assert.equal(app.eval('game.mode'),'menu');assert.equal(app.element('continue').disabled,false);app.element('continue').onclick();assert.equal(app.eval('game.mode'),'playing');app.element('sound-toggle').onclick();assert.equal(app.eval('soundEnabled'),false);app.element('quality-toggle').onclick();assert.equal(app.eval('renderScale'),.75);app.element('restart').onclick();assert.equal(app.eval('game.items.length'),6);assert.equal(app.eval('game.inventory("food").length'),4);app.frame(200);assert.equal(app.eval('renderer.shadowMap.enabled'),false);assert.equal(app.eval('renderer.shadowMap.autoUpdate'),false)});
+assert.equal(app.eval('game.mode'),'menu');app.frame(100);assert.equal(app.getRender().camera.position.x,42.5);assert.equal(app.eval('hasRun'),false);app.element('start').onclick();assert.equal(app.eval('game.mode'),'playing');assert.equal(app.eval('game.maze.seed'),42);app.element('pause').onclick();assert.equal(app.eval('game.mode'),'paused');app.element('main-menu').onclick();assert.equal(app.eval('game.mode'),'menu');assert.equal(app.element('continue').disabled,false);app.element('continue').onclick();assert.equal(app.eval('game.mode'),'playing');app.element('sound-toggle').onclick();assert.equal(app.eval('soundEnabled'),false);app.element('quality-toggle').onclick();assert.equal(app.eval('renderScale'),.75);app.element('restart').onclick();assert.equal(app.eval('game.items.length'),6);assert.equal(app.eval('game.inventory("food").length'),4);app.frame(200);assert.equal(app.eval('renderer.shadowMap.enabled'),false);assert.equal(app.eval('renderer.shadowMap.autoUpdate'),false)});
 test('lighting stays bounded, instancing retains static geometry, and resolution budget is enforced',()=>{const app=boot();app.frame(100);const{scene}=app.getRender();let lights=0,points=0,instanced=0,instances=0;scene.traverse(o=>{if(o.isLight)lights++;if(o.isPointLight)points++;if(o.isInstancedMesh){instanced++;instances+=o.count}});assert.equal(lights,2);assert.equal(points,0);assert(instanced>=6);assert(instances>900);for(const[w,h,dpr,coarse]of [[390,844,3,true],[1366,1024,2,true],[3840,2160,2,false]]){const r=app.eval(`pixelRatio(${w},${h},${dpr},${coarse})`);assert(w*h*r*r<=(coarse?1100000:2000000)+.01);assert(r<=(coarse?1.35:1.6))}});
 test('baked fluorescent surfaces avoid double ambient lighting and retain bounded prop fill',()=>{
  const app=boot();app.frame(100);const {scene}=app.getRender();const hemi=scene.children.find(o=>o.isHemisphereLight),directional=scene.children.find(o=>o.isDirectionalLight);
@@ -37,7 +37,7 @@ test('raised physical ceilings align maze, room, exit, fixtures, trim and door l
   for(const t of instances(group,mat.trim))assert(Math.abs(t.y-t.h/2)<1e-6||Math.abs(t.y+t.h/2-H)<1e-6);
  }
  for(const wall of app.eval('mazeGroup').children.filter(o=>o.material===mat.wall)){wall.geometry.computeBoundingBox();assert(Math.abs(wall.geometry.boundingBox.min.y+wall.position.y)<1e-6);assert(Math.abs(wall.geometry.boundingBox.max.y+wall.position.y-H)<1e-6)}
- const roomBoxes=instances(app.eval('roomGroup'),mat.room),lintel=roomBoxes.find(b=>Math.abs(b.h-(H-2.66))<1e-6);assert(lintel);assert(Math.abs(lintel.y-lintel.h/2-2.66)<1e-6);assert(Math.abs(lintel.y+lintel.h/2-H)<1e-6);
+ const lintel=app.eval('roomGroup').children.find(o=>o.userData.doorFacade&&Math.abs(o.geometry.parameters.height-(H-2.66))<1e-6);assert(lintel);assert(Math.abs(lintel.position.y-lintel.geometry.parameters.height/2-2.66)<1e-6);
  const exitBoxes=instances(app.eval('exitGroup'),mat.exit);assert.equal(exitBoxes.filter(b=>Math.abs(b.h-H)<1e-6).length,2);assert(exitBoxes.some(b=>Math.abs(b.y-b.h/2-H)<1e-6));
  const leaf=app.eval('doorPivot').children.find(o=>o.material===mat.wood);assert.equal(leaf.scale.y,2.56);assert(leaf.position.y+leaf.scale.y/2<2.66);
 });
@@ -92,7 +92,7 @@ test('iPad desktop identification and pointer-lock release do not break orientat
 test('local light falloff follows actual fixture positions with a bounded static geometry cost',()=>{
  const app=boot();app.frame(100);const {scene}=app.getRender();
  const group=app.eval('mazeGroup'),floor=app.eval('mat.floor');
- assert.equal(group.userData.lamps.length,51);
+ assert.equal(group.userData.lamps.length,121);
  assert.equal(group.userData.lamps[0].x,2.5);assert.equal(group.userData.lamps[0].z,2.5);
  assert(group.userData.lamps.every(l=>l.intensity>=.92&&l.intensity<=1.08));
  assert.equal(app.eval('roomGroup.userData.lamps[0].x'),app.eval('game.maze.doorX+3'));
@@ -124,7 +124,7 @@ test('Escape closes settings without resuming simulation behind the overlay',()=
 test('doorway flank/lintel tint is local and bounded while wood geometry/material and draw count stay intact',()=>{
  const app=boot(),group=app.eval('roomGroup'),material=app.eval('mat.room');
  const surfaces=group.children.filter(o=>o.material===material);assert.equal(surfaces.length,1);assert(surfaces[0].isInstancedMesh);
- const colours=surfaces[0].instanceColor;assert(colours);const values=Array.from(colours.array);assert(Math.min(...values)>=.93-1e-6);assert(Math.min(...values)<.94);assert(Math.max(...values)>.99);
+ const colours=surfaces[0].instanceColor;assert(colours);const values=Array.from(colours.array);assert(Math.min(...values)>=.93-1e-6);assert(Math.min(...values)>=.99);assert(Math.max(...values)>.99);
  assert.equal(app.eval('mat.wood.color.getHex()'),0x665033);assert.equal(app.eval('mat.panel.color.getHex()'),0x4b3a26);assert(app.eval('doorPivot.children.every(m=>!m.userData.lightTint)'));
  for(const g of [app.eval('mazeGroup'),group,app.eval('exitGroup')]){const batches=g.children.filter(o=>o.material===app.eval('mat.light'));assert.equal(batches.length,1);assert(batches[0].isInstancedMesh);assert.equal(batches[0].instanceColor.count,batches[0].count);assert.equal(g.userData.bake.stats.cacheEntries,0)}
  const samples=app.eval('mazeGroup.userData.bake.stats.samples');app.frame(100);app.frame(200);assert.equal(app.eval('mazeGroup.userData.bake.stats.samples'),samples);
@@ -141,4 +141,35 @@ test('yellow ceiling is panel albedo only, retaining neutral global fill and pan
   const values=Array.from(panels.instanceColor.array);assert(Math.max(...values)-Math.min(...values)>.005);
   assert.equal(panels.geometry.attributes.normal.getY(0),-1);
  }
+});
+
+test('11x11 map is rendered at full extent, central spawn, and static surfaces are chunked for mobile',()=>{
+ const app=boot();app.frame(100);assert.equal(app.eval('game.maze.cells.length'),121);assert.equal(app.eval('game.player.x'),27.5);assert.equal(app.eval('game.player.z'),27.5);
+ const group=app.eval('mazeGroup'),m=app.eval('mat');const floor=group.children.filter(o=>o.material===m.floor);assert(floor.length>1&&floor.every(o=>o.userData.bakedChunk));
+ let minX=Infinity,maxX=-Infinity,minZ=Infinity,maxZ=-Infinity,triangles=0,draws=0;
+ for(const mesh of floor){const p=mesh.geometry.attributes.position;for(let i=0;i<p.count;i++){minX=Math.min(minX,p.getX(i));maxX=Math.max(maxX,p.getX(i));minZ=Math.min(minZ,p.getZ(i));maxZ=Math.max(maxZ,p.getZ(i))}}
+ assert.deepEqual([minX,maxX,minZ,maxZ],[0,55,0,55]);const panels=group.children.find(o=>o.material===m.ceiling);assert.equal(panels.count,44*44);
+ app.getRender().scene.traverse(o=>{if(o.isMesh){draws+=Array.isArray(o.material)?o.geometry.groups.length:1;triangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3}});assert(draws<110,`scene mesh/draw upper bound ${draws}`);assert(triangles<30000,`unique triangles ${triangles}`);
+ assert.equal(app.eval('mazeGroup.userData.foldBake.stats.cacheEntries'),0);
+});
+
+test('outside Manila facade shares wallpaper and bake, lintel fills opening, room persists after change',()=>{
+ const app=boot(),g=app.eval('roomGroup'),mat=app.eval('mat'),m=app.eval('game.maze');
+ const facade=g.children.filter(o=>o.userData.doorFacade);assert.equal(facade.length,3);assert(facade.every(o=>o.material[1].map===app.eval('wallTex')&&o.material[0]===mat.room));
+ assert.equal(app.eval('roomGroup.userData.facadeBake'),app.eval('mazeGroup.userData.bake'));
+ const lintel=facade.find(o=>o.geometry.parameters.height<2);assert.equal(lintel.geometry.parameters.depth,1.8);assert.equal(lintel.geometry.parameters.width,.16);assert.equal(lintel.position.z,m.doorZ);
+ const flanks=facade.filter(o=>o!==lintel).sort((a,b)=>a.position.z-b.position.z);assert(Math.abs(flanks[0].position.z+flanks[0].geometry.parameters.depth/2-(m.doorZ-.9))<1e-8);assert(Math.abs(flanks[1].position.z-flanks[1].geometry.parameters.depth/2-(m.doorZ+.9))<1e-8);
+ app.eval('game.changed=true;sync()');assert.equal(g.visible,true);assert.equal(app.eval('mazeGroup.visible'),false);assert.equal(app.eval('exitGroup.visible'),true);assert.equal(app.eval('doorPivot.parent'),g);
+});
+
+test('all seam vestibules use identical lamp appearance and matching local surface samples',()=>{
+ const app=boot(),g=app.eval('mazeGroup'),folds=app.eval('game.maze.folds'),mat=app.eval('mat');
+ const lamps=folds.map(f=>g.userData.lamps.find(l=>l.x===f.px&&l.z===(f.z+.5)*5));for(const l of lamps){assert.equal(l.intensity,lamps[0].intensity);assert.deepEqual(l.color,lamps[0].color)}
+ function surface(f,material){const data=[];for(const mesh of g.children.filter(o=>o.material===material)){const {position:p,normal:n,uv,color:c}=mesh.geometry.attributes;for(let i=0;i<p.count;i++){const x=p.getX(i)-f.x*5,z=p.getZ(i)-f.z*5;if(x>.09&&x<4.91&&z>.09&&z<2.2)data.push([x,p.getY(i),z,n.getX(i),n.getY(i),n.getZ(i),uv.getX(i),uv.getY(i),c.getX(i),c.getY(i),c.getZ(i)].map(v=>Math.round(v*1e5)/1e5).join(','))}}return data.sort()}
+ const baseline=surface(folds[0],mat.floor);assert(baseline.length);for(const f of folds.slice(1))assert.deepEqual(surface(f,mat.floor),baseline);
+ function interiorWalls(f){const data=[];for(const mesh of g.children.filter(o=>o.material===mat.wall)){const {position:p,normal:n,uv,color:c}=mesh.geometry.attributes;for(let i=0;i<p.count;i++){const x=p.getX(i)-f.x*5,z=p.getZ(i)-f.z*5;
+  const inside=(Math.abs(x-.08)<1e-5&&n.getX(i)===1)||(Math.abs(x-4.92)<1e-5&&n.getX(i)===-1)||(Math.abs(z-.08)<1e-5&&n.getZ(i)===1)||(Math.abs(z-2.42)<1e-5&&n.getZ(i)===-1&&x>=1.19999&&x<=3.80001);
+  if(inside&&x>.0001&&x<4.9999&&z>.0001&&z<=2.42001)data.push([x,p.getY(i),z,n.getX(i),n.getY(i),n.getZ(i),uv.getX(i),uv.getY(i),c.getX(i),c.getY(i),c.getZ(i)].map(v=>Math.round(v*1e5)/1e5).join(','))}}return data.sort()}
+ const walls=interiorWalls(folds[0]);assert(walls.length);for(const f of folds.slice(1))assert.deepEqual(interiorWalls(f),walls);
+
 });

@@ -1,0 +1,75 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> test
+> node --test tests/*.test.mjs
+
+✔ app boots and follows menu / pause / continue / settings / restart with a mocked DOM and GPU (995.368959ms)
+✔ lighting stays bounded, instancing retains static geometry, and resolution budget is enforced (480.140999ms)
+✔ baked fluorescent surfaces avoid double ambient lighting and retain bounded prop fill (494.491302ms)
+✔ raised physical ceilings align maze, room, exit, fixtures, trim and door lintel (709.935413ms)
+✔ height change preserves natural menu and gameplay eye height and field of view (1216.484816ms)
+✔ separate touch pointers stop on cancellation and blur in mocked event dispatch (1172.95039ms)
+✔ portrait mobile gates the menu without reshaping desktop or hybrid laptop windows (3005.910878ms)
+✔ portrait freezes all simulation, drops captured input, and blocks every gameplay input (1271.369352ms)
+✔ repeated rotations retain manual pause, help, note, menu, won and lost states (1227.244779ms)
+✔ backgrounding while portrait requires manual resume and never catches up time (1229.21937ms)
+✔ orientation lock is feature-detected, user-triggered, serialized and fullscreen-aware (1237.822618ms)
+✔ unsupported or denied orientation and fullscreen locks fail safely (2485.529827ms)
+✔ iPad desktop identification and pointer-lock release do not break orientation pause (1186.103351ms)
+✔ local light falloff follows actual fixture positions with a bounded static geometry cost (534.30827ms)
+✔ context actions show the nearby target and empty supplies cannot be pressed (1170.700577ms)
+✔ WebGL failure remains explicit and prevents starting a broken game, while settings remain usable (1.823598ms)
+✔ Escape closes settings without resuming simulation behind the overlay (1206.496348ms)
+✔ doorway flank/lintel tint is local and bounded while wood geometry/material and draw count stay intact (609.320277ms)
+✔ yellow ceiling is panel albedo only, retaining neutral global fill and panel bake variation (585.335852ms)
+✔ 11x11 map is rendered at full extent, central spawn, and static surfaces are chunked for mobile (623.896534ms)
+✔ outside Manila facade shares wallpaper and bake, lintel fills opening, room persists after change (620.67822ms)
+✔ all seam vestibules use identical lamp appearance and matching local surface samples (620.052399ms)
+✔ 256 seeds: 121 deterministic connected reciprocal cells, central clear spawn, and farthest eastern Manila goal (116.443081ms)
+✔ 100 seeds: physically walk the ordinary center-to-Manila path with no transfers or trapped corners (1206.016982ms)
+✔ initial and settled seams are reciprocal rigid translations preserving yaw, pitch, and residual movement (125.794903ms)
+✔ landing exactly on a seam supports immediate reversal from either side in both states (16.550072ms)
+✔ a dropped food object remains at the same coordinates through an initial shortcut and three repeatable settled loops (89.067564ms)
+✔ the connection changes only once, after movement hides both apertures and clears the 4.5 m exclusion (226.810999ms)
+✔ all three endpoint vestibules have physical ordinary escape paths from both sides in both fold states (1493.298989ms)
+✔ inactive endpoint and southern half of active vestibules do not transfer (19.438498ms)
+✔ manual door changes the room only after a full close inside; water is finite and the changed exit is traversable (148.055365ms)
+✔ door closing safely reopens if the player blocks the leaf (10.918025ms)
+✔ pause and notes freeze simulation; restart resets inventory, central spawn, door, and fold state (3.523821ms)
+✔ food and water depletion lose the run, and long frames are capped (1.142205ms)
+✔ solid walls and vestibule partitions prevent clipping under very large movement commands (135.471349ms)
+✔ lamp variations are seed-stable, position-stable, within ±8%, and do not consume game RNG (7.351048ms)
+✔ area fixture pools overlap smoothly but remain brighter below each fixture (4.380548ms)
+✔ wall obstruction blocks the direct component while preserving nonblack bounce (0.777637ms)
+✔ corner/contact shade is soft and locally 15–25% darker without self-shadowing a flat wall (0.226149ms)
+✔ ceiling bounce retains local variation and never treats an underside lamp as upward direct light (0.306009ms)
+✔ door surroundings are gently dimmed, positive and continuous with no special lamp (0.234031ms)
+✔ every sampled maze surface stays finite/readable, and caches/ray work are bounded (148.288029ms)
+✔ expanded map preserves the lighting algorithm and landscape manifest byte-for-byte (1.433572ms)
+✔ HUD, touch controls, dialogs and landscape safeguards retain their prior CSS (1.405281ms)
+✔ manifest icons, scope, and all offline assets are local and exist (1.725311ms)
+✔ service-worker lifecycle and offline fetch run in mocked Cache API (5.103654ms)
+✔ visible version matches the active offline cache version (0.380181ms)
+✔ mobile UI keeps original controls, unique identifiers and explicit recovery/context labels (0.473421ms)
+✔ reference menu keeps open typography, a yellow rail, safe insets and generous touch targets (0.610787ms)
+✔ approved chevron wallpaper is preserved with a small local runtime copy (9.049839ms)
+✔ approved small, faded wallpaper scale remains unchanged in the larger map (0.776826ms)
+✔ world-scale wall and floor UVs remain proportional and line up across differently sized pieces (8.3184ms)
+✔ ceiling uses downward-facing instanced panels with a real 25mm seam and bounded coverage (12.244627ms)
+✔ wall-only shader halves albedo contrast before vertex lighting without another texture sample (3.874839ms)
+✔ sampled yellow paper is converted once from sRGB and is unchanged by the 50% mix (1.129326ms)
+✔ every channel difference from paper is exactly halved with bounded output, including baked light (1.061144ms)
+✔ patch uses the pinned Three.js map shader and does not change alpha or light bake (1.00594ms)
+ℹ tests 57
+ℹ suites 0
+ℹ pass 57
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 22831.157276
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

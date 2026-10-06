@@ -1,0 +1,67 @@
+{
+  "scope": "Actual Three.js scene data under Node; no WebGL rasterization or GPU/mobile FPS measurement",
+  "chunkMetres": 15,
+  "wallVerticalSegments": 4,
+  "results": [
+    {
+      "seed": 0,
+      "routeCells": 27,
+      "wallCount": 147,
+      "uniqueGeometryTriangles": 26002,
+      "sceneDrawUpperBoundIncludingHiddenItemsAndExit": 101,
+      "meshes": 86,
+      "instances": 2766,
+      "realLights": 2,
+      "pointLights": 0,
+      "mockedNodeBuildMs": 331
+    },
+    {
+      "seed": 5,
+      "routeCells": 65,
+      "wallCount": 147,
+      "uniqueGeometryTriangles": 26002,
+      "sceneDrawUpperBoundIncludingHiddenItemsAndExit": 101,
+      "meshes": 86,
+      "instances": 2766,
+      "realLights": 2,
+      "pointLights": 0,
+      "mockedNodeBuildMs": 294
+    },
+    {
+      "seed": 42,
+      "routeCells": 40,
+      "wallCount": 146,
+      "uniqueGeometryTriangles": 25906,
+      "sceneDrawUpperBoundIncludingHiddenItemsAndExit": 101,
+      "meshes": 86,
+      "instances": 2764,
+      "realLights": 2,
+      "pointLights": 0,
+      "mockedNodeBuildMs": 322
+    },
+    {
+      "seed": 305419896,
+      "routeCells": 61,
+      "wallCount": 149,
+      "uniqueGeometryTriangles": 26194,
+      "sceneDrawUpperBoundIncludingHiddenItemsAndExit": 101,
+      "meshes": 86,
+      "instances": 2770,
+      "realLights": 2,
+      "pointLights": 0,
+      "mockedNodeBuildMs": 317
+    },
+    {
+      "seed": 3735928559,
+      "routeCells": 56,
+      "wallCount": 148,
+      "uniqueGeometryTriangles": 26098,
+      "sceneDrawUpperBoundIncludingHiddenItemsAndExit": 101,
+      "meshes": 86,
+      "instances": 2768,
+      "realLights": 2,
+      "pointLights": 0,
+      "mockedNodeBuildMs": 317
+    }
+  ]
+}

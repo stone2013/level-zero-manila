@@ -1,0 +1,23 @@
+{
+  "seeds": 10000,
+  "ordinaryRouteCells": {
+    "minimum": 23,
+    "median": 50,
+    "maximum": 97
+  },
+  "generationAttempts": {
+    "0": 8743,
+    "1": 1111,
+    "2": 128,
+    "3": 17,
+    "4": 1
+  },
+  "occlusionProbe": {
+    "seed": 42,
+    "positionSpacingMetres": 0.2,
+    "analyticRectangleRayOracle": true,
+    "candidateHiddenPositions": 4355,
+    "apertureSampleSpacingMetres": 0.02,
+    "counterexamples": []
+  }
+}
