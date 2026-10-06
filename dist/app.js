@@ -1,7 +1,7 @@
 import * as THREE from './vendor/three.module.min.js';
 import {Game,SIZE,CELL} from './game.js';
 import {GameAudio} from './audio.js';
-import {RenderChunkStream,RENDER_CELLS,RENDER_METRES} from './world.js';
+import {RenderChunkStream,RENDER_CELLS,RENDER_METRES,visibleCorridorCells} from './world.js';
 import {seededLamps,createLightBake,doorSurroundFactor} from './lighting.js';
 const $=s=>document.getElementById(s), seed=()=>crypto.getRandomValues(new Uint32Array(1))[0];
 // Shared physical heights: all walls, ceiling panels, fixtures and lintels stay aligned.
@@ -9,7 +9,7 @@ const ROOM_HEIGHT=3.6,EYE_HEIGHT=1.63,DOOR_HEAD=2.66;
 // Wall/floor/ceiling surfaces receive the diffuse bake once. These two soft lights
 // shade the remaining Lambert props, trim, housings, and room/exit wall boxes.
 const LIGHTING=Object.freeze({sky:0xfff5e2,ground:0xcdcdc2,hemisphere:1.65,directional:0.18,exposure:1.0});
-let chunkStream,renderOrigin={x:0,z:0},worldLoading=true,worldRendered=false,viewOverflow=false,selectedViewCache=null;
+let chunkStream,renderOrigin={x:0,z:0},worldLoading=true,worldRendered=false,viewOverflow=false,selectedViewCache=null,corridorViewCache=null,requestedSelection=null;
 // Preserve the last presented drawing buffer while a resized view is loading.
 let pendingRendererSize=null;
 let game=new Game(5),graphicsReady=false,hasRun=false,soundEnabled=true,renderScale=1,lastRender=0,renderer,scene,camera,mazeGroup,roomGroup,exitGroup,doorPivot,itemMeshes=new Map(),last=performance.now(),toastUntil=0,dialogReturnFocus=null;
@@ -87,9 +87,9 @@ function box(group,x,y,z,w,h,d,material){
   const wall=material===mat.wall;
   geo=new THREE.BoxGeometry(w,h,d,Math.max(1,Math.ceil(w/1.25)),wall?4:1,Math.max(1,Math.ceil(d/1.25)));
   const p=geo.attributes.position,n=geo.attributes.normal,uv=geo.attributes.uv,metres=wall?1.40625:2,colours=new Float32Array(p.count*3);
+  const fold=group.userData.folds?.find(f=>Math.abs(x-f.px)<=CELL/2+.001&&Math.abs(z-(f.z+.5)*CELL)<=CELL/2+.001);
   for(let i=0;i<p.count;i++){
    const px=p.getX(i)+x,py=p.getY(i)+y,pz=p.getZ(i)+z;
-   const fold=group.userData.folds?.find(f=>Math.abs(x-f.px)<=CELL/2+.001&&Math.abs(z-(f.z+.5)*CELL)<=CELL/2+.001);
    const ux=px-(fold?fold.x*CELL:Math.floor((group.userData.origin?.x||0)/metres)*metres),uz=pz-(fold?fold.z*CELL:Math.floor((group.userData.origin?.z||0)/metres)*metres);
    if(Math.abs(n.getY(i))>.5)uv.setXY(i,ux/metres,uz/metres);
    else if(Math.abs(n.getX(i))>.5)uv.setXY(i,uz/metres,py/metres);
@@ -129,20 +129,30 @@ function ceiling(group,x,z,w,d){
 function batchStaticBoxes(group){const batches=new Map();for(const mesh of [...group.children])if(mesh.isMesh&&!mesh.isInstancedMesh&&mesh.geometry===boxGeo){const list=batches.get(mesh.material)||[];list.push(mesh);batches.set(mesh.material,list)}for(const[material,meshes]of batches){if(meshes.length<2)continue;const batch=new THREE.InstancedMesh(boxGeo,material,meshes.length);meshes.forEach((mesh,i)=>{const ox=group.userData.origin?.x||0,oz=group.userData.origin?.z||0;mesh.position.x-=ox;mesh.position.z-=oz;mesh.updateMatrix();batch.setMatrixAt(i,mesh.matrix);if(mesh.userData.lightTint)batch.setColorAt(i,new THREE.Color().setRGB(...mesh.userData.lightTint));group.remove(mesh)});batch.instanceMatrix.needsUpdate=true;if(batch.instanceColor)batch.instanceColor.needsUpdate=true;batch.computeBoundingSphere();if(group.userData.origin)batch.position.set(group.userData.origin.x,0,group.userData.origin.z);group.add(batch)}}
 // Bake once, then merge by 15-metre chunks: bounded draw calls with frustum culling.
 // Keep the persistent room separate, so changing the door connection cannot hide it.
-function batchBakedSurfaces(group){
+function* batchBakedSurfaces(group){
  const chunks=new Map();
  for(const mesh of [...group.children])if(!mesh.isInstancedMesh&&[mat.wall,mat.floor].includes(mesh.material)){
   const key=mesh.material===mat.wall?'wall':'floor';
   const list=chunks.get(key)||[];list.push(mesh);chunks.set(key,list);
  }
  for(const meshes of chunks.values()){
-  const geometry=new THREE.BufferGeometry(),positions=[],normals=[],uvs=[],colors=[],indices=[];let offset=0;
-  for(const mesh of meshes){const attrs=mesh.geometry.attributes;for(let i=0;i<attrs.position.count;i++){
-   positions.push(attrs.position.getX(i)+mesh.position.x-(group.userData.origin?.x||0),attrs.position.getY(i)+mesh.position.y,attrs.position.getZ(i)+mesh.position.z-(group.userData.origin?.z||0));
-   normals.push(attrs.normal.getX(i),attrs.normal.getY(i),attrs.normal.getZ(i));uvs.push(attrs.uv.getX(i),attrs.uv.getY(i));colors.push(attrs.color.getX(i),attrs.color.getY(i),attrs.color.getZ(i));
-  }for(const i of mesh.geometry.index.array)indices.push(i+offset);offset+=attrs.position.count;group.remove(mesh);mesh.geometry.dispose()}
-  for(const [name,array,size] of [['position',positions,3],['normal',normals,3],['uv',uvs,2],['color',colors,3]])geometry.setAttribute(name,new THREE.Float32BufferAttribute(array,size));
-  geometry.setIndex(indices);geometry.computeBoundingBox();geometry.computeBoundingSphere();const batch=new THREE.Mesh(geometry,meshes[0].material);batch.userData.bakedChunk=true;if(group.userData.origin)batch.position.set(group.userData.origin.x,0,group.userData.origin.z);group.add(batch);
+  const vertexCount=meshes.reduce((n,m)=>n+m.geometry.attributes.position.count,0),indexCount=meshes.reduce((n,m)=>n+m.geometry.index.count,0);
+  // Write directly into final buffers instead of building and copying large JS
+  // number arrays. Yield between source surfaces so merging cannot monopolize a frame.
+  const positions=new Float32Array(vertexCount*3),normals=new Float32Array(vertexCount*3),uvs=new Float32Array(vertexCount*2),colors=new Float32Array(vertexCount*3),indices=vertexCount>65535?new Uint32Array(indexCount):new Uint16Array(indexCount);
+  let offset=0,indexOffset=0;
+  for(const mesh of meshes){const attrs=mesh.geometry.attributes;
+   for(let i=0;i<attrs.position.count;i++){
+    const j=(i+offset)*3;
+    positions[j]=attrs.position.getX(i)+mesh.position.x-(group.userData.origin?.x||0);positions[j+1]=attrs.position.getY(i)+mesh.position.y;positions[j+2]=attrs.position.getZ(i)+mesh.position.z-(group.userData.origin?.z||0);
+   }
+   normals.set(attrs.normal.array,offset*3);uvs.set(attrs.uv.array,offset*2);colors.set(attrs.color.array,offset*3);
+   for(const i of mesh.geometry.index.array)indices[indexOffset++]=i+offset;
+   offset+=attrs.position.count;group.remove(mesh);mesh.geometry.dispose();yield;
+  }
+  const geometry=new THREE.BufferGeometry();
+  for(const [name,array,size] of [['position',positions,3],['normal',normals,3],['uv',uvs,2],['color',colors,3]])geometry.setAttribute(name,new THREE.BufferAttribute(array,size));
+  geometry.setIndex(new THREE.BufferAttribute(indices,1));geometry.computeBoundingBox();geometry.computeBoundingSphere();const batch=new THREE.Mesh(geometry,meshes[0].material);batch.userData.bakedChunk=true;if(group.userData.origin)batch.position.set(group.userData.origin.x,0,group.userData.origin.z);group.add(batch);yield;
  }
 }
 function batchCeilingPanels(group){
@@ -187,7 +197,7 @@ function createRenderChunk(rx,rz){
   group.userData.bake=createLightBake(group.userData.lamps,blockers,ROOM_HEIGHT,{x:game.maze.doorX,z:game.maze.doorZ});yield;
   for(const c of cells){const x=(c.x+.5)*CELL,z=(c.z+.5)*CELL;box(group,x,-.08,z,CELL,.16,CELL,mat.floor);yield;ceiling(group,x,z,CELL,CELL);yield;makeFixture(group,x,z);yield}
   for(const w of walls){box(group,w.x,ROOM_HEIGHT/2,w.z,w.w,ROOM_HEIGHT,w.d,mat.wall);yield;box(group,w.x,.07,w.z,w.w+.025,.14,w.d+.025,mat.trim);box(group,w.x,ROOM_HEIGHT-.08,w.z,w.w+.018,.16,w.d+.018,mat.trim);yield}
-  batchCeilingPanels(group);yield;batchStaticBoxes(group);yield;batchBakedSurfaces(group);yield;
+  batchCeilingPanels(group);yield;batchStaticBoxes(group);yield;yield* batchBakedSurfaces(group);
   for(const child of group.children){child.position.x-=origin.x;child.position.z-=origin.z}group.position.set(origin.x,0,origin.z);
   group.userData.bake.clear();group.userData.bake=null;group.userData.lamps=null;group.userData.foldBake=null;group.visible=true;
  }
@@ -198,7 +208,7 @@ function createRenderChunk(rx,rz){
 const viewProbe=new THREE.PerspectiveCamera(76,1,.06,65),viewFrustum=new THREE.Frustum(),viewMatrix=new THREE.Matrix4(),viewBox=new THREE.Box3();
 viewProbe.rotation.order='YXZ';
 function currentView(){const menu=game.mode==='menu'&&!hasRun;return{x:menu?game.maze.doorX-12.5:game.player.x,z:menu?game.maze.doorZ-1.35:game.player.z,yaw:menu?-Math.PI/2+.14:-game.player.yaw,pitch:menu?-.025:game.player.pitch,aspect:innerWidth/Math.max(1,innerHeight)}}
-function selectViewRegions(view){
+function selectFrustumRegions(view){
  const signature=[view.x,view.z,view.yaw,view.pitch,view.aspect,game.foldState,hasRun,game.pendingFold?.x,game.pendingFold?.z].join(',');if(selectedViewCache?.signature===signature)return selectedViewCache;
  // Explicit support boundary instead of silently dropping visible tiles on an
  // arbitrarily wide window. Portrait mobile is already paused separately.
@@ -219,17 +229,42 @@ function selectViewRegions(view){
  points.sort((a,b)=>Number(b.required)-Number(a.required)||Math.hypot(a.x-cx,a.z-cz)-Math.hypot(b.x-cx,b.z-cz));
  const requiredCount=points.filter(p=>p.required).length;selectedViewCache={signature,points,requiredCount,overflow:requiredCount>49};return selectedViewCache;
 }
+// Opaque full-height maze walls hide most of the distant frustum. Prepare the
+// complete angular corridor visibility once per position, so yaw/pitch alone can
+// never turn an already-ready corridor into another blocking load. The old full
+// frustum remains the conservative fallback for unusual/ambiguous locations.
+function selectViewRegions(view){
+ if(!Number.isFinite(view.aspect)||view.aspect<=0||view.aspect>4)return selectFrustumRegions(view);
+ const signature=[view.x,view.z,view.aspect,game.foldState,hasRun,game.pendingFold?.x,game.pendingFold?.z].join(',');
+ if(corridorViewCache?.signature===signature)return corridorViewCache;
+ const reach=65*Math.sqrt(1+Math.tan(76*Math.PI/360)**2*(1+view.aspect**2));
+ const cells=visibleCorridorCells(game.world,view.x,view.z,reach);
+ if(!cells)return selectFrustumRegions(view);
+ const required=new Map(),cx=Math.floor(view.x/RENDER_METRES),cz=Math.floor(view.z/RENDER_METRES);
+ const add=(x,z)=>{const rx=Math.floor(x/RENDER_METRES),rz=Math.floor(z/RENDER_METRES);required.set(rx+','+rz,{x:rx,z:rz,required:true})};
+ // Include both owners of every visible boundary wall, also at negative seams.
+ for(const c of cells)for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++)add((c.x+dx+.5)*CELL,(c.z+dz+.5)*CELL);
+ for(const dx of [-.5,.5])for(const dz of [-.5,.5])add(view.x+dx,view.z+dz);
+ if(hasRun&&!game.changed){const[a,b]=game.activeFolds();for(const[from,to]of [[a,b],[b,a]])if(Math.hypot(game.player.x-from.px,game.player.z-from.pz)<8)for(const dx of [-2,2])for(const dz of [-.9,.9])add(to.px+dx,to.pz+dz);if(game.pendingFold)add(game.pendingFold.x,game.pendingFold.z)}
+ // Pathological open views keep the old, complete current-camera fallback;
+ // never discard a visible region merely to meet the memory budget.
+ if(required.size>49)return selectFrustumRegions(view);
+ const optional=new Map();for(const p of required.values())for(let dz=-1;dz<=1;dz++)for(let dx=-1;dx<=1;dx++){const x=p.x+dx,z=p.z+dz,key=x+','+z;if(!required.has(key))optional.set(key,{x,z,required:false})}
+ const distance=(a,b)=>Math.hypot(a.x-cx,a.z-cz)-Math.hypot(b.x-cx,b.z-cz);
+ const points=[...[...required.values()].sort(distance),...[...optional.values()].sort(distance)];
+ corridorViewCache={signature,points,requiredCount:required.size,overflow:false,corridor:true};return corridorViewCache;
+}
 function updateStreamView(){
  const wasLoading=worldLoading;
  if(game.changed){worldLoading=false;viewOverflow=false}
- else{const view=currentView(),selection=selectViewRegions(view);viewOverflow=selection.overflow;worldLoading=viewOverflow||!chunkStream.request(selection.points,view.x,view.z)||!chunkStream.requiredReady()}
+ else{const view=currentView(),selection=selectViewRegions(view);viewOverflow=selection.overflow;if(requestedSelection!==selection){requestedSelection=chunkStream.request(selection.points,view.x,view.z)?selection:null}worldLoading=viewOverflow||!requestedSelection||!chunkStream.requiredReady()}
  $('world-loading').hidden=!worldLoading;
  $('world-loading').textContent=viewOverflow?'视口过宽，请缩窄窗口后继续。':worldRendered?'正在准备新的视野，稍等片刻…':'正在生成后室，准备完整视野…';
  $('start').disabled=!graphicsReady||worldLoading;
  if(worldLoading&&!wasLoading){clearInput();gameAudio.resetTracking()}
 }
 function prepareStream(){
- chunkStream=new RenderChunkStream({create:createRenderChunk,dispose:disposeChunk});worldRendered=false;worldLoading=true;selectedViewCache=null;$('world').style.visibility='hidden';
+ chunkStream=new RenderChunkStream({create:createRenderChunk,dispose:disposeChunk});worldRendered=false;worldLoading=true;selectedViewCache=null;corridorViewCache=null;requestedSelection=null;$('world').style.visibility='hidden';
  // Local item visibility is deliberately separate from whole-view readiness.
  game.renderReady=(x,z)=>[-.22,.22].every(dx=>[-.22,.22].every(dz=>chunkStream.readyAt(x+dx,z+dz)));
  updateStreamView();

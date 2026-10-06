@@ -3,6 +3,7 @@
 export const BAKE=Object.freeze({radius:9,cellSize:5,samples:4,power:5.4,
  wallAmbient:.43,floorAmbient:.34,ceilingAmbient:.40,cacheLimit:24000,
  floorMin:.27,wallMin:.32,ceilingMin:.35,max:.86});
+const AREA_U=[-.38,.38],AREA_V=[-.065,.065];
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function hash(n){n=Math.imul(n^(n>>>16),0x7feb352d);n=Math.imul(n^(n>>>15),0x846ca68b);return((n^(n>>>16))>>>0)/4294967295}
 export function seededLamps(points,seed,height=3.6){
@@ -11,10 +12,13 @@ export function seededLamps(points,seed,height=3.6){
  });
 }
 export function segmentHitsBox(a,b,w,height=3.6){
- let lo=0,hi=1;
  const min=[w.x-w.w/2,w.ymin??0,w.z-w.d/2],max=[w.x+w.w/2,w.ymax??height,w.z+w.d/2];
+ return segmentHitsBounds(a,b,min,max);
+}
+function segmentHitsBounds(a,b,min,max){
+ let lo=0,hi=1;
  for(let i=0;i<3;i++){const d=b[i]-a[i];if(Math.abs(d)<1e-9){if(a[i]<min[i]||a[i]>max[i])return false;continue}
-  let near=(min[i]-a[i])/d,far=(max[i]-a[i])/d;if(near>far)[near,far]=[far,near];lo=Math.max(lo,near);hi=Math.min(hi,far);if(lo>hi)return false;
+  let near=(min[i]-a[i])/d,far=(max[i]-a[i])/d;if(near>far){const swap=near;near=far;far=swap}lo=Math.max(lo,near);hi=Math.min(hi,far);if(lo>hi)return false;
  }
  return hi>1e-4&&lo<.9999;
 }
@@ -24,7 +28,13 @@ export function contactFactor(p,n,walls,height=3.6){
  for(const w of walls){
   // Ignore the sample's own coplanar wall. Perpendicular returns still form corners.
   const perpendicular=Math.abs(n[1])>.8||(w.w<w.d?Math.abs(n[0])<.5:Math.abs(n[2])<.5);
-  if(perpendicular&&p[1]>=(w.ymin??0)-.03&&p[1]<=(w.ymax??height)+.03)near=Math.min(near,wallDistance(p[0],p[2],w));
+  if(perpendicular&&p[1]>=(w.ymin??0)-.03&&p[1]<=(w.ymax??height)+.03){
+   const dx=Math.max(0,Math.abs(p[0]-w.x)-w.w/2),dz=Math.max(0,Math.abs(p[2]-w.z)-w.d/2);
+   // Axis distances are lower bounds. Only evaluate hypot when this wall could
+   // improve the exact nearest distance; zero is already the global minimum.
+   if(dx>near||dz>near)continue;
+   near=Math.min(near,Math.hypot(dx,dz));if(near===0)break;
+  }
  }
  const ceiling=n[1]<-.8;
  let shade=(ceiling?.08:.20)*Math.exp(-near/.40);
@@ -33,47 +43,58 @@ export function contactFactor(p,n,walls,height=3.6){
 }
 export function doorSurroundFactor(p,door){return door?1-.07*Math.exp(-((p[0]-door.x)**2/3.5+(p[2]-door.z)**2/3.5)):1}
 export function createLightBake(lamps,walls=[],height=3.6,door=null){
+ // Build-only bounds are shared by every bin/ray, then released by clear().
+ let boundedWalls;
  const cache=new Map(),bins=new Map(),stats={samples:0,cacheHits:0,rays:0,boxTests:0,cacheEntries:0};
- function bin(x,z){const ix=Math.floor(x/BAKE.cellSize),iz=Math.floor(z/BAKE.cellSize),key=ix+','+iz;if(bins.has(key))return bins.get(key);
+ let lastX,lastZ,lastBin;
+ function bin(x,z){const ix=Math.floor(x/BAKE.cellSize),iz=Math.floor(z/BAKE.cellSize);
+  if(ix===lastX&&iz===lastZ)return lastBin;
+  const key=ix+','+iz,cached=bins.get(key);lastX=ix;lastZ=iz;if(cached)return lastBin=cached;
   const cx=(ix+.5)*BAKE.cellSize,cz=(iz+.5)*BAKE.cellSize;
   const nearby=lamps.filter(l=>Math.abs(l.x-cx)<=BAKE.radius+2.5&&Math.abs(l.z-cz)<=BAKE.radius+2.5);
-  const blockers=walls.filter(w=>wallDistance(cx,cz,w)<=BAKE.radius+4);
-  const value={nearby,blockers};bins.set(key,value);return value;
+  boundedWalls??=walls.map(w=>({x:w.x,z:w.z,w:w.w,d:w.d,ymin:w.ymin,ymax:w.ymax,min:[w.x-w.w/2,w.ymin??0,w.z-w.d/2],max:[w.x+w.w/2,w.ymax??height,w.z+w.d/2]}));
+  const blockers=boundedWalls.filter(w=>wallDistance(cx,cz,w)<=BAKE.radius+4);
+  const value={nearby,blockers};bins.set(key,value);return lastBin=value;
  }
- function blocked(a,b,candidates){stats.rays++;for(const w of candidates){
+ function blocked(a,b,candidates){stats.rays++;
+  const minX=Math.min(a[0],b[0]),maxX=Math.max(a[0],b[0]),minZ=Math.min(a[2],b[2]),maxZ=Math.max(a[2],b[2]);
+  for(const w of candidates){
   // Cheap XZ rejection before the three-dimensional slab test.
-  if(w.x+w.w/2<Math.min(a[0],b[0])||w.x-w.w/2>Math.max(a[0],b[0])||w.z+w.d/2<Math.min(a[2],b[2])||w.z-w.d/2>Math.max(a[2],b[2]))continue;
-  stats.boxTests++;if(segmentHitsBox(a,b,w,height))return true;
+  if(w.max[0]<minX||w.min[0]>maxX||w.max[2]<minZ||w.min[2]>maxZ)continue;
+  stats.boxTests++;if(segmentHitsBounds(a,b,w.min,w.max))return true;
  }return false}
  function sample(p,n){
-  const key=p.map(v=>Math.round(v*10000)).join(',')+'|'+n.join(',');if(cache.has(key)){stats.cacheHits++;return cache.get(key)}stats.samples++;
+  const key=Math.round(p[0]*10000)+','+Math.round(p[1]*10000)+','+Math.round(p[2]*10000)+'|'+n[0]+','+n[1]+','+n[2],cached=cache.get(key);if(cached){stats.cacheHits++;return cached}stats.samples++;
   const {nearby,blockers}=bin(p[0],p[2]),ceiling=n[1]<-.8,floor=n[1]>.8;
   const ambient=ceiling?BAKE.ceilingAmbient:floor?BAKE.floorAmbient:BAKE.wallAmbient;
-  const direct=[0,0,0],origin=p.map((v,i)=>v+n[i]*.018);
+  let red=0,green=0,blue=0;
+  const origin=[p[0]+n[0]*.018,p[1]+n[1]*.018,p[2]+n[2]*.018],source=[0,0,0];
+  if(ceiling)origin[1]=height-.18;
   for(const lamp of nearby){const horizontal=(lamp.x-p[0])**2+(lamp.z-p[2])**2;if(horizontal>=BAKE.radius**2)continue;
    if(ceiling){
     // Approximate reflected ceiling fill. The emitting underside cannot directly
     // illuminate the ceiling above itself. Test walls at the source's height.
-    const a=[origin[0],height-.18,origin[2]],b=[lamp.x,height-.18,lamp.z];
-    if(blocked(a,b,blockers))continue;
+    source[0]=lamp.x;source[1]=height-.18;source[2]=lamp.z;
+    if(blocked(origin,source,blockers))continue;
     const bounce=.15*Math.exp(-horizontal/5)*lamp.intensity;
-    for(let c=0;c<3;c++)direct[c]+=bounce*(.5+.5*lamp.color[c]);
+    red+=bounce*(.5+.5*lamp.color[0]);green+=bounce*(.5+.5*lamp.color[1]);blue+=bounce*(.5+.5*lamp.color[2]);
     continue;
    }
    // Four fixed area samples soften occlusion transitions without dynamic shadows.
-   for(const u of [-.38,.38])for(const v of [-.065,.065]){
-    const source=[lamp.x+u,lamp.y,lamp.z+v],dx=source[0]-origin[0],dy=source[1]-origin[1],dz=source[2]-origin[2],r2=dx*dx+dy*dy+dz*dz,r=Math.sqrt(r2);
+   const fade=Math.max(0,1-horizontal/(BAKE.radius**2)),attenuation=Math.exp(-horizontal/24),power=BAKE.power*lamp.intensity;
+   for(const u of AREA_U)for(const v of AREA_V){
+    source[0]=lamp.x+u;source[1]=lamp.y;source[2]=lamp.z+v;
+    const dx=source[0]-origin[0],dy=source[1]-origin[1],dz=source[2]-origin[2],r2=dx*dx+dy*dy+dz*dz,r=Math.sqrt(r2);
     const incident=Math.max(0,(dx*n[0]+dy*n[1]+dz*n[2])/r),emitted=Math.max(0,dy/r);
     if(!incident||!emitted||blocked(origin,source,blockers))continue;
-    const fade=Math.max(0,1-horizontal/(BAKE.radius**2));
-    const energy=BAKE.power*lamp.intensity*incident*emitted/Math.max(2.2,r2)*Math.exp(-horizontal/24)*fade*fade/BAKE.samples;
-    for(let c=0;c<3;c++)direct[c]+=energy*lamp.color[c];
+    const energy=power*incident*emitted/Math.max(2.2,r2)*attenuation*fade*fade/BAKE.samples;
+    red+=energy*lamp.color[0];green+=energy*lamp.color[1];blue+=energy*lamp.color[2];
    }
   }
   const ao=contactFactor(p,n,blockers,height),surround=doorSurroundFactor(p,door);
   const min=ceiling?BAKE.ceilingMin:floor?BAKE.floorMin:BAKE.wallMin;
-  const rgb=Object.freeze(direct.map(d=>clamp((ambient+(ceiling?Math.min(.16,d):d))*ao*surround,min,ceiling?.58:BAKE.max)));
+  const rgb=Object.freeze([red,green,blue].map(d=>clamp((ambient+(ceiling?Math.min(.16,d):d))*ao*surround,min,ceiling?.58:BAKE.max)));
   if(cache.size<BAKE.cacheLimit){cache.set(key,rgb);stats.cacheEntries=cache.size}return rgb;
  }
- return {sample,stats,clear(){cache.clear();bins.clear();stats.cacheEntries=0}};
+ return {sample,stats,clear(){cache.clear();bins.clear();lastX=lastZ=lastBin=boundedWalls=undefined;stats.cacheEntries=0}};
 }

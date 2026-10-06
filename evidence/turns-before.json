@@ -1,0 +1,48 @@
+{
+  "label": "v1.6.1",
+  "seed": 42,
+  "width": 844,
+  "height": 390,
+  "cases": [
+    {
+      "x": 27.5,
+      "z": 27.5,
+      "turns": 4,
+      "checks": 128,
+      "blockingLoads": 57,
+      "newRegions": 441,
+      "requiredRegionUnion": 97,
+      "peakResident": 49
+    },
+    {
+      "x": 37.5,
+      "z": 42.5,
+      "turns": 4,
+      "checks": 128,
+      "blockingLoads": 59,
+      "newRegions": 454,
+      "requiredRegionUnion": 102,
+      "peakResident": 49
+    },
+    {
+      "x": 57.5,
+      "z": 37.5,
+      "turns": 4,
+      "checks": 128,
+      "blockingLoads": 58,
+      "newRegions": 422,
+      "requiredRegionUnion": 98,
+      "peakResident": 49
+    },
+    {
+      "x": 10002.5,
+      "z": -10002.5,
+      "turns": 4,
+      "checks": 128,
+      "blockingLoads": 58,
+      "newRegions": 460,
+      "requiredRegionUnion": 99,
+      "peakResident": 49
+    }
+  ]
+}

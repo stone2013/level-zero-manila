@@ -1,0 +1,26 @@
+[
+  {
+    "x": 0,
+    "z": 0,
+    "meshes": 7,
+    "hash": "fe66b864b681848eac7b6068ee344df32bc5dcb43913f71e3ef4a9415a43ab7d"
+  },
+  {
+    "x": 2,
+    "z": -1,
+    "meshes": 7,
+    "hash": "b9917a9263f27a04e2c56c3ea9e89aa041d859c79aa0f9a1ce5314a6e5cab11c"
+  },
+  {
+    "x": -3,
+    "z": 4,
+    "meshes": 7,
+    "hash": "4103b7cb13231ad2dc5d0f86f8914fb42497cada16720cf19214c95b13d83247"
+  },
+  {
+    "x": 285,
+    "z": -286,
+    "meshes": 7,
+    "hash": "bf968b7226c50f85f8d81721b9590f919f69170c49f75d2600324c53092cd771"
+  }
+]

@@ -36,7 +36,7 @@ test('initial buffer size waits for the first complete world presentation',()=>{
 test('cold real-geometry resize keeps the previous buffer until a complete resized view renders',()=>{
  const app=boot();app.frame(100);recordRendererCalls(app);freezeBuilds(app);
  const prior=read(app,'({width:renderer.width,height:renderer.height,ratio:renderer.ratio})');
- app.rotate(1600,400);app.eval('updateStreamView()');
+ app.rotate(1600,400);app.eval('game.player.x+=700;game.player.z-=700;hasRun=true;updateStreamView()');
  assert.equal(app.eval('camera.aspect'),4);assert.equal(app.eval('worldLoading'),true);
  assert(app.eval('chunkStream.stats().pending')>0);assert.equal(app.eval('worldRendered'),true);
  app.frame(116);

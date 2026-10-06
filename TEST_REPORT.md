@@ -1,3 +1,15 @@
+# v1.6.2 generation performance verification
+
+Candidate date: 2026-10-06. Full aggregate: 216/216 tests passed with `npm test`.
+
+The turn-stall regression is covered by complete 360° readiness, continuous touch-look with held movement, bounded background prewarming and required-first scheduling. Pure portal visibility is independently checked against maze-grid rays and physical wall-box intersections. Final region geometry and Float64 light outputs are unchanged, with saved baseline snapshots. All existing gameplay, device, door, audio, pause, PWA and resize checks remain included.
+
+See GENERATION_PERFORMANCE_REPORT.md for the exact before/after workload, measurements and limitations. Cloud CPU results are not phone FPS. No actual GPU/browser rendering or physical iPhone audio test is claimed. Publication status is tracked separately in the release record.
+
+The historical reports below describe their original releases.
+
+---
+
 # 测试报告
 
 日期：2026-10-06。当前版本：1.3.5；下方保留各版本测试记录。
