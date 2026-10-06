@@ -17,6 +17,34 @@ function boot(options={}){
 test('app boots and follows menu / pause / continue / settings / restart with a mocked DOM and GPU',()=>{const app=boot();assert.equal(app.element('error').hidden,true);
 assert.equal(app.eval('game.mode'),'menu');app.frame(100);assert.equal(app.getRender().camera.position.x,22.5);assert.equal(app.eval('hasRun'),false);app.element('start').onclick();assert.equal(app.eval('game.mode'),'playing');assert.equal(app.eval('game.maze.seed'),42);app.element('pause').onclick();assert.equal(app.eval('game.mode'),'paused');app.element('main-menu').onclick();assert.equal(app.eval('game.mode'),'menu');assert.equal(app.element('continue').disabled,false);app.element('continue').onclick();assert.equal(app.eval('game.mode'),'playing');app.element('sound-toggle').onclick();assert.equal(app.eval('soundEnabled'),false);app.element('quality-toggle').onclick();assert.equal(app.eval('renderScale'),.75);app.element('restart').onclick();assert.equal(app.eval('game.items.length'),6);assert.equal(app.eval('game.inventory("food").length'),4);app.frame(200);assert.equal(app.eval('renderer.shadowMap.enabled'),false);assert.equal(app.eval('renderer.shadowMap.autoUpdate'),false)});
 test('lighting stays bounded, instancing retains static geometry, and resolution budget is enforced',()=>{const app=boot();app.frame(100);const{scene}=app.getRender();let lights=0,points=0,instanced=0,instances=0;scene.traverse(o=>{if(o.isLight)lights++;if(o.isPointLight)points++;if(o.isInstancedMesh){instanced++;instances+=o.count}});assert.equal(lights,2);assert.equal(points,0);assert(instanced>=6);assert(instances>900);for(const[w,h,dpr,coarse]of [[390,844,3,true],[1366,1024,2,true],[3840,2160,2,false]]){const r=app.eval(`pixelRatio(${w},${h},${dpr},${coarse})`);assert(w*h*r*r<=(coarse?1100000:2000000)+.01);assert(r<=(coarse?1.35:1.6))}});
+test('fluorescent fill lifts downward ceiling illumination without adding lights or emissive surfaces',()=>{
+ const app=boot();app.frame(100);const {scene}=app.getRender();const hemi=scene.children.find(o=>o.isHemisphereLight),directional=scene.children.find(o=>o.isDirectionalLight);
+ assert.equal(hemi.intensity,1.45);assert.equal(hemi.color.getHex(),0xf5efcf);assert.equal(hemi.groundColor.getHex(),0xa59b72);assert.equal(directional.intensity,.7);assert.equal(app.eval('renderer.toneMappingExposure'),1.08);
+ const luminance=c=>.2126*c.r+.7152*c.g+.0722*c.b;
+ assert(luminance(hemi.groundColor)*hemi.intensity>8*luminance(new THREE.Color(0x393422))*.92);
+ assert(luminance(hemi.color)/luminance(hemi.groundColor)<3);
+ assert.equal(app.eval('mat.ceiling.emissive.getHex()'),0);assert.equal(app.eval('mat.wall.emissive.getHex()'),0);assert.equal(scene.fog.near,14);assert.equal(scene.fog.far,44);
+});
+test('raised physical ceilings align maze, room, exit, fixtures, trim and door lintel',()=>{
+ const app=boot();app.frame(100);const H=app.eval('ROOM_HEIGHT'),mat=app.eval('mat');assert.equal(H,3.6);
+ const matrix=new THREE.Matrix4(),pos=new THREE.Vector3(),quat=new THREE.Quaternion(),scale=new THREE.Vector3();
+ function instances(group,material){const result=[];for(const mesh of group.children.filter(o=>o.material===material)){if(mesh.isInstancedMesh){for(let i=0;i<mesh.count;i++){mesh.getMatrixAt(i,matrix);matrix.decompose(pos,quat,scale);result.push({y:pos.y,h:scale.y})}}else result.push({y:mesh.position.y,h:mesh.scale.y})}return result}
+ for(const group of [app.eval('mazeGroup'),app.eval('roomGroup')]){
+  for(const mesh of group.children.filter(o=>o.material===mat.ceiling)){assert(mesh.isInstancedMesh);mesh.getMatrixAt(0,matrix);matrix.decompose(pos,quat,scale);assert(Math.abs(pos.y-(H-.003))<1e-6)}
+  const backing=instances(group,mat.ceilingGrid);assert(backing.length);for(const b of backing)assert(Math.abs(b.y-b.h/2-H)<1e-6);
+  const fixtures=instances(group,mat.housing);assert(fixtures.length);for(const f of fixtures){assert(Math.abs(f.y-(H-.07))<1e-6);assert(f.y+f.h/2<H-.003)}
+  for(const t of instances(group,mat.trim))assert(Math.abs(t.y-t.h/2)<1e-6||Math.abs(t.y+t.h/2-H)<1e-6);
+ }
+ for(const wall of app.eval('mazeGroup').children.filter(o=>o.material===mat.wall)){wall.geometry.computeBoundingBox();assert(Math.abs(wall.geometry.boundingBox.min.y+wall.position.y)<1e-6);assert(Math.abs(wall.geometry.boundingBox.max.y+wall.position.y-H)<1e-6)}
+ const roomBoxes=instances(app.eval('roomGroup'),mat.room),lintel=roomBoxes.find(b=>Math.abs(b.h-(H-2.66))<1e-6);assert(lintel);assert(Math.abs(lintel.y-lintel.h/2-2.66)<1e-6);assert(Math.abs(lintel.y+lintel.h/2-H)<1e-6);
+ const exitBoxes=instances(app.eval('exitGroup'),mat.exit);assert.equal(exitBoxes.filter(b=>Math.abs(b.h-H)<1e-6).length,2);assert(exitBoxes.some(b=>Math.abs(b.y-b.h/2-H)<1e-6));
+ const leaf=app.eval('doorPivot').children.find(o=>o.material===mat.wood);assert.equal(leaf.scale.y,2.56);assert(leaf.position.y+leaf.scale.y/2<2.66);
+});
+test('height change preserves natural menu and gameplay eye height and field of view',()=>{
+ const app=boot();app.frame(100);assert.equal(app.getRender().camera.position.y,1.63);assert.equal(app.getRender().camera.fov,76);
+ app.element('start').onclick();app.frame(200);assert.equal(app.getRender().camera.position.y,1.63);assert.equal(app.getRender().camera.fov,76);assert(app.eval('ROOM_HEIGHT-EYE_HEIGHT')>1.9);
+ app.element('pause').onclick();app.frame(300);assert.equal(app.getRender().camera.position.y,1.63);
+});
 test('separate touch pointers stop on cancellation and blur in mocked event dispatch',()=>{const app=boot();app.element('start').onclick();const event=(id,x,y)=>({pointerId:id,clientX:x,clientY:y,preventDefault(){}});app.listeners['stick:pointerdown'][0](event(11,100,420));assert.notEqual(app.eval('input.forward'),0);app.listeners['look:pointerdown'][0](event(22,220,380));app.listeners['look:pointermove'][0](event(22,230,380));assert(app.eval('game.player.yaw')>0);app.listeners['stick:pointercancel'][0](event(11,100,420));assert.equal(app.eval('input.forward'),0);app.listeners['window:blur'][0]();assert.equal(app.eval('game.mode'),'paused');assert.equal(app.eval('touch.look'),null);assert.equal(app.eval('touch.move'),null)});
 
 const pointer=(id,x=100,y=220)=>({pointerId:id,clientX:x,clientY:y,preventDefault(){}});
