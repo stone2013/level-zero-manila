@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Level 0 doorway</title>
+  <desc id="desc">A dark doorway in a mustard-yellow room, beneath a single fluorescent light.</desc>
+  <defs>
+    <linearGradient id="ceiling" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#7b7347"/><stop offset="1" stop-color="#afa164"/></linearGradient>
+    <linearGradient id="left" x1="0" y1="0" x2="1" y2=".3"><stop stop-color="#95813e"/><stop offset="1" stop-color="#c2a64c"/></linearGradient>
+    <linearGradient id="right" x1="0" y1="0" x2="1" y2=".5"><stop stop-color="#d5bc62"/><stop offset="1" stop-color="#a88e43"/></linearGradient>
+    <radialGradient id="back" cx=".54" cy=".05" r="1"><stop stop-color="#e4cc78"/><stop offset=".65" stop-color="#c4aa54"/><stop offset="1" stop-color="#a38a3e"/></radialGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8e7840"/><stop offset="1" stop-color="#645732"/></linearGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a78c43"/><stop offset="1" stop-color="#665c32"/></linearGradient>
+    <linearGradient id="opening" x1="0" y1="0" x2=".6" y2="1"><stop stop-color="#1b2117"/><stop offset=".68" stop-color="#11170f"/><stop offset="1" stop-color="#262919"/></linearGradient>
+    <linearGradient id="door" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#383c24"/><stop offset="1" stop-color="#252c1d"/></linearGradient>
+    <linearGradient id="spill" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#e1c574" stop-opacity=".32"/><stop offset="1" stop-color="#e1c574" stop-opacity="0"/></linearGradient>
+    <radialGradient id="shade"><stop offset=".5" stop-color="#2e301d" stop-opacity="0"/><stop offset="1" stop-color="#2e301d" stop-opacity=".26"/></radialGradient>
+    <filter id="glow" x="-.7" y="-4" width="2.4" height="9"><feGaussianBlur stdDeviation="9"/></filter>
+    <clipPath id="back-wall"><path d="M145 117H367V385H145Z"/></clipPath>
+  </defs>
+  <!-- Full-bleed architecture. No baked-in rounded corners; the launcher owns the mask. -->
+  <path fill="url(#ceiling)" d="M0 0H512L367 117H145Z"/>
+  <path fill="url(#left)" d="M0 0 145 117V385L0 512Z"/>
+  <path fill="url(#right)" d="M512 0 367 117V385L512 512Z"/>
+  <path fill="url(#back)" d="M145 117H367V385H145Z"/>
+  <path fill="url(#floor)" d="M0 512 145 385H367L512 512Z"/>
+  <!-- Restrained wallpaper rhythm, deliberately subordinate to the doorway. -->
+  <g clip-path="url(#back-wall)" fill="none" stroke="#7d753d" stroke-width="1.2" opacity=".13">
+    <path d="m153 123 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7"/>
+    <path d="m341 123 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7m-18 20 9 7 9-7"/>
+  </g>
+  <path d="M0 12 145 124H367L512 12" fill="none" stroke="#eee1a3" stroke-opacity=".12" stroke-width="2"/>
+  <path d="M145 124V382M367 124V382" fill="none" stroke="#806e39" stroke-opacity=".4" stroke-width="2"/>
+  <path d="m0 496 145-118H367l145 118" fill="none" stroke="#5c542f" stroke-width="9"/>
+  <path d="m0 491 145-115H367l145 115" fill="none" stroke="#d3b667" stroke-opacity=".45" stroke-width="2"/>
+  <path d="M189 389H324L399 512H109Z" fill="url(#spill)"/>
+  <!-- Central silhouette stays inside the circular 80% maskable safe area. -->
+  <path fill="#685d32" fill-opacity=".33" d="M176 172H344V393H176Z"/>
+  <path fill="url(#frame)" d="M175 166H337V389H175Z"/>
+  <path fill="#eed58c" fill-opacity=".75" d="M175 166H337V170H179V389H175Z"/>
+  <path fill="#766531" d="M180 172H332V389H180Z"/>
+  <path fill="url(#opening)" d="M187 177H325V383H187Z"/>
+  <path fill="#0c130d" d="M187 177H325V185H195V383H187Z"/>
+  <!-- A barely-open wooden leaf preserves the old icon's door motif. -->
+  <path fill="url(#door)" d="M195 184 261 195V373L195 381Z"/>
+  <path fill="#687045" fill-opacity=".5" d="m195 184 3 .5V380.6l-3 .4Z"/>
+  <path fill="#11190f" d="m261 195 3-1V374l-3-1Z"/>
+  <path fill="#d8ba6a" d="M249 283h6v5h-6z"/>
+  <path fill="#807347" d="M187 383H325L333 389H179Z"/>
+  <path fill="#dbc47b" fill-opacity=".58" d="M187 383H325V385H187Z"/>
+  <!-- One quiet fluorescent tube; no typography or secondary badge. -->
+  <path fill="#fff4b6" filter="url(#glow)" opacity=".8" d="M210 137H302V146H210Z"/>
+  <path fill="#7b764a" d="M204 134H308V150H204Z"/>
+  <path fill="#efe6b0" d="M208 136H304V145H208Z"/>
+  <path fill="#fff8d4" d="M212 137H300V141H212Z"/>
+  <path fill="#aaa060" d="M208 145H304V148H208Z"/>
+  <path fill="url(#shade)" d="M0 0H512V512H0Z"/>
+</svg>

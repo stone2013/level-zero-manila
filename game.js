@@ -1,4 +1,5 @@
 import {ChunkWorld} from './world.js';
+import {resetEscape,updateEscape,escapeForced,escapeFrozen,retryEscape} from './escape.js';
 // Pure simulation: metres, +x east, +z south, yaw 0 faces north.
 export const CELL=5,SIZE=11,RADIUS=.22;
 export const PHONE_DRAIN_PER_SECOND=100/480,PHONE_CHARGE_PER_SECOND=100/40;
@@ -29,7 +30,7 @@ export function makeMaze(seed,attempt=0){
 }
 export class Game{
 constructor(seed=1){this.reset(seed)}
-reset(seed){this.maze=makeMaze(seed);this.player={x:SIZE*CELL/2,z:SIZE*CELL/2,yaw:0,pitch:0};this.mode='menu';this.inventoryOpen=false;this.phoneOpenId=null;this.chargingPhoneId=null;this.elapsed=0;this.food=100;this.hydration=100;this.door=0;this.doorTarget=0;this.changed=false;this.entered=false;this.loops=0;this.foldState=0;this.foldPending=false;this.approach=0;this.noteRead=false;this.exitAnnounced=false;this.events=[];this.items=Array.from({length:4},(_,i)=>({id:`food-${i+1}`,kind:'food',state:'inventory',gridX:i%4,gridY:Math.floor(i/4),x:0,y:.005,z:0,placement:'ground',area:'maze'}));this.items.push(...Array.from({length:2},(_,i)=>({id:`water-${i+1}`,kind:'water',state:'world',gridX:null,gridY:null,x:this.maze.doorX+4.25,y:.68,z:this.maze.doorZ-.8+i*.5,placement:'table',area:'room'})));this.items.push({id:'phone-1',kind:'phone',battery:100,state:'inventory',gridX:0,gridY:1,x:0,y:.005,z:0,placement:'ground',area:'maze'});this.obstacles=[{x:this.maze.doorX+4.4,z:this.maze.doorZ+.5,w:.8,d:2.7}];this.roomWalls=[];const add=(x,z,w,d)=>this.roomWalls.push({x,z,w,d});const dx=this.maze.doorX,dz=this.maze.doorZ;add(dx,dz-1.7,.16,1.6);add(dx,dz+1.7,.16,1.6);add(dx+3,dz-2.5,6,.16);add(dx+3,dz+2.5,6,.16);add(dx+6,dz,.16,5);this.world=new ChunkWorld(seed,this.maze);this.walls=[...this.world.wallsInRect(0,0,SIZE-1,SIZE-1),...this.roomWalls];this.renderReady=null;this.pendingFold=null;return this}
+reset(seed){this.maze=makeMaze(seed);this.player={x:SIZE*CELL/2,z:SIZE*CELL/2,yaw:0,pitch:0};this.mode='menu';this.inventoryOpen=false;this.phoneOpenId=null;this.chargingPhoneId=null;this.elapsed=0;this.food=100;this.hydration=100;this.door=0;this.doorTarget=0;this.changed=false;this.entered=false;this.loops=0;this.foldState=0;this.foldPending=false;this.approach=0;this.noteRead=false;this.exitAnnounced=false;this.events=[];this.items=Array.from({length:4},(_,i)=>({id:`food-${i+1}`,kind:'food',state:'inventory',gridX:i%4,gridY:Math.floor(i/4),x:0,y:.005,z:0,placement:'ground',area:'maze'}));this.items.push(...Array.from({length:2},(_,i)=>({id:`water-${i+1}`,kind:'water',state:'world',gridX:null,gridY:null,x:this.maze.doorX+4.25,y:.68,z:this.maze.doorZ-.8+i*.5,placement:'table',area:'room'})));this.items.push({id:'phone-1',kind:'phone',battery:100,state:'inventory',gridX:0,gridY:1,x:0,y:.005,z:0,placement:'ground',area:'maze'});this.obstacles=[{x:this.maze.doorX+4.4,z:this.maze.doorZ+.5,w:.8,d:2.7}];this.roomWalls=[];const add=(x,z,w,d)=>this.roomWalls.push({x,z,w,d});const dx=this.maze.doorX,dz=this.maze.doorZ;add(dx,dz-1.7,.16,1.6);add(dx,dz+1.7,.16,1.6);add(dx+3,dz-2.5,6,.16);add(dx+3,dz+2.5,6,.16);add(dx+6,dz,.16,5);this.world=new ChunkWorld(seed,this.maze);this.walls=[...this.world.wallsInRect(0,0,SIZE-1,SIZE-1),...this.roomWalls];this.renderReady=null;this.pendingFold=null;this.escape=resetEscape();this.escapeViewReady=null;this.foundManila=false;return this}
 start(){this.mode='playing';this.events.push('你带了食物和一部手机，却忘了水。打开背包，可以查看资料或放下路标。')}
 roomContains(x,z){const m=this.maze;return x>m.doorX&&x<m.doorX+6&&Math.abs(z-m.doorZ)<2.5}
 inRoom(x=this.player.x,z=this.player.z){return this.roomContains(x,z)&&x>this.maze.doorX+RADIUS+.1}
@@ -67,7 +68,7 @@ arrangeInventory(){
  }
  for(const {item,x,y} of plan){item.gridX=x;item.gridY=y}return true;
 }
-openInventory(){if(this.mode!=='playing'||this.phoneOpenId)return false;this.inventoryOpen=true;return true}
+openInventory(){if(this.mode!=='playing'||this.phoneOpenId||escapeFrozen(this))return false;this.inventoryOpen=true;return true}
 closeInventory(){const wasOpen=this.inventoryOpen;this.closePhone();this.inventoryOpen=false;return wasOpen}
 
 // Device time is intentionally separate from survival time: reading and the
@@ -97,11 +98,11 @@ updateDevices(dt,active=true){
 }
 
 
-collides(x,z){
- const m=this.maze,r=RADIUS;if(!Number.isFinite(x)||!Number.isFinite(z))return true;
+collides(x,z,{radius=RADIUS,ignoreRender=false}={}){
+ const m=this.maze,r=radius;if(!Number.isFinite(x)||!Number.isFinite(z))return true;
  if(this.changed){if(x<m.doorX){if(x<m.doorX-9.5||Math.abs(z-m.doorZ)>1.2-r)return true;return this.doorCollision(x,z)}if(x>m.doorX+6-r||Math.abs(z-m.doorZ)>2.5-r)return true}
  const roomEnvelope=x>=m.doorX-r&&x<=m.doorX+6+r&&Math.abs(z-m.doorZ)<=2.5+r;
- if(!this.changed&&!roomEnvelope){if(this.renderReady&&!this.renderReady(x,z))return true;if(!this.world.cell(Math.floor(x/CELL),Math.floor(z/CELL)).active)return true}
+ if(!this.changed&&!roomEnvelope){if(!ignoreRender&&this.renderReady&&!this.renderReady(x,z))return true;if(!this.world.cell(Math.floor(x/CELL),Math.floor(z/CELL)).active)return true}
  const walls=this.changed?this.roomWalls:[...this.world.wallsNear(x,z,r+.09),...this.walls];
  if([...walls,...this.obstacles].some(w=>Math.abs(x-w.x)<w.w/2+r&&Math.abs(z-w.z)<w.d/2+r))return true;
  return this.doorCollision(x,z);
@@ -112,7 +113,7 @@ const a=this.door*Math.PI/2,dx=x-m.doorX,dz=z-(m.doorZ-.8),lx=Math.cos(a)*dx-Mat
 // Position, residual movement, yaw and pitch use the same frame; items never move.
 activeFolds(){const f=this.maze.folds;return this.foldState===0?[f[0],f[1]]:[f[0],f[2]]}
 tryFold(oldX,oldZ){
- if(this.changed)return false;
+ if(this.changed||this.escape.layout)return false;
  const p=this.player,[a,b]=this.activeFolds();
  for(const [from,to] of [[a,b],[b,a]]){
   if(!((oldX<from.px&&p.x>=from.px)||(oldX>from.px&&p.x<=from.px)))continue;
@@ -136,7 +137,24 @@ settleFold(){
  this.foldState=1;this.foldPending=false;this.events.push('身后传来一声很轻的灯管响。');
 }
 move(dx,dz){if(this.inventoryOpen||this.phoneOpenId)return;if(this.pendingFold&&(!this.renderReady||this.renderReady(this.pendingFold.x,this.pendingFold.z)))this.pendingFold=null;const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.09));for(let k=0;k<steps;k++){const p=this.player,oldX=p.x,oldZ=p.z;const x=p.x+dx/steps,z=p.z+dz/steps;if(!this.collides(x,p.z))p.x=x;if(!this.collides(p.x,z))p.z=z;this.tryFold(oldX,oldZ);this.settleFold();this.validateCharger();if(this.changed&&p.x<this.maze.doorX-8.3){this.mode='won';this.events.push('exit');break}}}
-update(dt,input={}){if(this.mode!=='playing'||this.inventoryOpen||this.phoneOpenId)return;dt=Math.min(.05,Math.max(0,dt));this.elapsed+=dt;const speed=input.sprint&&this.hydration>15?3.25:2.05;let f=input.forward||0,s=input.strafe||0,n=Math.max(1,Math.hypot(f,s));f/=n;s/=n;this.move((Math.sin(this.player.yaw)*f+Math.cos(this.player.yaw)*s)*speed*dt,(-Math.cos(this.player.yaw)*f+Math.sin(this.player.yaw)*s)*speed*dt);if(this.mode!=='playing')return;this.food=Math.max(0,this.food-dt*(input.sprint?.026:.014));this.hydration=Math.max(0,this.hydration-dt*(input.sprint?.07:.035));if(this.hydration<=0||this.food<=0){this.mode='lost';this.events.push('lost');return}if(this.inRoom()&&!this.entered){this.entered=true;this.events.push('木门外，传来很轻的脚步声。先把门关好。')}if(this.entered&&!this.changed)this.approach+=dt;if(this.door!==this.doorTarget){const old=this.door;let proposed=this.door+Math.sign(this.doorTarget-this.door)*dt*1.5;this.door=Math.max(0,Math.min(1,proposed));if(this.doorCollision(this.player.x,this.player.z)){const closing=this.doorTarget===0;this.door=old;this.doorTarget=closing?1:0;this.events.push(closing?'你挡住了门。再往房间里走一点。':'门被你挡住了。退开一点再试。')}}if(this.entered&&!this.changed&&this.door===0&&this.doorTarget===0&&this.inRoom()){this.changed=true;this.events.push('门完全关上了。脚步声消失。')} }
+update(dt,input={}){
+ if(this.mode!=='playing'||this.inventoryOpen||this.phoneOpenId||!Number.isFinite(dt)||dt<=0)return;
+ dt=Math.min(.05,dt);this.elapsed+=dt;if(!this.foundManila&&Math.hypot(this.player.x-this.maze.doorX,this.player.z-this.maze.doorZ)<6&&this.lineClear(this.maze.doorX-.4,this.maze.doorZ))this.foundManila=true;updateEscape(this,dt);
+ if(this.mode!=='playing'||escapeFrozen(this))return;
+ const forced=escapeForced(this),moving=Math.hypot(input.forward||0,input.strafe||0)>0;
+ const sprint=forced?moving:!!input.sprint,speed=forced?3.25*1.5:input.sprint&&this.hydration>15?3.25:2.05;
+ let f=input.forward||0,s=input.strafe||0,n=Math.max(1,Math.hypot(f,s));f/=n;s/=n;
+ this.move((Math.sin(this.player.yaw)*f+Math.cos(this.player.yaw)*s)*speed*dt,(-Math.cos(this.player.yaw)*f+Math.sin(this.player.yaw)*s)*speed*dt);
+ if(this.mode!=='playing')return;
+ const drain=forced&&moving?1.5:1;
+ this.food=Math.max(0,this.food-dt*(sprint?.026:.014)*drain);this.hydration=Math.max(0,this.hydration-dt*(sprint?.07:.035)*drain);
+ if(this.hydration<=0||this.food<=0){this.mode='lost';if(this.escape.monster)this.escape.monster.active=false;this.events.push('lost');return}
+ if(this.inRoom()&&!this.entered){this.entered=true;this.events.push('木门外，传来很轻的脚步声。先把门关好。')}
+ if(this.entered&&!this.changed)this.approach+=dt;
+ if(this.door!==this.doorTarget){const old=this.door;let proposed=this.door+Math.sign(this.doorTarget-this.door)*dt*1.5;this.door=Math.max(0,Math.min(1,proposed));if(this.doorCollision(this.player.x,this.player.z)){const closing=this.doorTarget===0;this.door=old;this.doorTarget=closing?1:0;this.events.push(closing?'你挡住了门。再往房间里走一点。':'门被你挡住了。退开一点再试。')}}
+ if(this.entered&&!this.changed&&this.door===0&&this.doorTarget===0&&this.inRoom()){this.changed=true;if(this.escape.monster){this.escape.monster.active=false;this.escape.phase='finished'}this.events.push('门完全关上了。脚步声消失。')}
+}
+retryEscape(){return retryEscape(this)}
 nearDoor(){return Math.hypot(this.player.x-this.maze.doorX,this.player.z-this.maze.doorZ)<2.35}
 nearNote(){return this.inRoom()&&Math.hypot(this.player.x-(this.maze.doorX+4.35),this.player.z-(this.maze.doorZ+1.4))<1.6}
 lineClear(x,z){const p=this.player,dist=Math.hypot(x-p.x,z-p.z),steps=Math.ceil(dist/.1);for(let k=1;k<steps;k++){const qx=p.x+(x-p.x)*k/steps,qz=p.z+(z-p.z)*k/steps;const walls=this.changed?this.roomWalls:[...this.world.wallsNear(qx,qz,.09),...this.walls];if(walls.some(w=>Math.abs(qx-w.x)<w.w/2&&Math.abs(qz-w.z)<w.d/2)||this.changed&&qx<this.maze.doorX&&(qx<this.maze.doorX-9.5||Math.abs(qz-this.maze.doorZ)>1.2)||this.doorCollision(qx,qz))return false}return true}
@@ -148,9 +166,9 @@ pickupItem(id){
  const slot=this.firstInventorySlot(id);
  if(!slot){this.events.push('背包没有足够的连续空格。');return}
  Object.assign(item,{state:'inventory',gridX:slot.x,gridY:slot.y});
- this.events.push(item.kind==='phone'?'拾回了手机。电量保持不变。':item.kind==='food'?`拾回了食物 ${item.id.slice(-1)}。`:'找到一小瓶饮用水。');return item.id;
+ this.events.push(item.kind==='phone'?'拾回了手机。电量保持不变。':item.kind==='food'?`拾回了食物 ${item.id.split('-').at(-1)}。`:'找到一小瓶饮用水。');return item.id;
 }
-interact(){if(this.mode!=='playing'||this.inventoryOpen||this.phoneOpenId)return;const item=this.nearestItem();if(item)return this.pickupItem(item.id)?'pickup':null;if(this.nearCharger()){const phone=this.phone(this.chargingPhoneId)||this.inventory('phone')[0];if(!phone){this.events.push('这里有充电线。先把手机拾回背包。');return 'charger'}this.toggleCharger(phone.id);return 'charger'}if(this.nearNote()){this.noteRead=true;this.mode='note';return 'note'}if(this.nearDoor()){this.doorTarget=this.doorTarget>.5?0:1;return 'door'}return null}
+interact(){if(this.mode!=='playing'||this.inventoryOpen||this.phoneOpenId||escapeFrozen(this))return;const item=this.nearestItem();if(item)return this.pickupItem(item.id)?'pickup':null;if(this.nearCharger()){const phone=this.phone(this.chargingPhoneId)||this.inventory('phone')[0];if(!phone){this.events.push('这里有充电线。先把手机拾回背包。');return 'charger'}this.toggleCharger(phone.id);return 'charger'}if(this.nearNote()){this.noteRead=true;this.mode='note';return 'note'}if(this.nearDoor()){this.doorTarget=this.doorTarget>.5?0:1;return 'door'}return null}
 // Sample the entire route using the existing solid collision geometry, including
 // furniture and the live door leaf. An empty endpoint beyond a thin wall is unsafe.
 dropPathClear(x,z){
@@ -184,7 +202,7 @@ drop(id){
  if(!spot){this.events.push('这里没有可以放下物品的空地。');return}
  Object.assign(item,{state:'world',gridX:null,gridY:null,...spot,y:.005,placement:'ground',area:this.roomContains(spot.x,spot.z)||this.changed?'room':'maze'});
  if(this.chargingPhoneId===id)this.disconnectCharger();
- this.events.push(item.kind==='phone'?'放下了手机。它会留在原地。':item.kind==='food'?`放下了食物 ${item.id.slice(-1)}。它会留在原地。`:'放下了饮用水。它会留在原地。');return item.id;
+ this.events.push(item.kind==='phone'?'放下了手机。它会留在原地。':item.kind==='food'?`放下了食物 ${item.id.split('-').at(-1)}。它会留在原地。`:'放下了饮用水。它会留在原地。');return item.id;
 }
 consume(kind,id){
  if(this.mode!=='playing'||this.phoneOpenId||!['food','water'].includes(kind))return;

@@ -43,7 +43,7 @@ export class ChunkWorld{
   const result={key,cx,cz,cells};this.cache.set(key,result);this.generated++;
   while(this.cache.size>DATA_CACHE_LIMIT){this.cache.delete(this.cache.keys().next().value);this.evicted++}return result;
  }
- cell(x,z){const cx=Math.floor(x/CHUNK_CELLS),cz=Math.floor(z/CHUNK_CELLS),chunk=this.chunk(cx,cz);return chunk.cells[(z-cz*CHUNK_CELLS)*CHUNK_CELLS+x-cx*CHUNK_CELLS]}
+ cell(x,z){const special=this.escapeLayout?.lookup.get(keyOf(x,z));if(special)return special;const cx=Math.floor(x/CHUNK_CELLS),cz=Math.floor(z/CHUNK_CELLS),chunk=this.chunk(cx,cz);return chunk.cells[(z-cz*CHUNK_CELLS)*CHUNK_CELLS+x-cx*CHUNK_CELLS]}
  cellsInRect(x0,z0,x1,z1){const out=[];for(let z=z0;z<=z1;z++)for(let x=x0;x<=x1;x++)out.push(this.cell(x,z));return out}
  wallsInRect(x0,z0,x1,z1){const result=new Map();for(const c of this.cellsInRect(x0,z0,x1,z1))for(const w of c.walls)result.set(w.key,w);return [...result.values()]}
  wallsNear(x,z,padding=.3){return this.wallsInRect(Math.floor((x-padding)/WORLD_CELL),Math.floor((z-padding)/WORLD_CELL),Math.floor((x+padding)/WORLD_CELL),Math.floor((z+padding)/WORLD_CELL))}
