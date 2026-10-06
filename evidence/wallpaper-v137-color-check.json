@@ -1,0 +1,31 @@
+{
+  "method": "Read-only pixel analysis. Original/runtime image files were not edited. Unprinted areas selected after visually inspecting runtime texture.",
+  "source_file": "dist/textures/level0-wallpaper.webp",
+  "sha256": "435e3a154b5848d6f1b98e8357e7d2253983880d40d3e6f3d50d8cb5500c5ac5",
+  "size": [
+    1024,
+    1024
+  ],
+  "paper_regions": {
+    "columns": 8,
+    "rows": 4,
+    "x": "column * 128 + [32, 96)",
+    "y": "repeat * 256 + (even column ? 150 : 22) + [0, 68)"
+  },
+  "sample_count": 139264,
+  "paper_srgb_median_8bit": [
+    153,
+    122,
+    33
+  ],
+  "paper_srgb_hex": "#997a21",
+  "paper_linear_srgb": [
+    0.31854677812509186,
+    0.1946178304415758,
+    0.01520851442291271
+  ],
+  "mix": "linearPaper + 0.5 * (linearMapSample - linearPaper)",
+  "contrast_definition": "Each texture-albedo RGB difference from selected paper base, before existing vertex lighting and tone mapping. Not a perceptual/screen-space contrast measurement.",
+  "limitation": "Flattened texture has no separate ink mask: fine paper-grain and tonal variation also soften 50% about this yellow base.",
+  "rendered_gpu_verified": false
+}

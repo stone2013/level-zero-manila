@@ -54,10 +54,10 @@ test('menu/material release preserves simulation, baked lighting, manifest, and 
  assert(!/MeshPhongMaterial|MeshStandardMaterial|EffectComposer|shadowMap\.enabled=true/.test(app),'no carpet specular or extra render passes');
 });
 
-// v1.3.5 permits menu CSS and ceiling albedo; v1.3.6 additionally scales wall UVs only.
-test('menu restoration and wall scale change no other app behavior or lighting',()=>{
+// Restore the bounded menu/ceiling/wall-albedo changes to the v1.3.4 reference.
+test('menu restoration and wall albedo change no other app behavior or lighting',()=>{
  const app=fs.readFileSync('dist/app.js','utf8');
- const normalized=app.replace('// Only the panel albedo is yellowed; the lamp bake and global lighting stay neutral.\n','').replace('map:ceilTex,color:0xd6be7b','map:ceilTex').replace('metres=wall?1.875:2','metres=wall?2.5:2');
+ const normalized=app.replace('// Only the panel albedo is yellowed; the lamp bake and global lighting stay neutral.\n','').replace('map:ceilTex,color:0xd6be7b','map:ceilTex').replace('metres=wall?1.40625:2','metres=wall?2.5:2').replace(/\/\/ WALLPAPER_FADE_BEGIN:[\s\S]*?\/\/ WALLPAPER_FADE_END\n/,'');
  assert.equal(createHash('sha256').update(normalized).digest('hex'),'653bbf9d3efed2ed76d7e1e923365b06e98b14fc7c44ed2bd0bfe90afd9e4389');
 });
 test('HUD, touch controls, dialogs and landscape safeguards retain their prior CSS',()=>{
