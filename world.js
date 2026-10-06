@@ -49,6 +49,101 @@ export class ChunkWorld{
  wallsNear(x,z,padding=.3){return this.wallsInRect(Math.floor((x-padding)/WORLD_CELL),Math.floor((z-padding)/WORLD_CELL),Math.floor((x+padding)/WORLD_CELL),Math.floor((z+padding)/WORLD_CELL))}
  stats(){return{resident:this.cache.size,limit:DATA_CACHE_LIMIT,generated:this.generated,evicted:this.evicted}}
 }
+// Conservative 360-degree visibility for the opaque, floor-to-ceiling corridor
+// grid. `reach` is a world-space radius, NOT the camera's far-plane distance:
+// use far * sqrt(1 + tan(verticalFov / 2)^2 * (1 + aspect^2)) to include every
+// perspective corner at every yaw/pitch. No finite set of rays can cover the
+// arbitrarily thin views through consecutive portals, so propagate their whole
+// angular intervals instead. Fold walls, wall thickness and Manila's separate
+// room walls are ignored here; removing an occluder can only add required cells.
+//
+// The returned cell coordinates include both sides of every visible boundary.
+// Callers still need a one-cell halo when assigning shared wall/trim ownership
+// to render regions. Do not cache by rounded player positions: a tiny movement
+// can reveal a new corridor. A null result means the caller MUST use its safe
+// full-frustum fallback, never a partial result. Limits bound reads, storage and
+// interval work even in open rooms or adversarial cyclic layouts.
+export function visibleCorridorCells(world,x,z,reach,{maxCells=2048,maxSteps=16384}={}){
+ if(!world||typeof world.cell!=='function'||![x,z,reach].every(Number.isFinite)||reach<0||!Number.isInteger(maxCells)||maxCells<1||maxCells>16384||!Number.isInteger(maxSteps)||maxSteps<1||maxSteps>262144)return null;
+ const tau=2*Math.PI,angleMargin=1e-10;
+ // At large coordinates rounding can swallow portal widths. Decline that case
+ // instead of relying on inaccurate angles. The small positional margin also
+ // seeds both sides when the eye is exactly on (or nearly on) a grid boundary.
+ const scale=Math.max(1,Math.abs(x),Math.abs(z),reach),positionMargin=Math.max(1e-7,scale*Number.EPSILON*32);
+ if(positionMargin>1e-3)return null;
+ const cx=Math.floor(x/WORLD_CELL),cz=Math.floor(z/WORLD_CELL),cells=new Map(),visible=new Map(),coverage=new Map(),queue=[];
+ let work=0,failed=false;
+ const spend=()=>{if(++work>maxSteps){failed=true;return false}return true};
+ const read=(xx,zz)=>{
+  const key=keyOf(xx,zz);if(cells.has(key))return cells.get(key);
+  if(cells.size>=maxCells){failed=true;return null}
+  const cell=world.cell(xx,zz);
+  if(!cell||cell.x!==xx||cell.z!==zz||!Array.isArray(cell.open)||cell.open.length!==4){failed=true;return null}
+  cells.set(key,cell);return cell;
+ };
+ const include=(xx,zz)=>{const key=keyOf(xx,zz);if(!visible.has(key)){if(visible.size>=maxCells){failed=true;return}visible.set(key,{x:xx,z:zz})}};
+ const enqueue=(xx,zz,lo,hi)=>{
+  if(failed||!spend())return;
+  const key=keyOf(xx,zz),prior=coverage.get(key)||[];
+  // Exact containment is important: epsilon-based "already visited" tests can
+  // accidentally discard a newly exposed sliver. Numerical slack is applied
+  // only outwards to portal bounds, never by shrinking a newly reached cone.
+  for(const interval of prior){if(!spend())return;if(lo>=interval[0]&&hi<=interval[1])return}
+  const merged=[];let a=lo,b=hi,inserted=false;
+  for(const interval of prior){
+   if(!spend())return;
+   if(interval[1]<a)merged.push(interval);
+   else if(interval[0]>b){if(!inserted){merged.push([a,b]);inserted=true}merged.push(interval)}
+   else{a=Math.min(a,interval[0]);b=Math.max(b,interval[1])}
+  }
+  if(!inserted)merged.push([a,b]);
+  coverage.set(key,merged);queue.push({x:xx,z:zz,lo,hi});include(xx,zz);
+ };
+ const portalIntervals=(ax,az,bx,bz)=>{
+  // Closest point on these axis-aligned segments, relative to the eye.
+  const nearX=Math.max(Math.min(ax,bx),Math.min(Math.max(ax,bx),x)),nearZ=Math.max(Math.min(az,bz),Math.min(Math.max(az,bz),z));
+  const distance=Math.hypot(nearX-x,nearZ-z);
+  if(distance>reach+positionMargin)return[];
+  if(distance<=positionMargin)return[[0,tau]];
+  let a=Math.atan2(az-z,ax-x),b=Math.atan2(bz-z,bx-x);
+  if(a<0)a+=tau;if(b<0)b+=tau;
+  let span=(b-a+tau)%tau;if(span>Math.PI){a=b;span=tau-span}
+  a-=angleMargin;let end=a+span+2*angleMargin;
+  if(a<0)return[[0,end],[a+tau,tau]];
+  if(end>tau)return[[a,tau],[0,end-tau]];
+  return[[a,end]];
+ };
+ // A cell boundary belongs to both closed cells at the exact boundary. Seeding
+ // both also covers floating-point classification immediately beside it.
+ const xs=[cx],zs=[cz],left=cx*WORLD_CELL,top=cz*WORLD_CELL;
+ if(x-left<=positionMargin)xs.push(cx-1);else if(left+WORLD_CELL-x<=positionMargin)xs.push(cx+1);
+ if(z-top<=positionMargin)zs.push(cz-1);else if(top+WORLD_CELL-z<=positionMargin)zs.push(cz+1);
+ for(const xx of xs)for(const zz of zs)enqueue(xx,zz,0,tau);
+ for(let head=0;head<queue.length&&!failed;head++){
+  if(!spend())break;
+  const state=queue[head],cell=read(state.x,state.z);if(!cell)break;
+  const x0=state.x*WORLD_CELL,z0=state.z*WORLD_CELL,x1=x0+WORLD_CELL,z1=z0+WORLD_CELL;
+  const edges=[[x0,z0,x1,z0],[x1,z0,x1,z1],[x0,z1,x1,z1],[x0,z0,x0,z1]];
+  for(let d=0;d<4&&!failed;d++){
+   if(!spend())break;
+   // A straight ray's x/z signs never reverse. Ignore the entry-facing side
+   // of cells wholly beyond the eye; this prevents cyclic backtracking without
+   // excluding any possible outward sightline (including boundary tolerances).
+   if((d===0&&z0>z+positionMargin)||(d===1&&x1<x-positionMargin)||(d===2&&z1<z-positionMargin)||(d===3&&x0>x+positionMargin))continue;
+   const intervals=portalIntervals(...edges[d]),crossings=[];
+   for(const[lo,hi]of intervals){const a=Math.max(lo,state.lo),b=Math.min(hi,state.hi);if(a<=b)crossings.push([a,b])}
+   if(!crossings.length)continue;
+   const[dx,dz]=DIRECTIONS[d],xx=state.x+dx,zz=state.z+dz;
+   include(xx,zz);const next=read(xx,zz);if(!next)break;
+   // Reserved Manila cells have no procedural walls; its entrance also omits
+   // the otherwise closed maze side. Treat every side adjoining that strip as
+   // open. The persistent room geometry remains an additional true occluder.
+   const open=cell.active===false||next.active===false||cell.open[d]||next.open[(d+2)%4];
+   if(open)for(const[a,b]of crossings)enqueue(xx,zz,a,b);
+  }
+ }
+ return failed?null:[...visible.values()];
+}
 // The same small scheduler is used by the browser, not a test-only model. Build
 // steps yield after each surface/cell. A pending region never becomes traversable.
 export class RenderChunkStream{
@@ -77,7 +172,14 @@ export class RenderChunkStream{
  requiredReady(){return [...this.required].every(key=>this.records.get(key)?.ready===true)}
  release(record){record.iterator?.return?.();if(record.value)this.dispose(record.value);record.iterator=null;record.value=null;this.disposed++}
  process(budget=3,maxSteps=24){const start=this.clock();let steps=0;
-  while(steps<maxSteps){let next=[...this.records.values()].find(r=>r.iterator&&this.desired.has(r.key));if(!next){const pending=[...this.desired.keys()].map(key=>this.records.get(key)).filter(r=>r&&!r.ready);if(!this.requestMode)pending.sort((a,b)=>Math.hypot(a.x-this.cx,a.z-this.cz)-Math.hypot(b.x-this.cx,b.z-this.cz));next=pending[0]}if(!next)break;
+  while(steps<maxSteps){
+   const pending=[...this.desired.keys()].map(key=>this.records.get(key)).filter(r=>r&&!r.ready);
+   if(!this.requestMode)pending.sort((a,b)=>Math.hypot(a.x-this.cx,a.z-this.cz)-Math.hypot(b.x-this.cx,b.z-this.cz));
+   // Newly visible work preempts optional prewarming at the next small yield.
+   // Keep the optional iterator for reuse, within the same hard resident cap.
+   const urgent=this.requestMode?pending.filter(r=>this.required.has(r.key)):pending;
+   const candidates=urgent.length?urgent:pending;
+   const next=candidates.find(r=>r.iterator)||candidates[0];if(!next)break;
    if(!next.iterator){const task=this.create(next.x,next.z);next.value=task.value;next.iterator=task.iterator}
    const result=next.iterator.next();steps++;
    if(result.done){next.ready=true;next.iterator=null;this.completed++}
