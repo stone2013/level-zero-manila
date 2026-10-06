@@ -1,10 +1,12 @@
 import * as THREE from './vendor/three.module.min.js';
 import {Game} from './game.js';
+import {seededLamps,createLightBake,doorSurroundFactor} from './lighting.js';
 const $=s=>document.getElementById(s), seed=()=>crypto.getRandomValues(new Uint32Array(1))[0];
 // Shared physical heights: all walls, ceiling panels, fixtures and lintels stay aligned.
 const ROOM_HEIGHT=3.6,EYE_HEIGHT=1.63,DOOR_HEAD=2.66;
-// Neutral bounced fluorescent light: yellow comes from the wallpaper, not a second yellow filter.
-const LIGHTING=Object.freeze({sky:0xfff5e2,ground:0xcdcdc2,hemisphere:1.9,directional:0.28,exposure:1.0});
+// Wall/floor/ceiling surfaces receive the diffuse bake once. These two soft lights
+// shade the remaining Lambert props, trim, housings, and room/exit wall boxes.
+const LIGHTING=Object.freeze({sky:0xfff5e2,ground:0xcdcdc2,hemisphere:1.65,directional:0.18,exposure:1.0});
 let game=new Game(5),graphicsReady=false,hasRun=false,soundEnabled=true,renderScale=1,lastRender=0,renderer,scene,camera,mazeGroup,roomGroup,exitGroup,doorPivot,itemMeshes=new Map(),last=performance.now(),toastUntil=0,helpFrom='menu';
 const keys=new Set(),input={forward:0,strafe:0,sprint:false},touch={move:null,look:null,sprint:new Set(),x:0,y:0},coarse=matchMedia('(pointer:coarse)').matches;
 // Gate the rendered mobile viewport, not just the physical screen's orientation.
@@ -52,7 +54,7 @@ const wallTex=texture('./textures/level0-wallpaper.webp'),floorTex=texture('./te
 // Use only one panel interior from the original 1254px source, avoiding its baked-in border.
 ceilTex.wrapS=ceilTex.wrapT=THREE.ClampToEdgeWrapping;
 ceilTex.offset.set(32/1254,(1254-592)/1254);ceilTex.repeat.set(560/1254,560/1254);
-const mat={wall:new THREE.MeshLambertMaterial({map:wallTex,vertexColors:true}),floor:new THREE.MeshLambertMaterial({map:floorTex,vertexColors:true}),ceiling:new THREE.MeshLambertMaterial({map:ceilTex}),ceilingGrid:new THREE.MeshLambertMaterial({color:0x98988c}),trim:new THREE.MeshLambertMaterial({color:0x5c5938}),wood:new THREE.MeshLambertMaterial({color:0x665033}),panel:new THREE.MeshLambertMaterial({color:0x4b3a26}),metal:new THREE.MeshLambertMaterial({color:0x3c402f}),light:new THREE.MeshBasicMaterial({color:0xfff5df,toneMapped:false}),housing:new THREE.MeshLambertMaterial({color:0x535745}),room:new THREE.MeshLambertMaterial({color:0xa69869}),exit:new THREE.MeshLambertMaterial({color:0x6e7777}),paper:new THREE.MeshLambertMaterial({color:0xc7c39c}),food:new THREE.MeshLambertMaterial({color:0x9d7548}),water:new THREE.MeshLambertMaterial({color:0x719293})};
+const mat={wall:new THREE.MeshBasicMaterial({map:wallTex,vertexColors:true}),floor:new THREE.MeshBasicMaterial({map:floorTex,vertexColors:true}),ceiling:new THREE.MeshBasicMaterial({map:ceilTex}),ceilingGrid:new THREE.MeshBasicMaterial({color:new THREE.Color(0x98988c).multiplyScalar(.44)}),trim:new THREE.MeshLambertMaterial({color:0x5c5938}),wood:new THREE.MeshLambertMaterial({color:0x665033}),panel:new THREE.MeshLambertMaterial({color:0x4b3a26}),metal:new THREE.MeshLambertMaterial({color:0x3c402f}),light:new THREE.MeshBasicMaterial({color:0xffffff}),housing:new THREE.MeshLambertMaterial({color:0x535745}),room:new THREE.MeshLambertMaterial({color:0xa69869}),exit:new THREE.MeshLambertMaterial({color:0x6e7777}),paper:new THREE.MeshLambertMaterial({color:0xc7c39c}),food:new THREE.MeshLambertMaterial({color:0x9d7548}),water:new THREE.MeshLambertMaterial({color:0x719293})};
 const boxGeo=new THREE.BoxGeometry(1,1,1);
 // World-scale UVs keep every wall and floor at the same density, including short doorway pieces.
 function box(group,x,y,z,w,h,d,material){
@@ -66,21 +68,17 @@ function box(group,x,y,z,w,h,d,material){
    if(Math.abs(n.getY(i))>.5)uv.setXY(i,px/metres,pz/metres);
    else if(Math.abs(n.getX(i))>.5)uv.setXY(i,pz/metres,py/metres);
    else uv.setXY(i,px/metres,py/metres);
-   // Broad static pools are evaluated only at build time against this room's actual lamp positions.
-   // This is an inexpensive lighting approximation, not a shadow map or global illumination.
-   const pool=fixtureInfluence(group,px,pz,wall?6:8);
-   let b=(wall?.79:.74)+(wall?.21:.26)*pool;
-   if(wall){const aboveFloor=p.getY(i)+h/2,belowCeiling=h-aboveFloor;b*=1-.17*Math.exp(-aboveFloor/.18)-.09*Math.exp(-belowCeiling/.16)}
-   colours.set([b,b,b],i*3);
+   // The existing geometry/UVs are unchanged; bake real fixture distance, normals,
+   // fixed-wall occlusion and contact shade into its existing vertex colours.
+   const rgb=group.userData.bake?.sample([px,py,pz],[n.getX(i),n.getY(i),n.getZ(i)])||[.5,.5,.5];
+   colours.set(rgb,i*3);
   }
   uv.needsUpdate=true;geo.setAttribute('color',new THREE.BufferAttribute(colours,3));
  }
- const mesh=new THREE.Mesh(geo,material);mesh.position.set(x,y,z);if(geo===boxGeo)mesh.scale.set(w,h,d);group.add(mesh);return mesh
-}
-function fixtureInfluence(group,x,z,spread=6){
- const lamps=group.userData.lamps;if(!lamps?.length)return 1;
- let distance=Infinity;for(const lamp of lamps)distance=Math.min(distance,(x-lamp.x)**2+(z-lamp.z)**2);
- return Math.exp(-distance/spread);
+ const mesh=new THREE.Mesh(geo,material);mesh.position.set(x,y,z);if(geo===boxGeo)mesh.scale.set(w,h,d);
+ // Tint the existing doorway flanks/lintel only; the wooden frame/leaf retain their readable fill.
+ if(material===mat.room&&group.userData.door){const shade=doorSurroundFactor([x,y,z],group.userData.door);mesh.userData.lightTint=[shade,shade,shade]}
+ group.add(mesh);return mesh
 }
 function ceiling(group,x,z,w,d){
  // Separate the panel from its backing by 20mm so distant panels do not depth-fight.
@@ -91,23 +89,40 @@ function ceiling(group,x,z,w,d){
  for(let ix=0;ix<nx;ix++)for(let iz=0;iz<nz;iz++){
   dummy.position.set(x-w/2+(ix+.5)*tw,ROOM_HEIGHT-.02,z-d/2+(iz+.5)*td);
   dummy.scale.set(tw-.025,1,td-.025);dummy.updateMatrix();const index=ix*nz+iz;panels.setMatrixAt(index,dummy.matrix);
-  const fill=.86+.14*fixtureInfluence(group,dummy.position.x,dummy.position.z,5);colour.setRGB(fill,fill,fill);panels.setColorAt(index,colour);
+  const rgb=group.userData.bake?.sample([dummy.position.x,dummy.position.y,dummy.position.z],[0,-1,0])||[.45,.45,.45];colour.setRGB(...rgb);panels.setColorAt(index,colour);
  }
  panels.instanceMatrix.needsUpdate=true;panels.instanceColor.needsUpdate=true;panels.computeBoundingSphere();group.add(panels)
 }
 // Group only static repeated boxes. Hinged doors and inventory items stay independently movable.
-function batchStaticBoxes(group){const batches=new Map();for(const mesh of [...group.children])if(mesh.isMesh&&!mesh.isInstancedMesh&&mesh.geometry===boxGeo){const list=batches.get(mesh.material)||[];list.push(mesh);batches.set(mesh.material,list)}for(const[material,meshes]of batches){if(meshes.length<2)continue;const batch=new THREE.InstancedMesh(boxGeo,material,meshes.length);meshes.forEach((mesh,i)=>{mesh.updateMatrix();batch.setMatrixAt(i,mesh.matrix);group.remove(mesh)});batch.instanceMatrix.needsUpdate=true;batch.computeBoundingSphere();group.add(batch)}}
+function batchStaticBoxes(group){const batches=new Map();for(const mesh of [...group.children])if(mesh.isMesh&&!mesh.isInstancedMesh&&mesh.geometry===boxGeo){const list=batches.get(mesh.material)||[];list.push(mesh);batches.set(mesh.material,list)}for(const[material,meshes]of batches){if(meshes.length<2)continue;const batch=new THREE.InstancedMesh(boxGeo,material,meshes.length);meshes.forEach((mesh,i)=>{mesh.updateMatrix();batch.setMatrixAt(i,mesh.matrix);if(mesh.userData.lightTint)batch.setColorAt(i,new THREE.Color().setRGB(...mesh.userData.lightTint));group.remove(mesh)});batch.instanceMatrix.needsUpdate=true;if(batch.instanceColor)batch.instanceColor.needsUpdate=true;batch.computeBoundingSphere();group.add(batch)}}
 function pixelRatio(width,height,dpr,coarse,scale=1){const ceiling=coarse?1.35:1.6,budget=coarse?1100000:2000000;return Math.min(dpr,ceiling,Math.sqrt(budget/Math.max(1,width*height)))*scale}
 function label(text,w=256,h=64){const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d');ctx.fillStyle='#b5ad7d';ctx.fillRect(0,0,w,h);ctx.fillStyle='#353c2b';ctx.font=`500 ${h*.43}px monospace`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,w/2,h/2);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return new THREE.MeshBasicMaterial({map:t})}
-function makeFixture(g,x,z){box(g,x,ROOM_HEIGHT-.07,z,1.35,.09,.42,mat.housing);box(g,x,ROOM_HEIGHT-.123,z,1.15,.014,.16,mat.light);box(g,x,ROOM_HEIGHT-.138,z-.13,1.1,.018,.035,mat.light);box(g,x,ROOM_HEIGHT-.138,z+.13,1.1,.018,.035,mat.light)}
-function build(){if(scene)scene.traverse(o=>{if(o.isMesh){if(o.geometry!==boxGeo)o.geometry.dispose();if(o.material&&!Object.values(mat).includes(o.material)){o.material.map?.dispose();o.material.dispose()}}});scene=new THREE.Scene();scene.background=new THREE.Color(0x8b825c);scene.fog=new THREE.Fog(0x8b825c,14,44);scene.add(new THREE.HemisphereLight(LIGHTING.sky,LIGHTING.ground,LIGHTING.hemisphere));const directional=new THREE.DirectionalLight(LIGHTING.sky,LIGHTING.directional);directional.position.set(4,10,5);scene.add(directional);camera=new THREE.PerspectiveCamera(76,innerWidth/innerHeight,.06,65);camera.rotation.order='YXZ';mazeGroup=new THREE.Group();roomGroup=new THREE.Group();exitGroup=new THREE.Group();scene.add(mazeGroup,roomGroup,exitGroup);exitGroup.visible=false;const m=game.maze;mazeGroup.userData.lamps=[...m.cells.map(c=>({x:(c.x+.5)*5,z:(c.z+.5)*5})),{x:2.5,z:-2.5},{x:2.5,z:-7.5}];roomGroup.userData.lamps=[{x:m.doorX+3,z:m.doorZ}];exitGroup.userData.lamps=[{x:m.doorX-3,z:m.doorZ},{x:m.doorX-7,z:m.doorZ}];box(mazeGroup,17.5,-.08,17.5,35,.16,35,mat.floor);box(mazeGroup,2.5,-.08,-5,5,.16,10,mat.floor);ceiling(mazeGroup,17.5,17.5,35,35);ceiling(mazeGroup,2.5,-5,5,10);
+function makeFixture(g,x,z){
+ const lamp=g.userData.lamps.find(l=>l.x===x&&l.z===z);
+ box(g,x,ROOM_HEIGHT-.07,z,1.35,.09,.42,mat.housing);
+ const tint=lamp?lamp.color.map(c=>c*(.86+.08*(lamp.intensity-.92)/.16)):[.9,.89,.86];
+ for(const [y,dz,w,h,d] of [[ROOM_HEIGHT-.123,0,1.15,.014,.16],[ROOM_HEIGHT-.138,-.13,1.1,.018,.035],[ROOM_HEIGHT-.138,.13,1.1,.018,.035]])box(g,x,y,z+dz,w,h,d,mat.light).userData.lightTint=tint;
+}
+function prepareLighting(m){
+ mazeGroup.userData.lamps=seededLamps([...m.cells.map(c=>({x:(c.x+.5)*5,z:(c.z+.5)*5})),{x:2.5,z:-2.5},{x:2.5,z:-7.5}],m.seed,ROOM_HEIGHT);
+ roomGroup.userData.lamps=seededLamps([{x:m.doorX+3,z:m.doorZ}],m.seed,ROOM_HEIGHT);
+ exitGroup.userData.lamps=seededLamps([{x:m.doorX-3,z:m.doorZ},{x:m.doorX-7,z:m.doorZ}],m.seed,ROOM_HEIGHT);
+ // Only fixed walls/lintel obstruct this static approximation. A moving door is
+ // deliberately not frozen into the bake, so opening it cannot leave a false shadow.
+ const blockers=[...game.walls,{x:m.doorX,z:m.doorZ,w:.18,d:1.6,ymin:DOOR_HEAD,ymax:ROOM_HEIGHT}];
+ const door={x:m.doorX,z:m.doorZ};roomGroup.userData.door=door;
+ mazeGroup.userData.bake=createLightBake(mazeGroup.userData.lamps,blockers,ROOM_HEIGHT,door);
+ roomGroup.userData.bake=createLightBake(roomGroup.userData.lamps,blockers,ROOM_HEIGHT,door);
+ exitGroup.userData.bake=createLightBake(exitGroup.userData.lamps,[{x:m.doorX-4.8,z:m.doorZ-1.28,w:9.6,d:.16},{x:m.doorX-4.8,z:m.doorZ+1.28,w:9.6,d:.16}],ROOM_HEIGHT,door);
+}
+function build(){if(scene)scene.traverse(o=>{if(o.isMesh){if(o.geometry!==boxGeo)o.geometry.dispose();if(o.material&&!Object.values(mat).includes(o.material)){o.material.map?.dispose();o.material.dispose()}}});scene=new THREE.Scene();scene.background=new THREE.Color(0x626354);scene.fog=new THREE.Fog(0x626354,16,80);scene.add(new THREE.HemisphereLight(LIGHTING.sky,LIGHTING.ground,LIGHTING.hemisphere));const directional=new THREE.DirectionalLight(LIGHTING.sky,LIGHTING.directional);directional.position.set(4,10,5);scene.add(directional);camera=new THREE.PerspectiveCamera(76,innerWidth/innerHeight,.06,65);camera.rotation.order='YXZ';mazeGroup=new THREE.Group();roomGroup=new THREE.Group();exitGroup=new THREE.Group();scene.add(mazeGroup,roomGroup,exitGroup);exitGroup.visible=false;const m=game.maze;prepareLighting(m);box(mazeGroup,17.5,-.08,17.5,35,.16,35,mat.floor);box(mazeGroup,2.5,-.08,-5,5,.16,10,mat.floor);ceiling(mazeGroup,17.5,17.5,35,35);ceiling(mazeGroup,2.5,-5,5,10);
 for(const w of game.walls){const room=w.x>m.doorX-.01&&Math.abs(w.z-m.doorZ)<=2.6;const group=room?roomGroup:mazeGroup;box(group,w.x,ROOM_HEIGHT/2,w.z,w.w,ROOM_HEIGHT,w.d,room?mat.room:mat.wall);box(group,w.x,.07,w.z,w.w+.025,.14,w.d+.025,mat.trim);box(group,w.x,ROOM_HEIGHT-.08,w.z,w.w+.018,.16,w.d+.018,mat.trim)}
 for(const c of m.cells){makeFixture(mazeGroup,(c.x+.5)*5,(c.z+.5)*5);}makeFixture(mazeGroup,2.5,-2.5);makeFixture(mazeGroup,2.5,-7.5);
 box(roomGroup,m.doorX+3,-.08,m.doorZ,6,.16,5,mat.floor);ceiling(roomGroup,m.doorX+3,m.doorZ,6,5);makeFixture(roomGroup,m.doorX+3,m.doorZ);box(roomGroup,m.doorX,(ROOM_HEIGHT+DOOR_HEAD)/2,m.doorZ,.18,ROOM_HEIGHT-DOOR_HEAD,1.6,mat.room);box(roomGroup,m.doorX-.06,1.36,m.doorZ-.91,.23,2.72,.2,mat.wood);box(roomGroup,m.doorX-.06,1.36,m.doorZ+.91,.23,2.72,.2,mat.wood);box(roomGroup,m.doorX-.06,2.7,m.doorZ,.23,.18,2.02,mat.wood);
 doorPivot=new THREE.Group();doorPivot.position.set(m.doorX,0,m.doorZ-.8);roomGroup.add(doorPivot);box(doorPivot,0,1.28,.8,.11,2.56,1.6,mat.wood);for(const z of [.43,1.15]){box(doorPivot,-.061,1.75,z,.02,.95,.56,mat.panel);box(doorPivot,-.061,.66,z,.02,.78,.56,mat.panel);box(doorPivot,.061,1.75,z,.02,.95,.56,mat.panel)}box(doorPivot,-.105,1.1,1.38,.15,.065,.12,mat.metal);box(doorPivot,.105,1.1,1.38,.15,.065,.12,mat.metal);const sign=new THREE.Mesh(new THREE.PlaneGeometry(1,.22),label('MANILA'));sign.position.set(m.doorX-.13,2.91,m.doorZ);sign.rotation.y=-Math.PI/2;roomGroup.add(sign);
 // Low bench, two finite bottles, and a paper note.
 box(roomGroup,m.doorX+4.4,.61,m.doorZ+.5,.8,.12,2.7,mat.wood);for(const z of [-.55,1.55])for(const x of [4.12,4.68])box(roomGroup,m.doorX+x,.29,m.doorZ+z,.075,.58,.075,mat.wood);box(roomGroup,m.doorX+4.35,.681,m.doorZ+1.4,.42,.012,.48,mat.paper);for(let i=0;i<5;i++)box(roomGroup,m.doorX+4.35,.689,m.doorZ+1.26+i*.056,.29,.002,.009,mat.panel);
-box(exitGroup,m.doorX-4.8,-.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT+.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ-1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ+1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-9.5,ROOM_HEIGHT/2,m.doorZ,.1,ROOM_HEIGHT,2.4,new THREE.MeshBasicMaterial({color:0x899ba0}));makeFixture(exitGroup,m.doorX-3,m.doorZ);makeFixture(exitGroup,m.doorX-7,m.doorZ);itemMeshes.clear();for(const i of game.items){const g=new THREE.Group();if(i.kind==='food'){box(g,0,.05,0,.32,.1,.22,mat.food);box(g,0,.106,0,.12,.009,.20,mat.paper);box(g,-.16,.05,0,.026,.08,.22,mat.panel);const num=new THREE.Mesh(new THREE.PlaneGeometry(.08,.08),label(i.id.slice(-1),64,64));num.rotation.x=-Math.PI/2;num.position.set(0,.117,0);g.add(num)}else{box(g,0,.15,0,.13,.3,.13,mat.water);box(g,0,.325,0,.09,.05,.09,mat.metal);box(g,0,.15,-.067,.13,.09,.008,mat.paper)}scene.add(g);itemMeshes.set(i.id,g)}batchStaticBoxes(mazeGroup);batchStaticBoxes(roomGroup);batchStaticBoxes(exitGroup);$('seed-label').textContent=`SEED ${m.seed.toString(16).toUpperCase()}`;sync();}
+box(exitGroup,m.doorX-4.8,-.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT+.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ-1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ+1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-9.5,ROOM_HEIGHT/2,m.doorZ,.1,ROOM_HEIGHT,2.4,new THREE.MeshBasicMaterial({color:0x899ba0}));makeFixture(exitGroup,m.doorX-3,m.doorZ);makeFixture(exitGroup,m.doorX-7,m.doorZ);itemMeshes.clear();for(const i of game.items){const g=new THREE.Group();if(i.kind==='food'){box(g,0,.05,0,.32,.1,.22,mat.food);box(g,0,.106,0,.12,.009,.20,mat.paper);box(g,-.16,.05,0,.026,.08,.22,mat.panel);const num=new THREE.Mesh(new THREE.PlaneGeometry(.08,.08),label(i.id.slice(-1),64,64));num.rotation.x=-Math.PI/2;num.position.set(0,.117,0);g.add(num)}else{box(g,0,.15,0,.13,.3,.13,mat.water);box(g,0,.325,0,.09,.05,.09,mat.metal);box(g,0,.15,-.067,.13,.09,.008,mat.paper)}scene.add(g);itemMeshes.set(i.id,g)}batchStaticBoxes(mazeGroup);batchStaticBoxes(roomGroup);batchStaticBoxes(exitGroup);for(const g of [mazeGroup,roomGroup,exitGroup])g.userData.bake.clear();$('seed-label').textContent=`SEED ${m.seed.toString(16).toUpperCase()}`;sync();}
 function sync(){mazeGroup.visible=!game.changed;exitGroup.visible=game.changed;doorPivot.rotation.y=game.door*Math.PI/2;for(const i of game.items){const g=itemMeshes.get(i.id);g.visible=i.state==='world'&&(!game.changed||i.area==='room');g.position.set(i.x,i.kind==='water'&&i.area==='room'?.68:.005,i.z)}$('food-meter').style.width=game.food+'%';$('water-meter').style.width=game.hydration+'%';$('food-value').textContent=Math.ceil(game.food);$('water-value').textContent=Math.ceil(game.hydration);$('inventory').textContent=`干粮 ${game.inventory('food').length}  /  饮用水 ${game.inventory('water').length}`;$('zone').textContent=game.inRoom()?'MANILA':game.changed?'UNKNOWN':'LEVEL 0';$('objective').textContent=game.changed?'再打开门，看看外面。':game.entered?'进来之后，把门完全关上。':game.loops?'换一条路，寻找木门。':'找到一扇木门。';const i=game.nearestItem();$('prompt').textContent=game.mode!=='playing'?'':i?(i.kind==='food'?`拾回食物 ${i.id.slice(-1)}`:'拾起饮用水'):game.nearNote()?'阅读纸条':game.nearDoor()?(game.doorTarget>.5?'关门':'开门'):'';const available=Boolean($('prompt').textContent);$('interact').disabled=!available;$('interact-label').textContent=available?$('prompt').textContent:'交互';$('drop').disabled=$('eat').disabled=game.inventory('food').length===0;$('drink').disabled=game.inventory('water').length===0;$('food-value').parentElement?.classList.toggle('low',game.food<25);$('water-value').parentElement?.classList.toggle('low',game.hydration<25);}
 function say(t){$('toast').textContent=t;$('toast').classList.add('show');toastUntil=performance.now()+6500}
 function clearInput(){for(const [id,pointer]of [['stick',touch.move],['look',touch.look],...Array.from(touch.sprint,p=>['sprint',p])])if(pointer!==null){try{$(id).releasePointerCapture?.(pointer)}catch{}}keys.clear();touch.move=null;touch.look=null;touch.sprint.clear();input.forward=input.strafe=0;input.sprint=false;$('stick-knob').style.transform='';}

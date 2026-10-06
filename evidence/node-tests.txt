@@ -1,0 +1,56 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> test
+> node --test tests/*.test.mjs
+
+✔ app boots and follows menu / pause / continue / settings / restart with a mocked DOM and GPU (461.865941ms)
+✔ lighting stays bounded, instancing retains static geometry, and resolution budget is enforced (140.909415ms)
+✔ baked fluorescent surfaces avoid double ambient lighting and retain bounded prop fill (148.288582ms)
+✔ raised physical ceilings align maze, room, exit, fixtures, trim and door lintel (238.53786ms)
+✔ height change preserves natural menu and gameplay eye height and field of view (489.597689ms)
+✔ separate touch pointers stop on cancellation and blur in mocked event dispatch (492.199837ms)
+✔ portrait mobile gates the menu without reshaping desktop or hybrid laptop windows (1193.878771ms)
+✔ portrait freezes all simulation, drops captured input, and blocks every gameplay input (456.60025ms)
+✔ repeated rotations retain manual pause, help, note, menu, won and lost states (450.20169ms)
+✔ backgrounding while portrait requires manual resume and never catches up time (460.241984ms)
+✔ orientation lock is feature-detected, user-triggered, serialized and fullscreen-aware (449.487713ms)
+✔ unsupported or denied orientation and fullscreen locks fail safely (958.821415ms)
+✔ iPad desktop identification and pointer-lock release do not break orientation pause (545.013156ms)
+✔ local light falloff follows actual fixture positions with a bounded static geometry cost (261.204088ms)
+✔ context actions show the nearby target and empty supplies cannot be pressed (501.81867ms)
+✔ WebGL failure remains explicit and prevents starting a broken game, while settings remain usable (1.583187ms)
+✔ Escape closes settings without resuming simulation behind the overlay (497.340801ms)
+✔ doorway flank/lintel tint is local and bounded while wood geometry/material and draw count stay intact (237.590656ms)
+✔ 100 seeds: deterministic 49-cell connected maze with reciprocal passages and physically traversable ordinary path (338.806014ms)
+✔ food identities conserved through drop, loop, pickup, consume (1.111478ms)
+✔ spatial loop only true forward boundary crossing; translation and yaw preserved (0.294592ms)
+✔ pause freezes all simulation and restart resets inventory/door (1.237407ms)
+✔ manual door, complete close only inside, finite water, next-room completion (40.580494ms)
+✔ walls prevent clipping even for large displacements (5.81516ms)
+✔ lamp variations are seed-stable, position-stable, within ±8%, and do not consume game RNG (3.928148ms)
+✔ area fixture pools overlap smoothly but remain brighter below each fixture (3.970792ms)
+✔ wall obstruction blocks the direct component while preserving nonblack bounce (0.639641ms)
+✔ corner/contact shade is soft and locally 15–25% darker without self-shadowing a flat wall (0.206029ms)
+✔ ceiling bounce retains local variation and never treats an underside lamp as upward direct light (0.324287ms)
+✔ door surroundings are gently dimmed, positive and continuous with no special lamp (0.22695ms)
+✔ every sampled maze surface stays finite/readable, and caches/ray work are bounded (177.221325ms)
+✔ lighting-only release preserves simulation, UI stylesheet, manifest, and original gameplay tests byte-for-byte (1.462175ms)
+✔ manifest icons, scope, and all offline assets are local and exist (1.274403ms)
+✔ service-worker lifecycle and offline fetch run in mocked Cache API (4.573035ms)
+✔ visible version matches the active offline cache version (0.393451ms)
+✔ mobile UI keeps original controls, unique identifiers and explicit recovery/context labels (0.311208ms)
+✔ world-scale wall and floor UVs remain proportional and line up across differently sized pieces (9.749643ms)
+✔ ceiling uses downward-facing instanced panels with a real 25mm seam and bounded coverage (11.974898ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8132.053376
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

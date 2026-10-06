@@ -1,5 +1,6 @@
+import {seededLamps,createLightBake,doorSurroundFactor} from '../dist/lighting.js';
 import test from'node:test';import assert from'node:assert/strict';import fs from'node:fs';import vm from'node:vm';import * as THREE from'../dist/vendor/three.module.min.js';import{Game}from'../dist/game.js';
-const source=fs.readFileSync('dist/app.js','utf8').replace("import * as THREE from './vendor/three.module.min.js';",'').replace("import {Game} from './game.js';",'');
+const source=fs.readFileSync('dist/app.js','utf8').replace("import * as THREE from './vendor/three.module.min.js';",'').replace("import {Game} from './game.js';",'').replace("import {seededLamps,createLightBake,doorSurroundFactor} from './lighting.js';",'');
 function boot(options={}){
  const {width=844,height=390,coarse=true,mobile=true,standalone=false,lock,fullscreen,platform='',userAgent}=options;
  const nodes=new Map(),listeners={},canvas2d={fillRect(){},fillText(){}},captured=new Map();
@@ -9,7 +10,7 @@ function boot(options={}){
  if(fullscreen)document.documentElement.requestFullscreen=()=>fullscreen(document);
  class Renderer{constructor(){if(options.graphicsFailure)throw new Error("WebGLDisabled");this.shadowMap={};}setPixelRatio(v){this.ratio=v}setSize(w,h){this.width=w;this.height=h}render(scene,camera){rendered={scene,camera}}};class Loader{load(){return new THREE.Texture()}}
  const orientation={addEventListener(n,fn){on('orientation',n,fn)}};if(lock)orientation.lock=lock;
- const context={THREE:{...THREE,WebGLRenderer:Renderer,TextureLoader:Loader},Game,document,window:{screen:{orientation},visualViewport:{addEventListener(n,fn){on('viewport',n,fn)}},addEventListener(n,fn){on('window',n,fn)}},navigator:{userAgent:userAgent??(mobile?'iPhone':'Desktop'),platform,maxTouchPoints:mobile?2:0},performance:{now:()=>now},crypto:{getRandomValues:a=>{a[0]=42;return a}},matchMedia:q=>({matches:q==='(pointer:coarse)'?coarse:q==='(any-hover: hover)'?!mobile:q==='(display-mode: standalone)'?standalone:false}),innerWidth:width,innerHeight:height,devicePixelRatio:3,requestAnimationFrame:fn=>frame=fn,setTimeout:fn=>fn(),console:options.graphicsFailure?{...console,error(){}}:console,AbortController};
+ const context={seededLamps,createLightBake,doorSurroundFactor,THREE:{...THREE,WebGLRenderer:Renderer,TextureLoader:Loader},Game,document,window:{screen:{orientation},visualViewport:{addEventListener(n,fn){on('viewport',n,fn)}},addEventListener(n,fn){on('window',n,fn)}},navigator:{userAgent:userAgent??(mobile?'iPhone':'Desktop'),platform,maxTouchPoints:mobile?2:0},performance:{now:()=>now},crypto:{getRandomValues:a=>{a[0]=42;return a}},matchMedia:q=>({matches:q==='(pointer:coarse)'?coarse:q==='(any-hover: hover)'?!mobile:q==='(display-mode: standalone)'?standalone:false}),innerWidth:width,innerHeight:height,devicePixelRatio:3,requestAnimationFrame:fn=>frame=fn,setTimeout:fn=>fn(),console:options.graphicsFailure?{...console,error(){}}:console,AbortController};
  vm.createContext(context);vm.runInContext(source,context);
  const dispatch=(target,n,event={})=>{for(const fn of listeners[target+':'+n]||[])fn(event)};
  return{context,element,listeners,captured,dispatch,rotate(w,h){context.innerWidth=w;context.innerHeight=h;dispatch('window','resize')},frame:t=>{now=t;frame(t)},getRender:()=>rendered,eval:s=>vm.runInContext(s,context)}
@@ -17,13 +18,13 @@ function boot(options={}){
 test('app boots and follows menu / pause / continue / settings / restart with a mocked DOM and GPU',()=>{const app=boot();assert.equal(app.element('error').hidden,true);
 assert.equal(app.eval('game.mode'),'menu');app.frame(100);assert.equal(app.getRender().camera.position.x,22.5);assert.equal(app.eval('hasRun'),false);app.element('start').onclick();assert.equal(app.eval('game.mode'),'playing');assert.equal(app.eval('game.maze.seed'),42);app.element('pause').onclick();assert.equal(app.eval('game.mode'),'paused');app.element('main-menu').onclick();assert.equal(app.eval('game.mode'),'menu');assert.equal(app.element('continue').disabled,false);app.element('continue').onclick();assert.equal(app.eval('game.mode'),'playing');app.element('sound-toggle').onclick();assert.equal(app.eval('soundEnabled'),false);app.element('quality-toggle').onclick();assert.equal(app.eval('renderScale'),.75);app.element('restart').onclick();assert.equal(app.eval('game.items.length'),6);assert.equal(app.eval('game.inventory("food").length'),4);app.frame(200);assert.equal(app.eval('renderer.shadowMap.enabled'),false);assert.equal(app.eval('renderer.shadowMap.autoUpdate'),false)});
 test('lighting stays bounded, instancing retains static geometry, and resolution budget is enforced',()=>{const app=boot();app.frame(100);const{scene}=app.getRender();let lights=0,points=0,instanced=0,instances=0;scene.traverse(o=>{if(o.isLight)lights++;if(o.isPointLight)points++;if(o.isInstancedMesh){instanced++;instances+=o.count}});assert.equal(lights,2);assert.equal(points,0);assert(instanced>=6);assert(instances>900);for(const[w,h,dpr,coarse]of [[390,844,3,true],[1366,1024,2,true],[3840,2160,2,false]]){const r=app.eval(`pixelRatio(${w},${h},${dpr},${coarse})`);assert(w*h*r*r<=(coarse?1100000:2000000)+.01);assert(r<=(coarse?1.35:1.6))}});
-test('fluorescent fill lifts downward ceiling illumination without adding lights or emissive surfaces',()=>{
+test('baked fluorescent surfaces avoid double ambient lighting and retain bounded prop fill',()=>{
  const app=boot();app.frame(100);const {scene}=app.getRender();const hemi=scene.children.find(o=>o.isHemisphereLight),directional=scene.children.find(o=>o.isDirectionalLight);
- assert.equal(hemi.intensity,1.9);assert.equal(hemi.color.getHex(),0xfff5e2);assert.equal(hemi.groundColor.getHex(),0xcdcdc2);assert.equal(directional.intensity,.28);assert.equal(app.eval('renderer.toneMappingExposure'),1);
+ assert.equal(hemi.intensity,1.65);assert.equal(hemi.color.getHex(),0xfff5e2);assert.equal(hemi.groundColor.getHex(),0xcdcdc2);assert.equal(directional.intensity,.18);assert.equal(app.eval('renderer.toneMappingExposure'),1);
  const luminance=c=>.2126*c.r+.7152*c.g+.0722*c.b;
  assert(luminance(hemi.groundColor)*hemi.intensity>8*luminance(new THREE.Color(0x393422))*.92);
  assert(luminance(hemi.color)/luminance(hemi.groundColor)<3);
- assert.equal(app.eval('mat.ceiling.emissive.getHex()'),0);assert.equal(app.eval('mat.wall.emissive.getHex()'),0);assert.equal(scene.fog.near,14);assert.equal(scene.fog.far,44);
+ assert.equal(app.eval('mat.ceiling.isMeshBasicMaterial'),true);assert.equal(app.eval('mat.wall.isMeshBasicMaterial'),true);assert.equal(app.eval('mat.floor.isMeshBasicMaterial'),true);assert.equal(scene.fog.near,16);assert.equal(scene.fog.far,80);
 });
 test('raised physical ceilings align maze, room, exit, fixtures, trim and door lintel',()=>{
  const app=boot();app.frame(100);const H=app.eval('ROOM_HEIGHT'),mat=app.eval('mat');assert.equal(H,3.6);
@@ -92,11 +93,11 @@ test('local light falloff follows actual fixture positions with a bounded static
  const app=boot();app.frame(100);const {scene}=app.getRender();
  const group=app.eval('mazeGroup'),floor=app.eval('mat.floor');
  assert.equal(group.userData.lamps.length,51);
- assert.equal(app.eval('fixtureInfluence(mazeGroup,2.5,2.5)'),1);
- assert(app.eval('fixtureInfluence(mazeGroup,0,0)')<.2);
- assert.equal(app.eval('fixtureInfluence(roomGroup,game.maze.doorX+3,game.maze.doorZ)'),1);
+ assert.equal(group.userData.lamps[0].x,2.5);assert.equal(group.userData.lamps[0].z,2.5);
+ assert(group.userData.lamps.every(l=>l.intensity>=.92&&l.intensity<=1.08));
+ assert.equal(app.eval('roomGroup.userData.lamps[0].x'),app.eval('game.maze.doorX+3'));
  const slab=group.children.find(o=>o.material===floor),colour=slab.geometry.attributes.color;
- assert(colour&&colour.count>100);const values=Array.from(colour.array);assert(Math.min(...values)>=.74-.00001);assert(Math.max(...values)<=1.00001);assert(Math.max(...values)-Math.min(...values)>.15);
+ assert(colour&&colour.count>100);const values=Array.from(colour.array);assert(Math.min(...values)>=.27-.00001);assert(Math.max(...values)<=.86001);assert(Math.max(...values)-Math.min(...values)>.15);
  const panels=group.children.find(o=>o.material===app.eval('mat.ceiling'));assert(panels.instanceColor);assert.equal(panels.instanceColor.count,panels.count);
  let uniqueTriangles=0;scene.traverse(o=>{if(o.geometry)uniqueTriangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3});assert(uniqueTriangles<30000);
  const hemi=scene.children.find(o=>o.isHemisphereLight);assert(hemi.groundColor.b/hemi.groundColor.r>.85,'ceiling fill must not reintroduce a strong yellow filter');
@@ -117,4 +118,14 @@ test('Escape closes settings without resuming simulation behind the overlay',()=
  const app=boot();app.element('start').onclick();app.element('pause-help').onclick();assert.equal(app.eval('game.mode'),'paused');assert.equal(app.element('help').hidden,false);
  app.dispatch('window','keydown',{code:'Escape'});assert.equal(app.element('help').hidden,true);assert.equal(app.eval('game.mode'),'paused');
  app.element('resume').onclick();assert.equal(app.eval('game.mode'),'playing');
+});
+
+
+test('doorway flank/lintel tint is local and bounded while wood geometry/material and draw count stay intact',()=>{
+ const app=boot(),group=app.eval('roomGroup'),material=app.eval('mat.room');
+ const surfaces=group.children.filter(o=>o.material===material);assert.equal(surfaces.length,1);assert(surfaces[0].isInstancedMesh);
+ const colours=surfaces[0].instanceColor;assert(colours);const values=Array.from(colours.array);assert(Math.min(...values)>=.93-1e-6);assert(Math.min(...values)<.94);assert(Math.max(...values)>.99);
+ assert.equal(app.eval('mat.wood.color.getHex()'),0x665033);assert.equal(app.eval('mat.panel.color.getHex()'),0x4b3a26);assert(app.eval('doorPivot.children.every(m=>!m.userData.lightTint)'));
+ for(const g of [app.eval('mazeGroup'),group,app.eval('exitGroup')]){const batches=g.children.filter(o=>o.material===app.eval('mat.light'));assert.equal(batches.length,1);assert(batches[0].isInstancedMesh);assert.equal(batches[0].instanceColor.count,batches[0].count);assert.equal(g.userData.bake.stats.cacheEntries,0)}
+ const samples=app.eval('mazeGroup.userData.bake.stats.samples');app.frame(100);app.frame(200);assert.equal(app.eval('mazeGroup.userData.bake.stats.samples'),samples);
 });

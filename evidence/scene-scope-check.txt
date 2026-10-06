@@ -1,0 +1,14 @@
+seed 0: baseline {"meshes":115,"instanced":15,"instances":1208,"expanded":1308,"materials":21,"visibleMeshes":95,"visibleMaterials":14}; patch {"meshes":115,"instanced":15,"instances":1208,"expanded":1308,"materials":21,"visibleMeshes":95,"visibleMaterials":14}
+seed 1: baseline {"meshes":116,"instanced":15,"instances":1210,"expanded":1311,"materials":21,"visibleMeshes":96,"visibleMaterials":14}; patch {"meshes":116,"instanced":15,"instances":1210,"expanded":1311,"materials":21,"visibleMeshes":96,"visibleMaterials":14}
+seed 5: baseline {"meshes":116,"instanced":15,"instances":1210,"expanded":1311,"materials":21,"visibleMeshes":96,"visibleMaterials":14}; patch {"meshes":116,"instanced":15,"instances":1210,"expanded":1311,"materials":21,"visibleMeshes":96,"visibleMaterials":14}
+seed 42: baseline {"meshes":117,"instanced":15,"instances":1212,"expanded":1314,"materials":21,"visibleMeshes":97,"visibleMaterials":14}; patch {"meshes":117,"instanced":15,"instances":1212,"expanded":1314,"materials":21,"visibleMeshes":97,"visibleMaterials":14}
+seed 3735928559: baseline {"meshes":117,"instanced":15,"instances":1212,"expanded":1314,"materials":21,"visibleMeshes":97,"visibleMaterials":14}; patch {"meshes":117,"instanced":15,"instances":1212,"expanded":1314,"materials":21,"visibleMeshes":97,"visibleMaterials":14}
+UNCHANGED dist/game.js
+UNCHANGED dist/style.css
+UNCHANGED dist/manifest.webmanifest
+UNCHANGED dist/vendor/three.module.min.js
+UNCHANGED dist/vendor/three.core.min.js
+UNCHANGED dist/textures/level0-wallpaper.webp
+UNCHANGED dist/textures/level0-carpet.webp
+UNCHANGED dist/textures/level0-ceiling.webp
+SCENE SHAPE AND PROTECTED FILE CHECK PASSED

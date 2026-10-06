@@ -1,0 +1,173 @@
+{
+  "status": "REAL GPU / MOBILE ACCEPTANCE NOT TESTED",
+  "baselineCommit": "52c1d6b0606d44f17257fbc61e6925d6ca597cf2",
+  "testMethod": "Node real Three.js geometry plus mocked DOM/WebGL; numbers are not rendered pixels or mobile FPS",
+  "counts": {
+    "0": {
+      "meshes": 115,
+      "instances": 1308,
+      "uniqueGeometryTriangleProxy": 15208,
+      "materialObjects": 21,
+      "instancedBatches": 15,
+      "lights": 2,
+      "nodeBuildMilliseconds": 130.3,
+      "bakeStats": [
+        {
+          "samples": 11066,
+          "cacheHits": 892,
+          "rays": 139074,
+          "boxTests": 108622,
+          "cacheEntries": 0
+        },
+        {
+          "samples": 124,
+          "cacheHits": 0,
+          "rays": 170,
+          "boxTests": 100,
+          "cacheEntries": 0
+        },
+        {
+          "samples": 0,
+          "cacheHits": 0,
+          "rays": 0,
+          "boxTests": 0,
+          "cacheEntries": 0
+        }
+      ]
+    },
+    "1": {
+      "meshes": 116,
+      "instances": 1311,
+      "uniqueGeometryTriangleProxy": 15384,
+      "materialObjects": 21,
+      "instancedBatches": 15,
+      "lights": 2,
+      "nodeBuildMilliseconds": 106.3,
+      "bakeStats": [
+        {
+          "samples": 11300,
+          "cacheHits": 804,
+          "rays": 140762,
+          "boxTests": 110824,
+          "cacheEntries": 0
+        },
+        {
+          "samples": 124,
+          "cacheHits": 0,
+          "rays": 170,
+          "boxTests": 100,
+          "cacheEntries": 0
+        },
+        {
+          "samples": 0,
+          "cacheHits": 0,
+          "rays": 0,
+          "boxTests": 0,
+          "cacheEntries": 0
+        }
+      ]
+    },
+    "5": {
+      "meshes": 116,
+      "instances": 1311,
+      "uniqueGeometryTriangleProxy": 15384,
+      "materialObjects": 21,
+      "instancedBatches": 15,
+      "lights": 2,
+      "nodeBuildMilliseconds": 110.2,
+      "bakeStats": [
+        {
+          "samples": 11388,
+          "cacheHits": 716,
+          "rays": 143779,
+          "boxTests": 115167,
+          "cacheEntries": 0
+        },
+        {
+          "samples": 124,
+          "cacheHits": 0,
+          "rays": 170,
+          "boxTests": 100,
+          "cacheEntries": 0
+        },
+        {
+          "samples": 0,
+          "cacheHits": 0,
+          "rays": 0,
+          "boxTests": 0,
+          "cacheEntries": 0
+        }
+      ]
+    },
+    "42": {
+      "meshes": 117,
+      "instances": 1314,
+      "uniqueGeometryTriangleProxy": 15560,
+      "materialObjects": 21,
+      "instancedBatches": 15,
+      "lights": 2,
+      "nodeBuildMilliseconds": 128.5,
+      "bakeStats": [
+        {
+          "samples": 11512,
+          "cacheHits": 738,
+          "rays": 145061,
+          "boxTests": 118225,
+          "cacheEntries": 0
+        },
+        {
+          "samples": 124,
+          "cacheHits": 0,
+          "rays": 170,
+          "boxTests": 100,
+          "cacheEntries": 0
+        },
+        {
+          "samples": 0,
+          "cacheHits": 0,
+          "rays": 0,
+          "boxTests": 0,
+          "cacheEntries": 0
+        }
+      ]
+    },
+    "3735928559": {
+      "meshes": 117,
+      "instances": 1314,
+      "uniqueGeometryTriangleProxy": 15560,
+      "materialObjects": 21,
+      "instancedBatches": 15,
+      "lights": 2,
+      "nodeBuildMilliseconds": 109.2,
+      "bakeStats": [
+        {
+          "samples": 11336,
+          "cacheHits": 914,
+          "rays": 142642,
+          "boxTests": 114575,
+          "cacheEntries": 0
+        },
+        {
+          "samples": 124,
+          "cacheHits": 0,
+          "rays": 170,
+          "boxTests": 105,
+          "cacheEntries": 0
+        },
+        {
+          "samples": 0,
+          "cacheHits": 0,
+          "rays": 0,
+          "boxTests": 0,
+          "cacheEntries": 0
+        }
+      ]
+    }
+  },
+  "numericLinearLighting": {
+    "floorUnder": 0.8030565933433141,
+    "floorBetween": 0.6040441081286637,
+    "ceilingUnder": 0.5558882237220838,
+    "ceilingBetween": 0.48787999840303525
+  }
+}
