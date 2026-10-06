@@ -72,3 +72,10 @@ Three.js 几何 / UV 测试在 Node 中执行，不能代替真实浏览器画�
 - https://developer.mozilla.org/en-US/docs/Web/API/ScreenOrientation/lock
 - https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Manifest/Reference/orientation
 - https://webkit.org/blog/13966/webkit-features-in-safari-16-4/#screen-orientation-api
+
+
+### 缓存更新修正（1.3.1）
+
+新版本安装时显式使用 Request cache: reload 从服务器获取资源，避免 HTTP 缓存把旧 HTML/JS 装入新版本离线缓存。导航只查询当前活动版本的命名缓存，避免不同版本互相命中。仍不 skipWaiting，不中途打断正在探索的旧页面。主菜单显示 v1.3.1，便于确认已更新。
+
+测试：20 项程序测试通过；缓存测试新增断言每个安装请求都为 reload，并检查 v1.2.0 / v1.3.0 清理。依据：https://developer.mozilla.org/en-US/docs/Web/API/Request/cache 。
