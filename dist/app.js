@@ -1,6 +1,9 @@
 import * as THREE from './vendor/three.module.min.js';
 import {Game,SIZE,CELL} from './game.js';
 import {GameAudio} from './audio.js';
+import {createCableMonster} from './monster.js';
+import {escapeDirection,escapeDarkness,escapeFrozen} from './escape.js';
+import {setDeveloperEnabled,developerStatus,spawnDeveloperItem,jumpDeveloperTime,teleportDeveloper} from './developer.js';
 import {RenderChunkStream,RENDER_CELLS,RENDER_METRES,visibleCorridorCells} from './world.js';
 import {seededLamps,createLightBake,doorSurroundFactor} from './lighting.js';
 const $=s=>document.getElementById(s), seed=()=>crypto.getRandomValues(new Uint32Array(1))[0];
@@ -11,7 +14,8 @@ const ROOM_HEIGHT=3.6,EYE_HEIGHT=1.63,DOOR_HEAD=2.66;
 const LIGHTING=Object.freeze({sky:0xfff5e2,ground:0xcdcdc2,hemisphere:1.65,directional:0.18,exposure:1.0});
 let chunkStream,renderOrigin={x:0,z:0},worldLoading=true,worldRendered=false,viewOverflow=false,selectedViewCache=null,corridorViewCache=null,requestedSelection=null;
 // Preserve the last presented drawing buffer while a resized view is loading.
-let pendingRendererSize=null;
+let developerEnabled=false;
+let pendingRendererSize=null,monsterVisual=null,escapeMarks=null,escapeMarkLayout=null,escapeConnection=0;
 let game=new Game(5),graphicsReady=false,hasRun=false,soundEnabled=true,renderScale=1,lastRender=0,renderer,scene,camera,mazeGroup,roomGroup,exitGroup,doorPivot,itemMeshes=new Map(),last=performance.now(),toastUntil=0,dialogReturnFocus=null;
 const keys=new Set(),input={forward:0,strafe:0,sprint:false},touch={move:null,look:null,sprint:new Set(),x:0,y:0},coarse=matchMedia('(pointer:coarse)').matches;
 // Gate the rendered mobile viewport, not just the physical screen's orientation.
@@ -81,7 +85,7 @@ mat.wall.customProgramCacheKey=()=> 'level0-wallpaper-contrast-v1';
 // WALLPAPER_FADE_END
 const boxGeo=new THREE.BoxGeometry(1,1,1);
 // World-scale UVs keep every wall and floor at the same density, including short doorway pieces.
-function box(group,x,y,z,w,h,d,material){
+function box(group,x,y,z,w,h,d,material,insideNormal=null){
  let geo=boxGeo;
  if(material===mat.wall||material===mat.floor){
   const wall=material===mat.wall;
@@ -96,7 +100,8 @@ function box(group,x,y,z,w,h,d,material){
    else uv.setXY(i,ux/metres,py/metres);
    // The existing geometry/UVs are unchanged; bake real fixture distance, normals,
    // fixed-wall occlusion and contact shade into its existing vertex colours.
-   const bake=wall&&group.userData.facadeBake&&Math.abs(x-group.userData.door.x)<.1&&n.getX(i)<-.5?group.userData.facadeBake:group.userData.bake;
+   const outside=insideNormal?n.getX(i)*insideNormal[0]+n.getY(i)*insideNormal[1]+n.getZ(i)*insideNormal[2]<.5:Math.abs(x-group.userData.door?.x)<.1&&n.getX(i)<-.5;
+   const bake=wall&&group.userData.facadeBake&&outside?group.userData.facadeBake:group.userData.bake;
    const normal=[n.getX(i),n.getY(i),n.getZ(i)];
    const rgb=fold&&uz<=2.5?group.userData.foldBake.sample([ux,py,uz],normal):bake?.sample([px,py,pz],normal)||[.5,.5,.5];
    colours.set(rgb,i*3);
@@ -109,7 +114,12 @@ function box(group,x,y,z,w,h,d,material){
  group.add(mesh);return mesh
 }
 // Preserve the room-facing beige surface; only the corridor-facing shell gets wallpaper.
-function facadeBox(group,x,y,z,w,h,d){const mesh=box(group,x,y,z,w,h,d,mat.wall);mesh.material=[mat.room,mat.wall,mat.wall,mat.wall,mat.wall,mat.wall];mesh.userData.doorFacade=true;return mesh}
+function facadeBox(group,x,y,z,w,h,d,insideFace=0){
+ const normals=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+ const mesh=box(group,x,y,z,w,h,d,mat.wall,normals[insideFace]);
+ mesh.material=Array(6).fill(mat.wall);mesh.material[insideFace]=mat.room;
+ mesh.userData.roomShell=true;mesh.userData.insideFace=insideFace;mesh.userData.doorFacade=insideFace===0;return mesh;
+}
 function ceiling(group,x,z,w,d){
  // Separate the panel from its backing by 20mm so distant panels do not depth-fight.
  box(group,x,ROOM_HEIGHT+.08,z,w,.16,d,mat.ceilingGrid);
@@ -266,6 +276,7 @@ function updateStreamView(){
 function prepareStream(){
  chunkStream=new RenderChunkStream({create:createRenderChunk,dispose:disposeChunk});worldRendered=false;worldLoading=true;selectedViewCache=null;corridorViewCache=null;requestedSelection=null;$('world').style.visibility='hidden';
  // Local item visibility is deliberately separate from whole-view readiness.
+ game.escapeViewReady=()=>!worldLoading;
  game.renderReady=(x,z)=>[-.22,.22].every(dx=>[-.22,.22].every(dz=>chunkStream.readyAt(x+dx,z+dz)));
  updateStreamView();
 }
@@ -359,8 +370,10 @@ function makeManilaDoor(parent,m){
 }
 // MANILA_DOOR_MODEL_END
 
-function build(){chunkStream?.clear();if(scene)scene.traverse(o=>{if(o.isMesh){o.dispose?.();if(o.geometry!==boxGeo)o.geometry.dispose();for(const material of Array.isArray(o.material)?o.material:[o.material])if(material&&!Object.values(mat).includes(material)){material.map?.dispose();material.dispose()}}});scene=new THREE.Scene();scene.background=new THREE.Color(0x626354);scene.fog=new THREE.Fog(0x626354,16,80);scene.add(new THREE.HemisphereLight(LIGHTING.sky,LIGHTING.ground,LIGHTING.hemisphere));const directional=new THREE.DirectionalLight(LIGHTING.sky,LIGHTING.directional);directional.position.set(4,10,5);scene.add(directional);camera=new THREE.PerspectiveCamera(76,innerWidth/innerHeight,.06,65);camera.rotation.order='YXZ';mazeGroup=new THREE.Group();roomGroup=new THREE.Group();exitGroup=new THREE.Group();scene.add(mazeGroup,roomGroup,exitGroup);exitGroup.visible=false;const m=game.maze;prepareLighting(m);
-for(const w of game.roomWalls){const facade=Math.abs(w.x-m.doorX)<.01;if(facade)facadeBox(roomGroup,w.x,ROOM_HEIGHT/2,w.z,w.w,ROOM_HEIGHT,w.d);else box(roomGroup,w.x,ROOM_HEIGHT/2,w.z,w.w,ROOM_HEIGHT,w.d,mat.room);box(roomGroup,w.x,.07,w.z,w.w+.025,.14,w.d+.025,mat.trim);box(roomGroup,w.x,ROOM_HEIGHT-.08,w.z,w.w+.018,.16,w.d+.018,mat.trim)}
+function createItemMesh(i){const g=new THREE.Group();if(i.kind==='food'){box(g,0,.05,0,.32,.1,.22,mat.food);box(g,0,.106,0,.12,.009,.20,mat.paper);box(g,-.16,.05,0,.026,.08,.22,mat.panel);const num=new THREE.Mesh(new THREE.PlaneGeometry(.08,.08),label(i.id.split('-').at(-1),64,64));num.rotation.x=-Math.PI/2;num.position.set(0,.117,0);g.add(num)}else if(i.kind==='phone'){box(g,0,.016,0,.16,.032,.27,mat.phone);box(g,0,.034,0,.135,.005,.218,mat.phoneScreen);box(g,0,.039,-.106,.047,.004,.008,mat.metal)}else{box(g,0,.15,0,.13,.3,.13,mat.water);box(g,0,.325,0,.09,.05,.09,mat.metal);box(g,0,.15,-.067,.13,.09,.008,mat.paper)}scene.add(g);itemMeshes.set(i.id,g);return g}
+
+function build(){monsterVisual?.dispose();monsterVisual=null;escapeMarks=null;escapeMarkLayout=null;escapeConnection=0;chunkStream?.clear();if(scene)scene.traverse(o=>{if(o.isMesh){o.dispose?.();if(o.geometry!==boxGeo)o.geometry.dispose();for(const material of Array.isArray(o.material)?o.material:[o.material])if(material&&!Object.values(mat).includes(material)){material.map?.dispose();material.dispose()}}});scene=new THREE.Scene();scene.background=new THREE.Color(0x626354);scene.fog=new THREE.Fog(0x626354,16,80);scene.add(new THREE.HemisphereLight(LIGHTING.sky,LIGHTING.ground,LIGHTING.hemisphere));const directional=new THREE.DirectionalLight(LIGHTING.sky,LIGHTING.directional);directional.position.set(4,10,5);scene.add(directional);camera=new THREE.PerspectiveCamera(76,innerWidth/innerHeight,.06,65);camera.rotation.order='YXZ';mazeGroup=new THREE.Group();roomGroup=new THREE.Group();exitGroup=new THREE.Group();scene.add(mazeGroup,roomGroup,exitGroup);exitGroup.visible=false;const m=game.maze;prepareLighting(m);
+for(const w of game.roomWalls){const insideFace=Math.abs(w.x-m.doorX)<.01?0:w.w>w.d?(w.z<m.doorZ?4:5):1;facadeBox(roomGroup,w.x,ROOM_HEIGHT/2,w.z,w.w,ROOM_HEIGHT,w.d,insideFace);box(roomGroup,w.x,.07,w.z,w.w+.025,.14,w.d+.025,mat.trim);box(roomGroup,w.x,ROOM_HEIGHT-.08,w.z,w.w+.018,.16,w.d+.018,mat.trim)}
 box(roomGroup,m.doorX+3,-.08,m.doorZ,6,.16,5,mat.floor);ceiling(roomGroup,m.doorX+3,m.doorZ,6,5);makeFixture(roomGroup,m.doorX+3,m.doorZ);facadeBox(roomGroup,m.doorX,(ROOM_HEIGHT+DOOR_HEAD)/2,m.doorZ,.16,ROOM_HEIGHT-DOOR_HEAD,1.8);box(roomGroup,m.doorX,ROOM_HEIGHT-.08,m.doorZ,.178,.16,1.818,mat.trim);
 doorPivot=makeManilaDoor(roomGroup,m);const sign=new THREE.Mesh(new THREE.PlaneGeometry(1,.22),label('MANILA'));sign.position.set(m.doorX-.13,2.91,m.doorZ);sign.rotation.y=-Math.PI/2;roomGroup.add(sign);
 // Low bench, two finite bottles, and a paper note.
@@ -371,11 +384,11 @@ box(roomGroup,m.doorX+5.81,.92,m.doorZ-.65,.08,.095,.085,mat.cable);
 const cableCurve=new THREE.CatmullRomCurve3([new THREE.Vector3(m.doorX+5.77,.92,m.doorZ-.65),new THREE.Vector3(m.doorX+5.45,.72,m.doorZ-.64),new THREE.Vector3(m.doorX+4.72,.69,m.doorZ-.66),new THREE.Vector3(m.doorX+4.35,.69,m.doorZ-.62)]);
 const cableMesh=new THREE.Mesh(new THREE.TubeGeometry(cableCurve,16,.012,5,false),mat.cable);cableMesh.userData.chargingCable=true;roomGroup.add(cableMesh);
 box(roomGroup,m.doorX+4.30,.696,m.doorZ-.62,.10,.026,.044,mat.metal);
-box(exitGroup,m.doorX-4.8,-.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT+.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ-1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ+1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-9.5,ROOM_HEIGHT/2,m.doorZ,.1,ROOM_HEIGHT,2.4,new THREE.MeshBasicMaterial({color:0x899ba0}));makeFixture(exitGroup,m.doorX-3,m.doorZ);makeFixture(exitGroup,m.doorX-7,m.doorZ);itemMeshes.clear();for(const i of game.items){const g=new THREE.Group();if(i.kind==='food'){box(g,0,.05,0,.32,.1,.22,mat.food);box(g,0,.106,0,.12,.009,.20,mat.paper);box(g,-.16,.05,0,.026,.08,.22,mat.panel);const num=new THREE.Mesh(new THREE.PlaneGeometry(.08,.08),label(i.id.slice(-1),64,64));num.rotation.x=-Math.PI/2;num.position.set(0,.117,0);g.add(num)}else if(i.kind==='phone'){box(g,0,.016,0,.16,.032,.27,mat.phone);box(g,0,.034,0,.135,.005,.218,mat.phoneScreen);box(g,0,.039,-.106,.047,.004,.008,mat.metal)}else{box(g,0,.15,0,.13,.3,.13,mat.water);box(g,0,.325,0,.09,.05,.09,mat.metal);box(g,0,.15,-.067,.13,.09,.008,mat.paper)}scene.add(g);itemMeshes.set(i.id,g)}batchStaticBoxes(roomGroup);batchStaticBoxes(exitGroup);roomGroup.userData.bake.clear();roomGroup.userData.facadeBake.clear();exitGroup.userData.bake.clear();prepareStream();sync();}
+box(exitGroup,m.doorX-4.8,-.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT+.08,m.doorZ,9.6,.16,2.4,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ-1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-4.8,ROOM_HEIGHT/2,m.doorZ+1.28,9.6,ROOM_HEIGHT,.16,mat.exit);box(exitGroup,m.doorX-9.5,ROOM_HEIGHT/2,m.doorZ,.1,ROOM_HEIGHT,2.4,new THREE.MeshBasicMaterial({color:0x899ba0}));makeFixture(exitGroup,m.doorX-3,m.doorZ);makeFixture(exitGroup,m.doorX-7,m.doorZ);itemMeshes.clear();for(const i of game.items)createItemMesh(i);batchStaticBoxes(roomGroup);batchStaticBoxes(exitGroup);roomGroup.userData.bake.clear();roomGroup.userData.facadeBake.clear();exitGroup.userData.bake.clear();prepareStream();sync();}
 // Backpack state belongs to this UI; simulation owns item identities and transactions.
 let selectedItemId=null,inventoryDrag=null,inventorySignature='',objectiveKey='',objectiveUntil=0;
 const inventoryCells=[],inventoryNodes=new Map();
-const itemName=i=>`${i.kind==='phone'?'手机':i.kind==='water'?'饮用水':'干粮'} ${i.id.split('-').at(-1)}`;
+const itemName=i=>`${i.developerSpawned?'调试 · ':''}${i.kind==='phone'?'手机':i.kind==='water'?'饮用水':'干粮'} ${i.id.split('-').at(-1)}`;
 const itemIcon=i=>`./icons/item-${i.kind}.svg`;
 function canUseInventory(){return game.inventoryOpen&&!game.phoneOpenId&&game.mode==='playing'&&!orientationBlocked&&!document.hidden}
 function selectedItem(){return game.inventory().find(i=>i.id===selectedItemId)}
@@ -493,22 +506,81 @@ function initInventory(){
  $('inventory-panel').addEventListener('pointermove',moveInventoryDrag);$('inventory-panel').addEventListener('pointerup',endInventoryDrag);
  for(const type of ['pointercancel','lostpointercapture'])$('inventory-panel').addEventListener(type,e=>{if(inventoryDrag?.pointerId===e.pointerId)cancelInventoryDrag()});
 }
+function syncEscapeVisual(dt=0,active=false){
+ const e=game.escape;
+ $('escape-blackout').style.opacity=String(escapeDarkness(game));
+ const direction=escapeDirection(game),visible=direction&&game.mode==='playing'&&!game.inventoryOpen&&!game.phoneOpenId;
+ $('escape-guide').hidden=!visible;
+ if(visible){const angle=Math.atan2(direction.x-game.player.x,-(direction.z-game.player.z))-game.player.yaw;$('escape-arrow').style.transform=`rotate(${angle}rad)`;$('escape-guide-copy').textContent=direction.label}
+ if(e.layout&&escapeMarkLayout!==e.layout){
+  escapeMarks?.removeFromParent();
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array([-.10,.015,.6,.10,.015,-.15,.10,.015,.6,-.10,.015,.6,-.10,.015,-.15,.10,.015,-.15,-.4,.015,-.1,0,.015,-.75,.4,.015,-.1]),3));
+  geometry.computeVertexNormals();
+  escapeMarks=new THREE.InstancedMesh(geometry,new THREE.MeshBasicMaterial({color:0xc0c393,side:THREE.DoubleSide}),e.layout.route.length-1);
+  escapeMarks.name='Escape route floor marks';const dummy=new THREE.Object3D();
+  e.layout.route.slice(0,-1).forEach((p,i)=>{const next=e.layout.route[i+1];dummy.position.set(p.x,0,p.z);dummy.rotation.y=Math.atan2(-(next.x-p.x),-(next.z-p.z));dummy.updateMatrix();escapeMarks.setMatrixAt(i,dummy.matrix)});
+  escapeMarks.instanceMatrix.needsUpdate=true;escapeMarks.computeBoundingSphere();scene.add(escapeMarks);escapeMarkLayout=e.layout;
+ }
+ if(escapeMarks)escapeMarks.visible=['loading','warning','chase','caught-animation','caught'].includes(e.phase);
+ if(e.monster?.active){
+  if(!monsterVisual){monsterVisual=createCableMonster(THREE);scene.add(monsterVisual.root)}
+  monsterVisual.root.position.set(e.monster.x,0,e.monster.z);monsterVisual.root.rotation.y=-e.monster.yaw;
+  monsterVisual.update(active&&['warning','chase','door','caught-animation'].includes(e.phase)?dt:0,{clip:e.monster.clip,active:true});
+ }else monsterVisual?.update(0,{active:false});
+ // Switch existing lamp faces behind the advancing chase off once. The diffuse
+ // bake stays fixed; this does not create lights, rebake the world or add passes.
+ if(e.layout&&['warning','chase','caught-animation'].includes(e.phase)){
+  const matrix=new THREE.Matrix4(),colour=new THREE.Color();
+  for(const group of mazeGroup.children)for(const mesh of group.children)if(mesh.isInstancedMesh&&mesh.material===mat.light){
+   if(mesh.userData.escapeProgress===e.attempt+':'+e.progress)continue;mesh.userData.escapeProgress=e.attempt+':'+e.progress;
+   if(!mesh.userData.escapeBaseColors){mesh.userData.escapeBaseColors=[];for(let i=0;i<mesh.count;i++){if(mesh.instanceColor)mesh.getColorAt(i,colour);else colour.setRGB(1,1,1);mesh.userData.escapeBaseColors.push(colour.clone())}}
+   let changed=false;
+   for(let i=0;i<mesh.count;i++){mesh.getMatrixAt(i,matrix);const x=matrix.elements[12]+mesh.position.x,z=matrix.elements[14]+mesh.position.z;const index=e.layout.indices.get(Math.floor(x/CELL)+','+Math.floor(z/CELL));const off=index!==undefined&&index<e.progress-3;if(index!==undefined){mesh.setColorAt(i,colour.copy(mesh.userData.escapeBaseColors[i]).multiplyScalar(off?.025:1));changed=true}}
+   if(changed)mesh.instanceColor.needsUpdate=true;
+  }
+ }
+}
+
+function syncDeveloperTools(){
+ const status=developerStatus(game);
+ $('developer-toggle').textContent=developerEnabled?'关闭开发者工具':'启用开发者工具';$('developer-toggle').setAttribute('aria-pressed',String(developerEnabled));
+ $('developer-tools').hidden=!developerEnabled;$('debug-badge').hidden=!developerEnabled;
+ $('developer-availability').textContent=status.available?(status.spawnReason||'调试动作只改变当前一轮，设置内不会推进探索时间。'):status.reason;
+ $('developer-spawn').disabled=!status.canSpawn;$('developer-time').disabled=!status.canJumpTime;
+ $('developer-teleport-outside').disabled=!status.canTeleportOutside;$('developer-teleport-inside').disabled=!status.canTeleportInside;
+ $('developer-time-reason').textContent=status.canJumpTime?'继续实际探索 30 秒后触发事件；暂停和加载不计时。':status.jumpReason||status.reason;
+ $('developer-teleport-reason').textContent=status.canTeleportInside?(status.outsideReason?status.outsideReason+' ':'' )+'传送视为找到马尼拉，会跳过或终止本轮追逐。物资和消耗保留，室内仍需手动关门。':status.teleportReason||status.reason;
+}
+function runDeveloperAction(action){
+ if(!developerEnabled||$('help').hidden||orientationBlocked||document.hidden)return;
+ const result=action();$('developer-status').textContent=result.reason||'';
+ if(result.ok){clearInput();cancelInventoryDrag();inventorySignature='';phoneSignature='';gameAudio.stop();sync();syncEscapeVisual(0,false);selectedViewCache=null;corridorViewCache=null;requestedSelection=null;updateStreamView()}
+ syncDeveloperTools();
+}
+$('developer-toggle').onclick=()=>{if($('help').hidden||orientationBlocked||document.hidden)return;developerEnabled=!developerEnabled;setDeveloperEnabled(game,developerEnabled);$('developer-status').textContent=developerEnabled?'开发者工具已启用，仅在当前页面会话保留。':'';syncDeveloperTools()};
+$('developer-item').value='food';
+$('developer-spawn').onclick=()=>runDeveloperAction(()=>spawnDeveloperItem(game,$('developer-item').value));
+$('developer-time').onclick=()=>runDeveloperAction(()=>jumpDeveloperTime(game));
+$('developer-teleport-outside').onclick=()=>runDeveloperAction(()=>teleportDeveloper(game,'outside'));
+$('developer-teleport-inside').onclick=()=>runDeveloperAction(()=>teleportDeveloper(game,'inside'));
+
 function sync(){
  mazeGroup.visible=!game.changed;exitGroup.visible=game.changed;doorPivot.rotation.y=game.door*Math.PI/2;
- for(const i of game.items){const g=itemMeshes.get(i.id);g.visible=game.worldItemVisible(i);g.position.set(i.x,i.y??.005,i.z)}
+ for(const i of game.items){const g=itemMeshes.get(i.id)||createItemMesh(i);g.visible=game.worldItemVisible(i);g.position.set(i.x,i.y??.005,i.z)}
  $('food-meter').style.width=game.food+'%';$('water-meter').style.width=game.hydration+'%';$('food-value').textContent=Math.ceil(game.food);$('water-value').textContent=Math.ceil(game.hydration);
  $('food-meter').parentElement?.setAttribute('aria-valuenow',String(Math.ceil(game.food)));$('water-meter').parentElement?.setAttribute('aria-valuenow',String(Math.ceil(game.hydration)));
  $('zone').textContent=game.inRoom()?'MANILA':game.changed?'UNKNOWN':'LEVEL 0';
- const objective=game.changed?'重新开门':game.entered?'把门完全关上':game.loops?'换条路寻找木门':'找到一扇木门';
+ const objective=game.escape.triggered&&!['finished','suppressed'].includes(game.escape.phase)?'沿灯下箭头逃向木门':game.changed?'重新开门':game.entered?'把门完全关上':game.loops?'换条路寻找木门':'找到一扇木门';
  if(objective!==objectiveKey){objectiveKey=objective;objectiveUntil=game.elapsed+6;$('objective').textContent=objective}
  $('objective').hidden=game.elapsed>objectiveUntil;
  const i=game.nearestItem();$('prompt').textContent=!canPlay()?'':i?(i.kind==='phone'?'拾回手机':i.kind==='food'?`拾回干粮 ${i.id.split('-').at(-1)}`:'拾起饮用水'):game.nearCharger()?(game.chargingPhoneId?'断开充电线':game.inventory('phone').length?'接上充电线':'查看充电线'):game.nearNote()?'阅读纸条':game.nearDoor()?(game.doorTarget>.5?'关门':'开门'):'';
  const available=Boolean($('prompt').textContent);$('interact').disabled=!available;$('interact-label').textContent=available?(i?(i.kind==='food'?'拾回':'拾取'):game.nearCharger()?(game.chargingPhoneId?'断开':'充电'):game.nearNote()?'阅读':$('prompt').textContent):'交互';$('interact').setAttribute('aria-label',available?$('prompt').textContent:'交互');
- $('food-value').parentElement?.classList.toggle('low',game.food<25);$('water-value').parentElement?.classList.toggle('low',game.hydration<25);const charging=game.phone(game.chargingPhoneId);$('charging-hud').hidden=!charging;$('charging-hud').textContent=charging?`🔋 ${Math.ceil(charging.battery)}% · ${charging.battery>=100?'已充满':'充电中'}`:'';renderInventory();renderPhone();
+ $('food-value').parentElement?.classList.toggle('low',game.food<25);$('water-value').parentElement?.classList.toggle('low',game.hydration<25);const charging=game.phone(game.chargingPhoneId);$('charging-hud').hidden=!charging;$('charging-hud').textContent=charging?`🔋 ${Math.ceil(charging.battery)}% · ${charging.battery>=100?'已充满':'充电中'}`:'';renderInventory();renderPhone();syncDeveloperTools();
 }
 function say(t){$('toast').textContent=t;if(game.inventoryOpen)$('inventory-status').textContent=t;$('toast').classList.add('show');toastUntil=performance.now()+6500}
 function clearInput(){for(const [id,pointer]of [['stick',touch.move],['look',touch.look],...Array.from(touch.sprint,p=>['sprint',p])])if(pointer!==null){try{$(id).releasePointerCapture?.(pointer)}catch{}}keys.clear();touch.move=null;touch.look=null;touch.sprint.clear();input.forward=input.strafe=0;input.sprint=false;$('stick-knob').style.transform='';}
-function showState(){$('phone-panel').hidden=!game.phoneOpenId;$('inventory-panel').hidden=!game.inventoryOpen||Boolean(game.phoneOpenId);$('inventory-panel').inert=Boolean(game.phoneOpenId);$('hud').inert=game.inventoryOpen;$('backpack').setAttribute('aria-expanded',String(game.inventoryOpen));for(const id of ['menu','pause-panel','note','ending'])$(id).hidden=true;$('hud').hidden=['menu','won','lost'].includes(game.mode);if(game.mode==='menu'){$('menu').hidden=false;$('continue').disabled=!hasRun}if(game.mode==='paused')$('pause-panel').hidden=false;if(game.mode==='note')$('note').hidden=false;if(['won','lost'].includes(game.mode)){$('ending').hidden=false;$('end-eyebrow').textContent=game.mode==='won'?'CONNECTION CHANGED':'SIGNAL LOST';$('end-title').textContent=game.mode==='won'?'门外，已经不是来路。':'你再也走不动了。';$('end-copy').innerHTML=game.mode==='won'?'你离开了零层。<br>下一层的风，比这里冷。':'饥饿或脱水结束了这次探索。<br>新的迷宫还在等着你。'}syncModalInert();if(game.mode!=='playing'||game.inventoryOpen||game.phoneOpenId||modalOpen()){clearInput();document.exitPointerLock?.();gameAudio.stop()}last=performance.now()}
+function showState(){$('phone-panel').hidden=!game.phoneOpenId;$('inventory-panel').hidden=!game.inventoryOpen||Boolean(game.phoneOpenId);$('inventory-panel').inert=Boolean(game.phoneOpenId);$('hud').inert=game.inventoryOpen;$('backpack').setAttribute('aria-expanded',String(game.inventoryOpen));for(const id of ['menu','pause-panel','note','ending','caught-panel'])$(id).hidden=true;$('hud').hidden=['menu','won','lost','caught'].includes(game.mode);$('caught-panel').hidden=game.mode!=='caught';if(game.mode==='caught')$('escape-retry').focus();if(game.mode==='menu'){$('menu').hidden=false;$('continue').disabled=!hasRun}if(game.mode==='paused')$('pause-panel').hidden=false;if(game.mode==='note')$('note').hidden=false;if(['won','lost'].includes(game.mode)){$('ending').hidden=false;$('end-eyebrow').textContent=game.mode==='won'?'CONNECTION CHANGED':'SIGNAL LOST';$('end-title').textContent=game.mode==='won'?'门外，已经不是来路。':'你再也走不动了。';$('end-copy').innerHTML=game.mode==='won'?'你离开了零层。<br>下一层的风，比这里冷。':'饥饿或脱水结束了这次探索。<br>新的迷宫还在等着你。'}syncModalInert();if(game.mode!=='playing'||game.inventoryOpen||game.phoneOpenId||modalOpen()){clearInput();document.exitPointerLock?.();gameAudio.stop()}last=performance.now()}
 function pause(){game.pause();cancelInventoryDrag();game.closeInventory();showState()}
 function act(a){if(!canPlay())return;if(a==='interact'){const result=game.interact();if(result==='door')gameAudio.door();if(result==='note')showState()}sync()}
 function soundStart(){gameAudio.setEnabled(soundEnabled);return gameAudio.unlock()}
@@ -516,18 +588,19 @@ function soundStart(){gameAudio.setEnabled(soundEnabled);return gameAudio.unlock
 function unlockGameplayAudio(){if(soundEnabled&&hasRun&&!document.hidden&&!orientationBlocked&&!modalOpen())soundStart()}
 document.addEventListener('pointerdown',unlockGameplayAudio,{capture:true});
 window.addEventListener('keydown',e=>{if(!e.repeat)unlockGameplayAudio()},{capture:true});
-function restart(){if(orientationBlocked||document.hidden||modalOpen()||!graphicsReady)return;gameAudio.reset();soundStart();void requestLandscape();hasRun=true;clearInput();cancelInventoryDrag();selectedItemId=null;inventorySignature='';phoneChapter=-1;phoneSignature='';objectiveKey='';game.reset(seed());build();game.start();showState()}
+function restart(){if(orientationBlocked||document.hidden||modalOpen()||!graphicsReady)return;gameAudio.reset();soundStart();void requestLandscape();hasRun=true;clearInput();cancelInventoryDrag();selectedItemId=null;inventorySignature='';phoneChapter=-1;phoneSignature='';objectiveKey='';game.reset(seed());setDeveloperEnabled(game,developerEnabled);build();game.start();showState()}
 function requestLook(){try{const pending=$('world').requestPointerLock?.();pending?.catch(()=>say('请再次点击画面以启用鼠标观察。'))}catch{say('此浏览器未允许鼠标锁定。请使用触屏或支持鼠标锁定的浏览器。')}}
 function returnToMenu(){if(orientationBlocked||document.hidden||modalOpen())return;game.pause();cancelInventoryDrag();game.closeInventory();game.mode='menu';showState()}
 $('start').onclick=()=>{if(orientationBlocked||document.hidden||modalOpen()||!graphicsReady||worldLoading)return;restart();if(!coarse&&!orientationBlocked)requestLook()};
-$('continue').onclick=()=>{if(orientationBlocked||document.hidden||modalOpen()||!graphicsReady||!hasRun||['won','lost'].includes(game.mode))return;soundStart();void requestLandscape();game.mode='playing';showState();if(!coarse)requestLook()};
+$('continue').onclick=()=>{if(orientationBlocked||document.hidden||modalOpen()||!graphicsReady||!hasRun||['won','lost','caught'].includes(game.mode))return;soundStart();void requestLandscape();game.mode='playing';showState();if(!coarse)requestLook()};
+$('escape-retry').onclick=()=>{if(orientationBlocked||document.hidden||modalOpen())return;if(game.retryEscape()){clearInput();gameAudio.reset();soundStart();showState();updateStreamView()}};$('escape-restart').onclick=restart;
 $('pause').onclick=pause;$('resume').onclick=()=>{if(orientationBlocked||document.hidden||modalOpen())return;soundStart();void requestLandscape();game.resume();showState()};$('restart').onclick=restart;$('again').onclick=restart;$('main-menu').onclick=returnToMenu;
 $('quit').onclick=()=>{if(game.mode!=='menu'||orientationBlocked||document.hidden||modalOpen())return;dialogReturnFocus=$('quit');$('quit-panel').hidden=false;clearInput();syncModalInert();$('quit-back').focus()};$('quit-back').onclick=()=>closeModal('quit-panel');$('error-back').onclick=()=>{$('error').hidden=true};
 $('sound-toggle').onclick=()=>{soundEnabled=!soundEnabled;$('sound-toggle').textContent=soundEnabled?'音效：开':'音效：关';$('sound-toggle').setAttribute('aria-pressed',String(soundEnabled));gameAudio.setEnabled(soundEnabled);if(soundEnabled)soundStart()};
 $('quality-toggle').onclick=()=>{renderScale=renderScale===1?.75:1;$('quality-toggle').textContent=renderScale===1?'画质：标准':'画质：省电';resize()};
 $('note-close').onclick=()=>{if(orientationBlocked||document.hidden||modalOpen())return;game.resume();showState()};$('interact').onclick=e=>{e.stopPropagation();act('interact')};
 function syncModalInert(){
- const blocked=modalOpen();for(const id of ['menu','pause-panel','note','ending','phone-panel'])$(id).inert=blocked;
+ const blocked=modalOpen();for(const id of ['menu','pause-panel','note','ending','phone-panel','caught-panel'])$(id).inert=blocked;
  $('inventory-panel').inert=blocked||Boolean(game.phoneOpenId);$('hud').inert=blocked||game.inventoryOpen;
 }
 function closeModal(id){
@@ -546,7 +619,7 @@ window.addEventListener('keydown',e=>{
   const help=!$('help').hidden;
   if(e.code==='Escape'){e.preventDefault?.();if(!e.repeat)closeModal(help?'help':'quit-panel')}
   if(e.code==='Tab'){
-   e.preventDefault();const focusable=(help?[$('sound-toggle'),$('quality-toggle'),$('help-close')]:[$('quit-back')]).filter(n=>!n.disabled);
+   e.preventDefault();const focusable=(help?[$('sound-toggle'),$('quality-toggle'),$('developer-toggle'),...(developerEnabled?[$('developer-item'),$('developer-spawn'),$('developer-time'),$('developer-teleport-outside'),$('developer-teleport-inside')]:[]),$('help-close')]:[$('quit-back')]).filter(n=>!n.disabled);
    const index=focusable.indexOf(document.activeElement),next=index<0?(e.shiftKey?focusable.length-1:0):(index+(e.shiftKey?-1:1)+focusable.length)%focusable.length;focusable[next]?.focus();
   }
   return;
@@ -576,7 +649,7 @@ window.addEventListener('keydown',e=>{
 const stick=$('stick');stick.addEventListener('pointerdown',e=>{if(!canPlay()||touch.move!==null)return;e.preventDefault();touch.move=e.pointerId;stick.setPointerCapture(e.pointerId);updateStick(e)});function updateStick(e){if(!canPlay()||e.pointerId!==touch.move)return;const r=stick.getBoundingClientRect(),dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,d=Math.max(1,Math.hypot(dx,dy)/38);input.strafe=dx/d/38;input.forward=-dy/d/38;$('stick-knob').style.transform=`translate(${dx/d}px,${dy/d}px)`}stick.addEventListener('pointermove',updateStick);function endStick(e){if(e.pointerId===touch.move){touch.move=null;input.forward=input.strafe=0;$('stick-knob').style.transform=''}}for(const e of ['pointerup','pointercancel','lostpointercapture'])stick.addEventListener(e,endStick);
 const look=$('look');look.addEventListener('pointerdown',e=>{if(!canPlay()||touch.look!==null)return;e.preventDefault();touch.look=e.pointerId;touch.x=e.clientX;touch.y=e.clientY;look.setPointerCapture(e.pointerId)});look.addEventListener('pointermove',e=>{if(touch.look!==e.pointerId||!canPlay())return;game.player.yaw+=(e.clientX-touch.x)*.005;game.player.pitch=Math.max(-1.1,Math.min(1.1,game.player.pitch-(e.clientY-touch.y)*.005));touch.x=e.clientX;touch.y=e.clientY});for(const e of ['pointerup','pointercancel','lostpointercapture'])look.addEventListener(e,v=>{if(v.pointerId===touch.look)touch.look=null});$('sprint').addEventListener('pointerdown',e=>{if(canPlay()){touch.sprint.add(e.pointerId);$('sprint').setPointerCapture(e.pointerId)}});for(const e of ['pointerup','pointercancel','lostpointercapture'])$('sprint').addEventListener(e,v=>touch.sprint.delete(v.pointerId));window.addEventListener('blur',()=>{clearInput();pause()});document.addEventListener('visibilitychange',()=>{if(document.hidden){clearInput();pause()}resize()});window.addEventListener('orientationchange',resize);window.screen?.orientation?.addEventListener?.('change',resize);document.addEventListener('fullscreenchange',resize);window.visualViewport?.addEventListener('resize',resize);window.addEventListener('pagehide',()=>{clearInput();pause()});$('rotate-lock').onclick=requestLandscape;
 function resize(){clearInput();cancelInventoryDrag();updateOrientation();if(renderer)pendingRendererSize={width:innerWidth,height:innerHeight,ratio:pixelRatio(innerWidth,innerHeight,devicePixelRatio,coarse,renderScale)};if(camera){camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix()}}window.addEventListener('resize',resize);
-function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;const before=game.mode;if(!document.hidden&&!orientationBlocked){updateStreamView();if(!game.changed)chunkStream.process(worldLoading?8:3,worldLoading?48:24);updateStreamView()}if(canPlay())game.update(dt,{forward:input.forward+(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0),strafe:input.strafe+(keys.has('KeyD')?1:0)-(keys.has('KeyA')?1:0),sprint:touch.sprint.size>0||keys.has('ShiftLeft')||keys.has('ShiftRight')});game.updateDevices(dt,!worldLoading&&!orientationBlocked&&!document.hidden&&$('help').hidden&&$('quit-panel').hidden);if(before!==game.mode)showState();while(game.events.length){const t=game.events.shift();if(t!=='exit'&&t!=='lost')say(t)}if(now>toastUntil)$('toast').classList.remove('show');sync();if(!document.hidden&&!orientationBlocked)updateStreamView();if(game.mode==='menu'&&!hasRun){camera.position.set(game.maze.doorX-12.5,EYE_HEIGHT,game.maze.doorZ-1.35);camera.rotation.set(-.025,-Math.PI/2+.14,0,'YXZ')}else{camera.position.set(game.player.x,EYE_HEIGHT,game.player.z);camera.rotation.set(game.player.pitch,-game.player.yaw,0,'YXZ')}renderOrigin.x=Math.floor(game.player.x/RENDER_METRES)*RENDER_METRES;renderOrigin.z=Math.floor(game.player.z/RENDER_METRES)*RENDER_METRES;scene.position.set(-renderOrigin.x,0,-renderOrigin.z);camera.position.x-=renderOrigin.x;camera.position.z-=renderOrigin.z;gameAudio.update(dt,game);if(soundNoticePending){say('声音未能启动。请再点一下画面，或在设置中重新开启音效。');soundNoticePending=false}if(!document.hidden&&!orientationBlocked&&!worldLoading&&(canPlay()||now-lastRender>80)){if(pendingRendererSize){const{width,height,ratio}=pendingRendererSize;renderer.setPixelRatio(ratio);renderer.setSize(width,height,false);pendingRendererSize=null}renderer.render(scene,camera);worldRendered=true;$('world').style.visibility='visible';lastRender=now}}
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;const before=game.mode;if(!document.hidden&&!orientationBlocked){updateStreamView();if(!game.changed)chunkStream.process(worldLoading?8:3,worldLoading?48:24);updateStreamView()}const simulationActive=canPlay();if(simulationActive)game.update(dt,{forward:input.forward+(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0),strafe:input.strafe+(keys.has('KeyD')?1:0)-(keys.has('KeyA')?1:0),sprint:touch.sprint.size>0||keys.has('ShiftLeft')||keys.has('ShiftRight')});game.updateDevices(dt,!worldLoading&&!orientationBlocked&&!document.hidden&&$('help').hidden&&$('quit-panel').hidden);if(before!==game.mode)showState();while(game.events.length){const t=game.events.shift();if(t!=='exit'&&t!=='lost')say(t)}if(now>toastUntil)$('toast').classList.remove('show');sync();syncEscapeVisual(dt,simulationActive&&game.mode==='playing');if(!document.hidden&&!orientationBlocked)updateStreamView();if(game.mode==='menu'&&!hasRun){camera.position.set(game.maze.doorX-12.5,EYE_HEIGHT,game.maze.doorZ-1.35);camera.rotation.set(-.025,-Math.PI/2+.14,0,'YXZ')}else{camera.position.set(game.player.x,EYE_HEIGHT,game.player.z);camera.rotation.set(game.player.pitch,-game.player.yaw,0,'YXZ')}renderOrigin.x=Math.floor(game.player.x/RENDER_METRES)*RENDER_METRES;renderOrigin.z=Math.floor(game.player.z/RENDER_METRES)*RENDER_METRES;scene.position.set(-renderOrigin.x,0,-renderOrigin.z);camera.position.x-=renderOrigin.x;camera.position.z-=renderOrigin.z;gameAudio.update(dt,game);if(soundNoticePending){say('声音未能启动。请再点一下画面，或在设置中重新开启音效。');soundNoticePending=false}if(!document.hidden&&!orientationBlocked&&!worldLoading&&(canPlay()||now-lastRender>80)){if(pendingRendererSize){const{width,height,ratio}=pendingRendererSize;renderer.setPixelRatio(ratio);renderer.setSize(width,height,false);pendingRendererSize=null}renderer.render(scene,camera);worldRendered=true;$('world').style.visibility='visible';lastRender=now}}
 initPhone();
 initInventory();
 updateOrientation();

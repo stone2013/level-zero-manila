@@ -27,7 +27,7 @@ test('ArrowUp and touch movement produce steps; blocked movement does not',async
 test('doorway pursuit is audible on an independent cadence while walking and stops after world change',async()=>{
  const app=await start();app.eval('game.player.x=game.maze.doorX+2;game.player.z=game.maze.doorZ;game.entered=true;game.door=game.doorTarget=1;game.approach=20;game.player.yaw=0;updateStreamView()');app.settle();app.eval('input.forward=.7');
  for(let t=100;t<=1350;t+=50)app.frame(t);assert.equal(count(app,'pursuit'),1);assert(count(app,'step')>=1,'walking must not suppress pursuit');
- app.eval('game.changed=true');const before=count(app,'pursuit');for(let t=1400;t<=2800;t+=50)app.frame(t);assert.equal(count(app,'pursuit'),before);
+ app.eval('game.changed=true');const before=count(app,'pursuit');for(let t=1400;t<=2800;t+=50)app.frame(t);assert.equal(count(app,'pursuit'),0,'closing the connection immediately cancels active pursuit voices');
 });
 test('pause, inventory, phone, portrait, background and pagehide immediately clear all game sounds',async()=>{
  for(const stop of ['pause','inventory','phone','portrait','background','pagehide']){

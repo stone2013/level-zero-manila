@@ -65,10 +65,10 @@ test('settings and quit gate gameplay even if the model momentarily reports play
 test('settings Tab and Shift+Tab cycle only through enabled modal controls in event dispatch',()=>{
  const app=boot();app.element('help-open').focus();app.element('help-open').onclick();
  const tab=(shiftKey=false)=>app.dispatch('window','keydown',{...key('Tab'),shiftKey});
- const order=['sound-toggle','quality-toggle','help-close'];
- for(let i=1;i<=9;i++){tab();assert.equal(app.context.document.activeElement,app.element(order[i%3]))}
+ const order=['sound-toggle','quality-toggle','developer-toggle','help-close'];
+ for(let i=1;i<=12;i++){tab();assert.equal(app.context.document.activeElement,app.element(order[i%4]))}
  tab(true);assert.equal(app.context.document.activeElement,app.element('help-close'));
- app.element('quality-toggle').disabled=true;app.element('sound-toggle').focus();tab();assert.equal(app.context.document.activeElement,app.element('help-close'));
+ app.element('quality-toggle').disabled=true;app.element('sound-toggle').focus();tab();assert.equal(app.context.document.activeElement,app.element('developer-toggle'));
  app.element('start').focus();tab();assert.equal(app.context.document.activeElement,app.element('sound-toggle'));
  app.element('start').focus();tab(true);assert.equal(app.context.document.activeElement,app.element('help-close'));
  escape(app,true);assert.equal(app.element('help').hidden,false);

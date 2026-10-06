@@ -1,0 +1,111 @@
+{
+  "label": "v1.6.3-candidate",
+  "node": "v24.19.0",
+  "seed": 5,
+  "repeats": 1,
+  "locations": [
+    [
+      0,
+      0
+    ],
+    [
+      2,
+      -1
+    ],
+    [
+      -3,
+      4
+    ],
+    [
+      285,
+      -286
+    ]
+  ],
+  "summary": {
+    "totalMs": 113.67470999999989,
+    "layoutMs": 1.2336729999998397,
+    "bakeMs": 84.86659099999963,
+    "meshAndOtherMs": 27.425132000000303,
+    "mergeMs": 3.120986999999559,
+    "maxStepMs": 4.008368000000019,
+    "p95StepMs": 1.1190599999999904,
+    "bytes": 526664,
+    "samples": 9424,
+    "steps": 346
+  },
+  "worstStepMs": 4.448308999999995,
+  "cases": [
+    {
+      "repeat": 0,
+      "x": 0,
+      "z": 0,
+      "totalMs": 112.76197000000002,
+      "layoutMs": 1.2336729999998397,
+      "bakeMs": 84.74017200000208,
+      "meshAndOtherMs": 26.788124999998104,
+      "mergeMs": 2.632355999999959,
+      "samples": 9262,
+      "steps": 358,
+      "maxStepMs": 4.008368000000019,
+      "p95StepMs": 1.033651999999961,
+      "bytes": 543848,
+      "vertices": 20574,
+      "triangles": 15412,
+      "draws": 7
+    },
+    {
+      "repeat": 0,
+      "x": 2,
+      "z": -1,
+      "totalMs": 110.91461200000003,
+      "layoutMs": 0.8915289999999914,
+      "bakeMs": 82.74231100000236,
+      "meshAndOtherMs": 27.280771999997683,
+      "mergeMs": 3.5372329999994463,
+      "samples": 9244,
+      "steps": 337,
+      "maxStepMs": 3.923640999999975,
+      "p95StepMs": 1.0954450000000406,
+      "bytes": 512672,
+      "vertices": 19636,
+      "triangles": 14612,
+      "draws": 7
+    },
+    {
+      "repeat": 0,
+      "x": -3,
+      "z": 4,
+      "totalMs": 130.682641,
+      "layoutMs": 0.853612000000112,
+      "bakeMs": 102.25738899999908,
+      "meshAndOtherMs": 27.571640000000798,
+      "mergeMs": 3.120986999999559,
+      "samples": 9424,
+      "steps": 343,
+      "maxStepMs": 4.448308999999995,
+      "p95StepMs": 1.4723610000000917,
+      "bytes": 522000,
+      "vertices": 19912,
+      "triangles": 14852,
+      "draws": 7
+    },
+    {
+      "repeat": 0,
+      "x": 285,
+      "z": -286,
+      "totalMs": 113.67470999999989,
+      "layoutMs": 1.3829869999999573,
+      "bakeMs": 84.86659099999963,
+      "meshAndOtherMs": 27.425132000000303,
+      "mergeMs": 2.086959999999408,
+      "samples": 9514,
+      "steps": 346,
+      "maxStepMs": 3.755177999999887,
+      "p95StepMs": 1.1190599999999904,
+      "bytes": 526664,
+      "vertices": 20050,
+      "triangles": 14972,
+      "draws": 7
+    }
+  ]
+}

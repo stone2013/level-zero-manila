@@ -1,0 +1,41 @@
+✔ start unlocks before fullscreen and starts one modest hum after loading (120.672962ms)
+✔ real door action triggers creak, animation endpoint triggers latch, and unrelated interaction stays quiet (81.04472ms)
+✔ ArrowUp and touch movement produce steps; blocked movement does not (66.406402ms)
+✔ doorway pursuit is audible on an independent cadence while walking and stops after world change (84.891978ms)
+✔ pause, inventory, phone, portrait, background and pagehide immediately clear all game sounds (343.416981ms)
+✔ muted choice survives restart/menu/continue, and enabling in settings waits for play (144.143118ms)
+✔ failed start resume has actionable feedback and a new gameplay touch can recover (51.510026ms)
+✔ background interruption stays silent after returning until fresh resume; Escape resumes audio too (50.861372ms)
+✔ all six synthesized cues produce nonzero, bounded PCM at common device sample rates (50.181441ms)
+✔ construction stays silent; unlock resumes in the same call and fades one bounded hum (4.800459ms)
+✔ resume rejection is caught, reported once, and cannot emit queued sounds (4.938867ms)
+✔ synchronous constructor/resume failures and unsupported Web Audio fail quietly (0.490096ms)
+✔ late resume completion after pause, mute or background never starts audio (0.458719ms)
+✔ a stale rejected resume cannot silence a newer successful gesture (2.683901ms)
+✔ pause and mute immediately cancel active voices and master output, then resume cleanly (3.706035ms)
+✔ external interruption stops sound and requires another gesture to resume (2.764917ms)
+✔ only travelled distance makes footsteps; pursuit has its own cadence; door endpoints latch once (5.410746ms)
+✔ repeated clicks are bounded, ended voices release nodes, and reset has no stale cadence (3.574378ms)
+✔ lamp variations are seed-stable, position-stable, within ±8%, and do not consume game RNG (5.951237ms)
+✔ area fixture pools overlap smoothly but remain brighter below each fixture (3.715831ms)
+✔ wall obstruction blocks the direct component while preserving nonblack bounce (0.57254ms)
+✔ corner/contact shade is soft and locally 15–25% darker without self-shadowing a flat wall (0.161613ms)
+✔ ceiling bounce retains local variation and never treats an underside lamp as upward direct light (0.26648ms)
+✔ door surroundings are gently dimmed, positive and continuous with no special lamp (0.156014ms)
+✔ every sampled maze surface stays finite/readable, and caches/ray work are bounded (109.279578ms)
+✔ landscape manifest and render-loop lighting safeguards remain unchanged (1.544149ms)
+✔ prior menu, dialogs and landscape safeguards remain underneath scoped inventory and HUD overrides (1.038029ms)
+✔ manifest icons, scope, and all offline assets are local and exist (2.351842ms)
+✔ service-worker lifecycle and offline fetch run in mocked Cache API (6.187973ms)
+✔ visible version matches the active offline cache version (0.337657ms)
+✔ mobile UI keeps original controls, unique identifiers and explicit recovery/context labels (1.744429ms)
+✔ reference menu keeps open typography, a yellow rail, safe insets and generous touch targets (0.671038ms)
+✔ approved chevron wallpaper is preserved with a small local runtime copy (7.021645ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1097.713733

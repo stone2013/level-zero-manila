@@ -4,13 +4,14 @@ import {createHash} from 'node:crypto';
 import {BAKE,seededLamps,createLightBake,contactFactor,segmentHitsBox} from '../dist/lighting.js';
 import {productionLightingFixtures,replayLighting} from './lighting-fixtures.mjs';
 
-// Captured from the unchanged v1.6.1 bake before optimization. These hash the
-// Float64 RGB results, not the source code or the lower-precision GPU attributes.
-// Fixtures run the shipped mesh builder, including its cache-hit sample order.
+// v1.6.3 exterior-shell fixtures are replayed against the frozen v1.6.1
+// pre-optimization bake to retain an independent numerical reference. The new
+// wallpaper shell adds 298 samples; streamed floor/wall/fold geometry is unchanged.
+// These hash Float64 RGB values, not rounded GPU attributes.
 const snapshots=[
- {seed:0,hash:'eb2c6760562d5854a499564b67c1df16d1735240c63d68f26eb0732568b39a13',stats:{calls:29274,samples:24664,cacheHits:4610,rays:431906,boxTests:448099}},
- {seed:42,hash:'a7d9c2851356c0a44559ecf7fa5291fd2d0d243cf182bfae8eff7a8f008df5ab',stats:{calls:29004,samples:24590,cacheHits:4414,rays:430766,boxTests:437275}},
- {seed:0xdeadbeef,hash:'079c627a7fff54884005b293a93bb83211e0f7212ef7460e70f30a78dfc53c57',stats:{calls:29544,samples:25004,cacheHits:4540,rays:437150,boxTests:449563}},
+ {seed:0,hash:'265e60d4956154f3b8553b18d6a03a2102a7b5ce4f09dea627208fa2564a7874',stats:{calls:29572,samples:24962,cacheHits:4610,rays:436030,boxTests:453732}},
+ {seed:42,hash:'21ebafb7089c2d05d34cb9bedd116e19f2b5b487aeb97d2755869ff275ec9ebd',stats:{calls:29302,samples:24888,cacheHits:4414,rays:434890,boxTests:442424}},
+ {seed:0xdeadbeef,hash:'5595f53667adf631debb96ade463785ca7b5ce2d2207232db19657e0352bda88',stats:{calls:29842,samples:25302,cacheHits:4540,rays:441274,boxTests:454962}},
 ];
 for(const expected of snapshots)test(`seed ${expected.seed}: production floor/wall/ceiling, folds, doorway and distant grids preserve every RGB bit`,()=>{
  const fixtures=productionLightingFixtures(expected.seed),hash=createHash('sha256'),bytes=Buffer.alloc(24);

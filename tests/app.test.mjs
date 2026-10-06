@@ -111,8 +111,9 @@ test('Escape closes settings without resuming simulation behind the overlay',()=
 
 test('doorway flank/lintel tint stays local while existing room wood palette and light batches remain intact',()=>{
  const app=bootGeometry(),group=app.eval('roomGroup'),material=app.eval('mat.room');
- const surfaces=meshes(group).filter(o=>o.material===material);assert.equal(surfaces.length,1);assert(surfaces[0].isInstancedMesh);
- const colours=surfaces[0].instanceColor;assert(colours);const values=Array.from(colours.array);assert(Math.min(...values)>=.93-1e-6);assert(Math.min(...values)>=.99);assert(Math.max(...values)>.99);
+ const surfaces=meshes(group).filter(o=>o.userData.roomShell);assert.equal(surfaces.length,6);
+ assert(surfaces.every(o=>o.material[o.userData.insideFace]===material));assert.equal(material.vertexColors,false);assert.equal(material.color.getHex(),0xa69869);
+ assert(surfaces.every(o=>o.material.filter(m=>m===material).length===1),'only the inward face stays plain');
  assert.equal(app.eval('mat.wood.color.getHex()'),0x665033);assert.equal(app.eval('mat.panel.color.getHex()'),0x4b3a26);assert(app.eval('doorPivot.children.every(m=>!m.userData.lightTint)'));
  for(const g of [app.eval('mazeGroup.children.find(g=>g.visible)'),group,app.eval('exitGroup')]){const batches=g.children.filter(o=>o.material===app.eval('mat.light'));assert.equal(batches.length,1);assert(batches[0].isInstancedMesh);assert.equal(batches[0].instanceColor.count,batches[0].count);assert(!g.userData.bake||g.userData.bake.stats.cacheEntries===0)}
  const floor=app.eval('mazeGroup.children.find(g=>g.visible).children.find(o=>o.material===mat.floor)'),before=Array.from(floor.geometry.attributes.color.array);app.frame(100);app.frame(200);assert.deepEqual(Array.from(floor.geometry.attributes.color.array),before);

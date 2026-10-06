@@ -48,7 +48,7 @@ test('every sampled maze surface stays finite/readable, and caches/ray work are 
  const empty=createLightBake([]);for(let i=0;i<BAKE.cacheLimit+10;i++)empty.sample([i*.01,0,0],up);assert.equal(empty.stats.cacheEntries,BAKE.cacheLimit);
 });
 test('landscape manifest and render-loop lighting safeguards remain unchanged',()=>{
- const expected={'dist/manifest.webmanifest':'d2aba93336a48a58e50799bc67d5bbdd205ef3a635ff209ab7a19d5012d7446a'};
+ const expected={'dist/manifest.webmanifest':'743d1f5bec7aa3462c8b24439041436338a1e39fce1f3b6ce93648e53bd49b59'};
  for(const [path,sha] of Object.entries(expected))assert.equal(createHash('sha256').update(fs.readFileSync(path)).digest('hex'),sha,path);
  const app=fs.readFileSync('dist/app.js','utf8'),loop=app.slice(app.indexOf('function sync()'));assert(!/bake\.sample|seededLamps|new THREE\.(PointLight|SpotLight)|flicker/.test(loop));
  assert(!/MeshPhongMaterial|MeshStandardMaterial|EffectComposer|shadowMap\.enabled=true/.test(app),'no carpet specular or extra render passes');

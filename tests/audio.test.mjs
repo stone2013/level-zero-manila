@@ -53,7 +53,7 @@ test('only travelled distance makes footsteps; pursuit has its own cadence; door
  for(let i=0;i<10;i++){game.player.x+=.1;audio.update(.05,game)}assert.equal([...audio.voices].filter(v=>v.kind==='step').length,1);
  game.player.x+=10;audio.update(.05,game);assert.equal([...audio.voices].filter(v=>v.kind==='step').length,1);
  game.entered=true;for(let i=0;i<25;i++){game.player.x+=.03;audio.update(.05,game)}assert.equal([...audio.voices].filter(v=>v.kind==='pursuit').length,1);assert.equal([...audio.voices].filter(v=>v.kind==='step').length,2,'walking and pursuit have independent clocks');
- game.changed=true;for(let i=0;i<30;i++)audio.update(.05,game);assert.equal([...audio.voices].filter(v=>v.kind==='pursuit').length,1);
+ game.changed=true;for(let i=0;i<30;i++)audio.update(.05,game);assert.equal([...audio.voices].filter(v=>v.kind==='pursuit').length,0,'connection change cancels even an unfinished pursuit cue');
  audio.door();game.door=.5;audio.update(.05,game);game.door=1;audio.update(.05,game);audio.update(.05,game);assert.equal([...audio.voices].filter(v=>v.kind==='latch').length,1);
  game.loops++;audio.update(.05,game);assert.equal([...audio.voices].filter(v=>v.kind==='flicker').length,1);
 });

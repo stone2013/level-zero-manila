@@ -1,0 +1,17 @@
+✔ seed 0: production floor/wall/ceiling, folds, doorway and distant grids preserve every RGB bit (453.092441ms)
+✔ seed 42: production floor/wall/ceiling, folds, doorway and distant grids preserve every RGB bit (334.511153ms)
+✔ seed 3735928559: production floor/wall/ceiling, folds, doorway and distant grids preserve every RGB bit (294.877445ms)
+✔ nearest-contact pruning is exact for finite surfaces, partial-height walls and zero-distance corners (20.256902ms)
+✔ ray slabs preserve parallel, reversed, tangent and endpoint tolerance cases (10.006318ms)
+✔ cache quantization, frozen colors, clear and wall-bound refresh preserve the existing contract (1.112896ms)
+✔ all six Manila shell pieces use approved wallpaper outside and retain the correct plain interior face (82.785005ms)
+✔ north, south and rear wallpaper uses the exterior lamp bake rather than indoor lamp fill (65.747399ms)
+✔ shell treatment leaves every physical wall, door state and finite item unchanged across rebuilds (134.317997ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1283.625895

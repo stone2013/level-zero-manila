@@ -1,0 +1,14 @@
+✔ developer actions are default-off, hidden and inert without enable or without a live game (143.814261ms)
+✔ settings spawn creates one matching mesh per unique item without restarting the world or advancing time (78.652535ms)
+✔ 7:30 waits for thirty active seconds after settings and respects the existing event eligibility (112.320435ms)
+✔ developer teleport clears active chase visuals and preserves paused state, items, resources and original door ending (140.682143ms)
+✔ developer controls participate in settings keyboard focus only when enabled; portrait blocks actions (78.765209ms)
+✔ developer mobile layout uses scrollable settings, 44px controls and explicit session disclosure (0.681473ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 696.023434

@@ -1,0 +1,46 @@
+✔ event is absent before 480 active seconds, freezes in UI/states, and triggers once (144.841712ms)
+✔ prior Manila discovery, entry or completed original ending permanently suppresses the event (12.835319ms)
+✔ seeing the original Manila doorway suppresses the event before physical entry (1.742166ms)
+✔ flicker, blackout and readiness gate freeze transition and preserve all item instances (4.353966ms)
+✔ escape topology is bounded, reciprocal, marked, and protects existing ground items (1.53156ms)
+✔ 3.2-second warning holds monster still and forced run requires directional input (5.759196ms)
+✔ forced speed and drains are 1.5 times normal sprint even at low hydration (8.289685ms)
+✔ forced high-speed input cannot tunnel through a closed wall or chunk boundary (3.102378ms)
+✖ actual marked route takes 45–60 active seconds and uses continuous bounded monster pursuit (56.917838ms)
+✔ all eight wrong branches remain walkable back to a marked route, with truthful direction hints (412.313469ms)
+✔ inventory, phone and paused state freeze warning and chase including monster/resources (4.068227ms)
+✔ monster follows real wall-safe path to one 2.6-second caught animation then freezes (6.81445ms)
+✔ retry preserves current resources, identity, consumed and grounded items; reset restores originals (5.596351ms)
+✔ Manila seam, door close and reopen preserve the original ending, two waters and one charger (72.676245ms)
+✔ monster rounds every late bend and catches a player who stops one cell before the end (84.365408ms)
+ℹ Stationary late-route catch: monster traversed every route-cell index 0–49; caught after 15.92 s of waiting.
+✔ forced boost respects backward and sideways controls, with no automatic translation (6.370544ms)
+✔ same-cell target behind solid geometry cannot cause wall traversal or a through-wall catch (9.847243ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 16
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 961.309716
+
+✖ failing tests:
+
+test at tests/escape.test.mjs:117:1
+✖ actual marked route takes 45–60 active seconds and uses continuous bounded monster pursuit (56.917838ms)
+  AssertionError [ERR_ASSERTION]: monster must traverse deep bends, not stall safely: 36
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-monster-escape/tests/escape.test.mjs:120:2)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

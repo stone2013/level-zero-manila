@@ -37,7 +37,7 @@ export class GameAudio{
   this.buffers=new Map();this.voices=new Set();this.generation=0;this.errorReported=false;
   this.resetTracking();
  }
- resetTracking(){this.position=null;this.stride=0;this.pursuitClock=0;this.previousDoor=null;this.previousLoops=null}
+ resetTracking(){this.position=null;this.stride=0;this.pursuitClock=0;this.previousDoor=null;this.previousLoops=null;this.previousEscape=null}
  setEnabled(enabled){this.enabled=Boolean(enabled);if(!this.enabled){this.unlocked=false;this.stop()}}
  // Invoke synchronously from the input event, before fullscreen consumes activation.
  // Promise completion never plays a queued cue or revives paused/background audio.
@@ -73,13 +73,13 @@ export class GameAudio{
   }
   return this.buffers.get(kind);
  }
- source(kind,volume=1,loop=false){
+ source(kind,volume=1,loop=false,pan=0){
   if(!this.ready())return null;
   const source=this.context.createBufferSource(),gain=this.context.createGain();
   source.buffer=this.buffer(kind);source.loop=loop;gain.gain.value=volume;
-  source.connect(gain).connect(this.master);
-  const voice={source,gain,kind};this.voices.add(voice);
-  source.onended=()=>{this.voices.delete(voice);source.disconnect();gain.disconnect()};
+  source.connect(gain);const panner=this.context.createStereoPanner?.();if(panner){panner.pan.value=Math.max(-1,Math.min(1,pan));gain.connect(panner).connect(this.master)}else gain.connect(this.master);
+  const voice={source,gain,panner,kind};this.voices.add(voice);
+  source.onended=()=>{this.voices.delete(voice);source.disconnect();gain.disconnect();panner?.disconnect()};
   source.start();return voice;
  }
  sync(){
@@ -94,13 +94,14 @@ export class GameAudio{
  stop(){
   ++this.generation;
   if(this.master){const now=this.context.currentTime;this.master.gain.cancelScheduledValues(now);this.master.gain.setValueAtTime(0,now)}
-  for(const voice of this.voices){voice.source.onended=null;try{voice.source.stop()}catch{}voice.source.disconnect();voice.gain.disconnect()}
+  for(const voice of this.voices){voice.source.onended=null;try{voice.source.stop()}catch{}voice.source.disconnect();voice.gain.disconnect();voice.panner?.disconnect()}
   this.voices.clear();this.hum=null;this.resetTracking();
  }
- cue(kind,volume=1){if(this.sync()&&this.voices.size<10)return this.source(kind,Math.min(1,Math.max(0,volume)))}
+ cue(kind,volume=1,pan=0){if(this.sync()&&this.voices.size<10)return this.source(kind,Math.min(1,Math.max(0,volume)),false,pan)}
  door(){this.cue('door')}
  reset(){this.stop()}
  update(dt,game){
+  if(['blackout','loading','seam','seam-loading','caught-animation'].includes(game.escape?.phase)){this.stop();return}
   if(!this.sync())return;
   const p=game.player;
   if(this.position){
@@ -109,13 +110,18 @@ export class GameAudio{
    if(distance>.001&&distance<1){this.stride+=distance;if(this.stride>=.82){this.cue('step');this.stride%=.82}}
   }
   this.position={x:p.x,z:p.z};
-  if(game.entered&&!game.changed){
+  const entity=game.escape?.monster,escapeActive=entity?.active&&['warning','chase','door'].includes(game.escape.phase);
+  if(game.changed&&this.previousEscape!=='finished')for(const voice of [...this.voices])if(voice.kind==='pursuit'){voice.source.onended=null;try{voice.source.stop()}catch{}voice.source.disconnect();voice.gain.disconnect();voice.panner?.disconnect();this.voices.delete(voice)}
+  if(escapeActive){
+   this.pursuitClock+=Math.min(.05,Math.max(0,dt));const dx=entity.x-p.x,dz=entity.z-p.z,d=Math.hypot(dx,dz);
+   if(this.pursuitClock>=(game.escape.phase==='warning'?.66:.39)){const pan=d?(dx*Math.cos(p.yaw)+dz*Math.sin(p.yaw))/d:0;this.cue('pursuit',Math.max(.12,.9-d/45),pan);this.pursuitClock=0}
+  }else if(game.entered&&!game.changed){
    this.pursuitClock+=Math.min(.05,Math.max(0,dt));
    const closeness=Math.min(1,Math.max(0,game.approach)/45);
    if(this.pursuitClock>=1.22-.4*closeness){this.cue('pursuit',.55+.35*closeness);this.pursuitClock=0}
   }else this.pursuitClock=0;
   if(this.previousDoor!==null&&this.previousDoor!==game.door&&(game.door===0||game.door===1))this.cue('latch',game.door===0?1:.55);
   if(this.previousLoops!==null&&game.loops!==this.previousLoops)this.cue('flicker',.6);
-  this.previousDoor=game.door;this.previousLoops=game.loops;
+  this.previousDoor=game.door;this.previousLoops=game.loops;this.previousEscape=game.escape?.phase;
  }
 }

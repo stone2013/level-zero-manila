@@ -224,3 +224,15 @@ The historical reports below describe their original releases.
 可在合适浏览器中从项目根目录的 HTTP 服务打开 tests/audio-browser.html 并点击按钮，另行进行真实 AudioContext / OfflineAudioContext 检查。这个页面不纳入生产 dist，也没有自动发布。
 
 本版本已于 2026-10-06 获准发布。发布时需保留 gh-pages 的 /preview-room/；相应提交、部署结果及资料库文件身份在发布记录中另行核验。
+
+## v1.6.3 最终候选验证
+
+252/252 自动化测试通过，0 失败，0 跳过。证据：evidence/escape-final-tests.txt。覆盖既有 v1.6.2 回归以及怪物模型、逃生、宽体寻路碰撞、UI/加载/动画冻结、PWA 新图标和音频方位。
+
+主路自动化输入游玩为 47.72 秒，24 轮跨种子/帧间隔探查为 47.42–48.20 秒。普通区域 512 次、逃生起点 128 次 yaw/pitch 检查均无转向加载阻挡。此为 CPU/模拟 DOM/真实 Three.js 场景对象验证，真实 GPU/人工 GUI/iPhone/PWA 安装或离线更新仍为 NOT TESTED。
+
+完整变更、资源不恢复的重试规则与性能样本解释见 MONSTER_ESCAPE_REPORT.md。该版本已于 2026-10-06 获准发布，线上结果另行验证。
+
+### 合并开发者工具后的最终结果
+
+278/278 测试通过，0 失败、0 跳过，约 32.2 秒。证据：evidence/developer-final-tests.txt。新增 20 项开发者动作模拟测试和 6 项实际 app 源码/模拟 DOM 测试。设置的键盘焦点回归已更新为包含新开关，原有禁用控件和循环焦点断言保留。真实 GUI/WebGL/iPhone/PWA 真机验证仍未执行。

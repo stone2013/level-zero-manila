@@ -1,0 +1,12 @@
+✔ real app keeps blackout until entire destination view is generated and creates approved monster plus one instanced route (8530.894068ms)
+✔ inventory, manual pause, background and portrait freeze chase animation with its simulation and sound (396.654389ms)
+✔ catch lunge runs once, caught panel freezes it, retry resets pose and preserves supplies, restart removes event (123.934227ms)
+✔ closing Manila door immediately hides the entity, removes escape guidance and retains original ending (73.170155ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9299.165311

@@ -1,0 +1,10 @@
+✔ escape footsteps use relative stereo position, stop during dark/loading and cancel at a fully closed door (8.184358ms)
+✔ escape stereo fallback works where a browser has no StereoPannerNode (3.055207ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 90.279185
