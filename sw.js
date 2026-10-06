@@ -1,5 +1,5 @@
-const PREFIX='level-zero-manila-',CACHE=PREFIX+'v1.4.0';
-const ASSETS=['./','./index.html','./style.css','./app.js','./game.js','./lighting.js','./manifest.webmanifest','./textures/level0-wallpaper.webp','./textures/level0-carpet.webp','./textures/level0-ceiling.webp','./icons/icon-192.png','./icons/icon-512.png','./vendor/three.module.min.js','./vendor/three.core.min.js'];
+const PREFIX='level-zero-manila-',CACHE=PREFIX+'v1.5.0';
+const ASSETS=['./','./index.html','./style.css','./app.js','./game.js','./lighting.js','./manifest.webmanifest','./textures/level0-wallpaper.webp','./textures/level0-carpet.webp','./textures/level0-ceiling.webp','./icons/item-food.svg','./icons/item-water.svg','./icons/icon-192.png','./icons/icon-512.png','./vendor/three.module.min.js','./vendor/three.core.min.js'];
 // Reload from the server: a new offline cache must not inherit old HTTP-cached assets.
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS.map(path=>new Request(new URL(path,self.registration.scope),{cache:'reload'})))))});
 // No skipWaiting: a running session keeps one coherent asset version.
