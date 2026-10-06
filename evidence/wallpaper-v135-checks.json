@@ -1,0 +1,34 @@
+{
+  "source": {
+    "path": "assets/source/level0-wallpaper-chevron-approved-v1.png",
+    "sha256": "274ae1ff3c477bd008749a21582fd7c8539b0941930c4188d3a8b14c99878a28",
+    "identicalToApprovedPreview": true
+  },
+  "runtime": {
+    "path": "dist/textures/level0-wallpaper.webp",
+    "width": 1024,
+    "height": 1024,
+    "bytes": 108882,
+    "sha256": "435e3a154b5848d6f1b98e8357e7d2253983880d40d3e6f3d50d8cb5500c5ac5",
+    "encoding": "ImageMagick WebP quality 88 method 6; 1024x1024 technical downscale only"
+  },
+  "repeat": {
+    "worldMetresPerTile": 2.5,
+    "approxColumnWidthMetres": 0.3125,
+    "approxVerticalMotifPeriodMetres": 0.625,
+    "uvChanged": false
+  },
+  "edgePixelStats8bit": {
+    "verticalJoinMeanAbsoluteChannelDifference": 5.152994791666667,
+    "horizontalJoinMeanAbsoluteChannelDifference": 4.460286458333333,
+    "interiorAdjacentXMeanAbsoluteChannelDifference": 2.7560432958618444,
+    "interiorAdjacentYMeanAbsoluteChannelDifference": 2.0837730887504073
+  },
+  "visualQA": {
+    "montage": "evidence/wallpaper-v135-2x2.png",
+    "actualPixelsInspected": true,
+    "mode": "4 exact decoded runtime tiles, no gap, no artwork changes",
+    "findings": "Chevron columns repeat without missing motif blocks or a light/dark outline. Mild paper-grain/tone repetition remains at tile boundaries. Not claimed to be mathematically or production-perfect seamless.",
+    "realGPU": "NOT TESTED"
+  }
+}

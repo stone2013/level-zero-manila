@@ -47,9 +47,21 @@ test('every sampled maze surface stays finite/readable, and caches/ray work are 
  }
  const empty=createLightBake([]);for(let i=0;i<BAKE.cacheLimit+10;i++)empty.sample([i*.01,0,0],up);assert.equal(empty.stats.cacheEntries,BAKE.cacheLimit);
 });
-test('lighting-only release preserves simulation, UI stylesheet, manifest, and original gameplay tests byte-for-byte',()=>{
- const expected={'dist/game.js':'895a418d65813a18958ee360f43b107a3da9db78c3c021ede0af4a7983118f76','dist/style.css':'5c588a88715b946039b4a2372ca8e5fd304b4717c17c1df4a5f0a77e7b548c76','dist/manifest.webmanifest':'d2aba93336a48a58e50799bc67d5bbdd205ef3a635ff209ab7a19d5012d7446a','tests/game.test.mjs':'8be4782fd5710c4fe72eb2081c4dc713a1aa5d026dc836163c3e394c08713c5c'};
+test('menu/material release preserves simulation, baked lighting, manifest, and original gameplay tests byte-for-byte',()=>{
+ const expected={'dist/game.js':'895a418d65813a18958ee360f43b107a3da9db78c3c021ede0af4a7983118f76','dist/lighting.js':'92d0b8925092a0d4c2b414171acd880ff6332eb82726f51d298c7bb96c54efcb','dist/manifest.webmanifest':'d2aba93336a48a58e50799bc67d5bbdd205ef3a635ff209ab7a19d5012d7446a','tests/game.test.mjs':'8be4782fd5710c4fe72eb2081c4dc713a1aa5d026dc836163c3e394c08713c5c'};
  for(const [path,sha] of Object.entries(expected))assert.equal(createHash('sha256').update(fs.readFileSync(path)).digest('hex'),sha,path);
  const app=fs.readFileSync('dist/app.js','utf8'),loop=app.slice(app.indexOf('function sync()'));assert(!/bake\.sample|seededLamps|new THREE\.(PointLight|SpotLight)|flicker/.test(loop));
  assert(!/MeshPhongMaterial|MeshStandardMaterial|EffectComposer|shadowMap\.enabled=true/.test(app),'no carpet specular or extra render passes');
+});
+
+// v1.3.5 permits menu CSS and one ceiling albedo value, never a lighting/gameplay reset.
+test('menu restoration changes no app behavior or lighting except the requested ceiling material',()=>{
+ const app=fs.readFileSync('dist/app.js','utf8');
+ const normalized=app.replace('// Only the panel albedo is yellowed; the lamp bake and global lighting stay neutral.\n','').replace('map:ceilTex,color:0xd6be7b','map:ceilTex');
+ assert.equal(createHash('sha256').update(normalized).digest('hex'),'653bbf9d3efed2ed76d7e1e923365b06e98b14fc7c44ed2bd0bfe90afd9e4389');
+});
+test('HUD, touch controls, dialogs and landscape safeguards retain their prior CSS',()=>{
+ const css=fs.readFileSync('dist/style.css','utf8').replace(/\/\*[^]*?\*\//g,'');
+ const protectedRules=[...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(m=>!/#menu|\.menu-|#render-warning/.test(m[1])).map(m=>[m[1].trim(),m[2].trim()]);
+ assert.equal(createHash('sha256').update(JSON.stringify(protectedRules)).digest('hex'),'6b614710d016299d74e86dab9d1617110d90f48544e1a39272c1be5d52bdea0d');
 });

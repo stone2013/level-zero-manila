@@ -1,0 +1,9 @@
+{
+  "asset": "level0-wallpaper-chevron-approved-v1.png",
+  "generator": "built-in image_gen",
+  "approved_preview_library_id": "libfile_f8a2ab707fb4819186daa0a2aa7c5a21",
+  "approval_date": "2026-10-06",
+  "sha256": "274ae1ff3c477bd008749a21582fd7c8539b0941930c4188d3a8b14c99878a28",
+  "runtime_file": "../../dist/textures/level0-wallpaper.webp",
+  "processing": "1024x1024 technical resize; WebP quality 88, method 6; no artwork/color changes"
+}

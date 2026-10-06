@@ -129,3 +129,16 @@ test('doorway flank/lintel tint is local and bounded while wood geometry/materia
  for(const g of [app.eval('mazeGroup'),group,app.eval('exitGroup')]){const batches=g.children.filter(o=>o.material===app.eval('mat.light'));assert.equal(batches.length,1);assert(batches[0].isInstancedMesh);assert.equal(batches[0].instanceColor.count,batches[0].count);assert.equal(g.userData.bake.stats.cacheEntries,0)}
  const samples=app.eval('mazeGroup.userData.bake.stats.samples');app.frame(100);app.frame(200);assert.equal(app.eval('mazeGroup.userData.bake.stats.samples'),samples);
 });
+
+
+test('yellow ceiling is panel albedo only, retaining neutral global fill and panel bake variation',()=>{
+ const app=boot();app.frame(100);const ceiling=app.eval('mat.ceiling');
+ assert.equal(ceiling.color.getHex(),0xd6be7b);assert(ceiling.isMeshBasicMaterial);assert.equal(ceiling.map,app.eval('ceilTex'));
+ assert.equal(app.eval('mat.wall.color.getHex()'),0xffffff);assert.equal(app.eval('mat.floor.color.getHex()'),0xffffff);
+ assert.equal(app.eval('LIGHTING.ground'),0xcdcdc2);assert.equal(app.eval('LIGHTING.sky'),0xfff5e2);assert.equal(app.eval('LIGHTING.exposure'),1);
+ for(const group of [app.eval('mazeGroup'),app.eval('roomGroup')]){
+  const panels=group.children.find(o=>o.material===ceiling);assert(panels?.isInstancedMesh);
+  const values=Array.from(panels.instanceColor.array);assert(Math.max(...values)-Math.min(...values)>.005);
+  assert.equal(panels.geometry.attributes.normal.getY(0),-1);
+ }
+});

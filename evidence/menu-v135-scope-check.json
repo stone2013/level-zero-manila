@@ -1,0 +1,133 @@
+{
+  "baseline": "v1.3.4 / 1873dceb055636b76ee97d16ec76a9d522a7e889",
+  "candidate": "v1.3.5 (unpublished)",
+  "checks": [
+    {
+      "seed": 0,
+      "hash": "6bf48f14e5782df6af73350fdbed34ca172063db3772214c7e95c2940c692f42",
+      "meshes": 115,
+      "instances": 1208,
+      "geometryTransformsBakeColorsEqual": true,
+      "lampDataEqual": true,
+      "gameStateEqual": true,
+      "onlyMaterialChange": {
+        "ceiling": {
+          "before": 16777215,
+          "after": 14073467
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "hash": "7c8c9e73e977aa38898c02c23e94881ec163fb4e0ede15a3bda4300c03ea54fc",
+      "meshes": 116,
+      "instances": 1210,
+      "geometryTransformsBakeColorsEqual": true,
+      "lampDataEqual": true,
+      "gameStateEqual": true,
+      "onlyMaterialChange": {
+        "ceiling": {
+          "before": 16777215,
+          "after": 14073467
+        }
+      }
+    },
+    {
+      "seed": 5,
+      "hash": "db75e42524a3258b4edd97a2381e96562d98e4dc90c272e27e9aef0c9af4d9f2",
+      "meshes": 116,
+      "instances": 1210,
+      "geometryTransformsBakeColorsEqual": true,
+      "lampDataEqual": true,
+      "gameStateEqual": true,
+      "onlyMaterialChange": {
+        "ceiling": {
+          "before": 16777215,
+          "after": 14073467
+        }
+      }
+    },
+    {
+      "seed": 42,
+      "hash": "dc77caea5b45eb13e1c655f60bb25ef1dd2d16ebe06770ee12e8f7387ac7f0b5",
+      "meshes": 117,
+      "instances": 1212,
+      "geometryTransformsBakeColorsEqual": true,
+      "lampDataEqual": true,
+      "gameStateEqual": true,
+      "onlyMaterialChange": {
+        "ceiling": {
+          "before": 16777215,
+          "after": 14073467
+        }
+      }
+    },
+    {
+      "seed": 3735928559,
+      "hash": "08e6dfd7247b3cebf3b13ed9511df4246f4074910a17afe6d49fdd21b54c5d41",
+      "meshes": 117,
+      "instances": 1212,
+      "geometryTransformsBakeColorsEqual": true,
+      "lampDataEqual": true,
+      "gameStateEqual": true,
+      "onlyMaterialChange": {
+        "ceiling": {
+          "before": 16777215,
+          "after": 14073467
+        }
+      }
+    }
+  ],
+  "protectedFiles": [
+    {
+      "path": "assets/source/level0-wallpaper-source.png",
+      "sha256": "a96a97e7aa9d217fe5c021576fc30fa61380c3da7c34f82f2afa9bba40663518",
+      "unchanged": true
+    },
+    {
+      "path": "dist/game.js",
+      "sha256": "895a418d65813a18958ee360f43b107a3da9db78c3c021ede0af4a7983118f76",
+      "unchanged": true
+    },
+    {
+      "path": "dist/lighting.js",
+      "sha256": "92d0b8925092a0d4c2b414171acd880ff6332eb82726f51d298c7bb96c54efcb",
+      "unchanged": true
+    },
+    {
+      "path": "dist/manifest.webmanifest",
+      "sha256": "d2aba93336a48a58e50799bc67d5bbdd205ef3a635ff209ab7a19d5012d7446a",
+      "unchanged": true
+    },
+    {
+      "path": "dist/vendor/three.core.min.js",
+      "sha256": "61ba0df005b05991361d040d8ff670e1aadfd0ce7aeebd1fdb0725957a8957de",
+      "unchanged": true
+    },
+    {
+      "path": "dist/vendor/three.module.min.js",
+      "sha256": "e2b5ee6bccd38fd6d8a2428546b83c5f2426d84b152ef82be8055556e3b40eb6",
+      "unchanged": true
+    },
+    {
+      "path": "dist/textures/level0-carpet.webp",
+      "sha256": "3981ed73b2065385a96c22163da449c69d67ce3b716613c8dde17cf3ff7fcc7f",
+      "unchanged": true
+    },
+    {
+      "path": "dist/textures/level0-ceiling.webp",
+      "sha256": "e24ea2c8b29a64b1dbfaf44a054f513bd81c9005cfc573f2cfc5f0883dbd9fdb",
+      "unchanged": true
+    },
+    {
+      "path": "tests/game.test.mjs",
+      "sha256": "8be4782fd5710c4fe72eb2081c4dc713a1aa5d026dc836163c3e394c08713c5c",
+      "unchanged": true
+    },
+    {
+      "path": "tests/render.test.mjs",
+      "sha256": "6d8e612d047a46cdab34c03f96989dc5a4c1d890ed4341ea24ef6f0a31edc679",
+      "unchanged": true
+    }
+  ]
+}
