@@ -32,14 +32,14 @@ function solidPath(g, item) {
   assert(!g.collides(item.x, item.z));
 }
 
-test('reset preserves exactly four stable food IDs and two table water IDs with a physical 4×4 layout', () => {
+test('reset preserves exactly four food IDs, two table water IDs and one phone ID with a physical 4×4 layout', () => {
   const g = new Game(42);
   assert.equal(g.inventoryOpen, false);
-  assert.deepEqual(ids(g), ['food-1', 'food-2', 'food-3', 'food-4', 'water-1', 'water-2']);
-  assert.equal(g.inventory().length, 4);
+  assert.deepEqual(ids(g), ['food-1', 'food-2', 'food-3', 'food-4', 'water-1', 'water-2', 'phone-1']);
+  assert.equal(g.inventory().length, 5);
   assert.equal(g.inventory('water').length, 0);
-  assert.deepEqual(g.inventory().map(i => [i.gridX, i.gridY]), [[0, 0], [1, 0], [2, 0], [3, 0]]);
-  assert.equal(occupied(g).size, 4);
+  assert.deepEqual(g.inventory().map(i => [i.gridX, i.gridY]), [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1]]);
+  assert.equal(occupied(g).size, 5);
   for (const water of g.items.filter(i => i.kind === 'water')) {
     assert.deepEqual(g.itemSize(water), {w: 1, h: 2});
     assert.equal(water.gridX, null); assert.equal(water.gridY, null);
@@ -65,7 +65,7 @@ test('grid moves validate the exact footprint, boundaries, integer coordinates, 
   assert.equal(g.canPlaceItem('water-1', 3, 2), false, 'bottom half cannot overlap food-1');
   assert(g.moveInventoryItem('water-1', 2, 2));
   assert.equal(g.canPlaceItem('food-2', 2, 3), false, 'both bottle cells are occupied');
-  assert.equal(occupied(g).size, 6);
+  assert.equal(occupied(g).size, 7);
 });
 
 test('arrange packs tall items first without changing identities, counts, survival, or consumed/world state', () => {
@@ -74,7 +74,7 @@ test('arrange packs tall items first without changing identities, counts, surviv
   assert(g.moveInventoryItem('food-1', 3, 3));
   const original = ids(g), before = [g.food, g.hydration, g.elapsed];
   assert.equal(g.arrangeInventory(), true);
-  assert.equal(occupied(g).size, 8);
+  assert.equal(occupied(g).size, 9);
   assert.deepEqual([byId(g, 'water-1').gridX, byId(g, 'water-1').gridY], [0, 0]);
   assert.deepEqual([byId(g, 'water-2').gridX, byId(g, 'water-2').gridY], [1, 0]);
   assert.deepEqual(ids(g), original);
@@ -213,7 +213,7 @@ test('selected food and water drop onto the ground, remain stable, and can be re
       occupied(g);
     }
   }
-  assert.deepEqual(ids(g), original); assert.equal(new Set(ids(g)).size, 6);
+  assert.deepEqual(ids(g), original); assert.equal(new Set(ids(g)).size, 7);
   assert.equal(byId(g, 'water-2').placement, 'table'); assert.equal(byId(g, 'water-2').y, .68);
 });
 test('dropping does not cross a thin wall even when the nominal landing point is empty', () => {
@@ -249,32 +249,32 @@ test('new markers in the changed exit stay visible and recoverable; old maze mar
   solidPath(g, item); assert.equal(g.nearestItem(), item); assert.equal(g.pickupItem(id), id);
   assert.equal(g.pickupItem(old), undefined);
 });
-test('restart clears inventory overlay and restores only the original six items and survival values', () => {
+test('restart clears inventory overlay and restores only the original seven items and survival values', () => {
   const g = game(); g.openInventory(); g.drop('food-4'); g.food = 20; g.consume('food', 'food-2');
   g.reset(17);
   assert.equal(g.mode, 'menu'); assert.equal(g.inventoryOpen, false);
   assert.equal(g.inventory('food').length, 4); assert.equal(g.inventory('water').length, 0);
-  assert.equal(g.items.length, 6); assert.equal(new Set(ids(g)).size, 6);
-  assert.equal(occupied(g).size, 4); assert.equal(g.food, 100); assert.equal(g.hydration, 100);
+  assert.equal(g.items.length, 7); assert.equal(new Set(ids(g)).size, 7);
+  assert.equal(occupied(g).size, 5); assert.equal(g.food, 100); assert.equal(g.hydration, 100);
 });
 
-test('six consecutive drops use separate free ground footprints and recover their original IDs without duplicates', () => {
+test('seven consecutive drops use separate free ground footprints and recover their original IDs without duplicates', () => {
   const g = game(); approachWater(g); g.pickupItem('water-1'); g.pickupItem('water-2');
   g.player.x = 27.5; g.player.z = 27.5; g.player.yaw = 0;
   const originals = g.items.slice(), initialIds = ids(g);
   for (const id of initialIds) {
     assert.equal(g.drop(id), id);
     const dropped = byId(g, id); solidPath(g, dropped);
-    const width = item => item.kind === 'food' ? .32 : .13;
-    const depth = item => item.kind === 'food' ? .22 : .13;
+    const width = item => item.kind === 'food' ? .32 : item.kind === 'phone' ? .16 : .13;
+    const depth = item => item.kind === 'food' ? .22 : item.kind === 'phone' ? .27 : .13;
     for (const other of g.items.filter(i => i.state === 'world' && i.id !== id)) {
       assert(Math.abs(dropped.x - other.x) >= (width(dropped) + width(other)) / 2 + .03999 || Math.abs(dropped.z - other.z) >= (depth(dropped) + depth(other)) / 2 + .03999, `${id} overlaps ${other.id}`);
     }
   }
   assert.equal(g.inventory().length, 0);
-  assert.equal(new Set(g.items.map(i => `${i.x},${i.z}`)).size, 6);
+  assert.equal(new Set(g.items.map(i => `${i.x},${i.z}`)).size, 7);
   for (const item of originals) {assert.equal(g.pickupItem(item.id), item.id); assert.equal(byId(g, item.id), item);}
-  assert.deepEqual(ids(g), initialIds); assert.equal(g.inventory().length, 6); assert.equal(occupied(g).size, 8);
+  assert.deepEqual(ids(g), initialIds); assert.equal(g.inventory().length, 7); assert.equal(occupied(g).size, 9);
 });
 test('occupied ground can reject a drop without partially removing it from its grid cell', () => {
   const g = game(), p = g.player;

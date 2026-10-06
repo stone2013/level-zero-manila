@@ -1,0 +1,22 @@
+{
+  "maxima": {
+    "1": 12,
+    "4": 40,
+    "1.7777777777777777": 18,
+    "2.164102564102564": 22,
+    "2.4": 24,
+    "3.5555555555555554": 36
+  },
+  "regionMetres": 35,
+  "residentLimit": 49,
+  "maxViewportAspect": 4,
+  "fog": [
+    16,
+    80
+  ],
+  "farClip": 65,
+  "verticalFov": 76,
+  "initialWorldLoading": true,
+  "initialElapsed": 0,
+  "initiallyRendered": false
+}

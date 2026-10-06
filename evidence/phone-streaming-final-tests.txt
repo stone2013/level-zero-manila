@@ -1,0 +1,946 @@
+TAP version 13
+# Subtest: app boots and follows menu / pause / continue / settings / restart with a mocked DOM and GPU
+ok 1 - app boots and follows menu / pause / continue / settings / restart with a mocked DOM and GPU
+  ---
+  duration_ms: 113.936606
+  type: 'test'
+  ...
+# Subtest: lighting stays bounded, instancing retains static geometry, and resolution budget is enforced
+ok 2 - lighting stays bounded, instancing retains static geometry, and resolution budget is enforced
+  ---
+  duration_ms: 7187.827997
+  type: 'test'
+  ...
+# Subtest: baked fluorescent surfaces avoid double ambient lighting and retain bounded prop fill
+ok 3 - baked fluorescent surfaces avoid double ambient lighting and retain bounded prop fill
+  ---
+  duration_ms: 6132.122207
+  type: 'test'
+  ...
+# Subtest: raised physical ceilings align maze, room, exit, fixtures, trim and door lintel
+ok 4 - raised physical ceilings align maze, room, exit, fixtures, trim and door lintel
+  ---
+  duration_ms: 5940.821897
+  type: 'test'
+  ...
+# Subtest: height change preserves natural menu and gameplay eye height and field of view
+ok 5 - height change preserves natural menu and gameplay eye height and field of view
+  ---
+  duration_ms: 25.875187
+  type: 'test'
+  ...
+# Subtest: separate touch pointers stop on cancellation and blur in mocked event dispatch
+ok 6 - separate touch pointers stop on cancellation and blur in mocked event dispatch
+  ---
+  duration_ms: 29.901574
+  type: 'test'
+  ...
+# Subtest: portrait mobile gates the menu without reshaping desktop or hybrid laptop windows
+ok 7 - portrait mobile gates the menu without reshaping desktop or hybrid laptop windows
+  ---
+  duration_ms: 70.695283
+  type: 'test'
+  ...
+# Subtest: portrait freezes all simulation, drops captured input, and blocks every gameplay input
+ok 8 - portrait freezes all simulation, drops captured input, and blocks every gameplay input
+  ---
+  duration_ms: 19.147774
+  type: 'test'
+  ...
+# Subtest: repeated rotations retain manual pause, help, note, menu, won and lost states
+ok 9 - repeated rotations retain manual pause, help, note, menu, won and lost states
+  ---
+  duration_ms: 20.999556
+  type: 'test'
+  ...
+# Subtest: backgrounding while portrait requires manual resume and never catches up time
+ok 10 - backgrounding while portrait requires manual resume and never catches up time
+  ---
+  duration_ms: 22.023512
+  type: 'test'
+  ...
+# Subtest: orientation lock is feature-detected, user-triggered, serialized and fullscreen-aware
+ok 11 - orientation lock is feature-detected, user-triggered, serialized and fullscreen-aware
+  ---
+  duration_ms: 17.37347
+  type: 'test'
+  ...
+# Subtest: unsupported or denied orientation and fullscreen locks fail safely
+ok 12 - unsupported or denied orientation and fullscreen locks fail safely
+  ---
+  duration_ms: 35.702946
+  type: 'test'
+  ...
+# Subtest: iPad desktop identification and pointer-lock release do not break orientation pause
+ok 13 - iPad desktop identification and pointer-lock release do not break orientation pause
+  ---
+  duration_ms: 19.150159
+  type: 'test'
+  ...
+# Subtest: local light falloff follows actual fixture positions with a bounded static geometry cost
+ok 14 - local light falloff follows actual fixture positions with a bounded static geometry cost
+  ---
+  duration_ms: 7550.682949
+  type: 'test'
+  ...
+# Subtest: context actions show the nearby target and empty supplies cannot be pressed
+ok 15 - context actions show the nearby target and empty supplies cannot be pressed
+  ---
+  duration_ms: 19.852469
+  type: 'test'
+  ...
+# Subtest: WebGL failure remains explicit and prevents starting a broken game, while settings remain usable
+ok 16 - WebGL failure remains explicit and prevents starting a broken game, while settings remain usable
+  ---
+  duration_ms: 2.727787
+  type: 'test'
+  ...
+# Subtest: Escape closes settings without resuming simulation behind the overlay
+ok 17 - Escape closes settings without resuming simulation behind the overlay
+  ---
+  duration_ms: 16.960281
+  type: 'test'
+  ...
+# Subtest: doorway flank/lintel tint is local and bounded while wood geometry/material and draw count stay intact
+ok 18 - doorway flank/lintel tint is local and bounded while wood geometry/material and draw count stay intact
+  ---
+  duration_ms: 7325.266952
+  type: 'test'
+  ...
+# Subtest: yellow ceiling is panel albedo only, retaining neutral global fill and panel bake variation
+ok 19 - yellow ceiling is panel albedo only, retaining neutral global fill and panel bake variation
+  ---
+  duration_ms: 8291.487395
+  type: 'test'
+  ...
+# Subtest: frustum-requested geometry stays bounded and uses local coordinates without denser fog
+ok 20 - frustum-requested geometry stays bounded and uses local coordinates without denser fog
+  ---
+  duration_ms: 7354.407054
+  type: 'test'
+  ...
+# Subtest: outside Manila facade shares wallpaper and bake, lintel fills opening, room persists after change
+ok 21 - outside Manila facade shares wallpaper and bake, lintel fills opening, room persists after change
+  ---
+  duration_ms: 6756.633643
+  type: 'test'
+  ...
+# Subtest: all seam vestibules use identical lamp appearance and matching local surface samples
+ok 22 - all seam vestibules use identical lamp appearance and matching local surface samples
+  ---
+  duration_ms: 11044.113155
+  type: 'test'
+  ...
+# Subtest: real perspective selector covers wide pitched frusta with a hard49-region limit and explicit viewport overflow
+ok 23 - real perspective selector covers wide pitched frusta with a hard49-region limit and explicit viewport overflow
+  ---
+  duration_ms: 923.481558
+  type: 'test'
+  ...
+# Subtest: turning waits on the requested view, freezes simulation, and does not steal overlay focus
+ok 24 - turning waits on the requested view, freezes simulation, and does not steal overlay focus
+  ---
+  duration_ms: 45.777527
+  type: 'test'
+  ...
+# Subtest: actual app preloads an off-camera fold landing after eviction and transfers exactly once
+ok 25 - actual app preloads an off-camera fold landing after eviction and transfers exactly once
+  ---
+  duration_ms: 24166.906054
+  type: 'test'
+  ...
+# Subtest: an unexpectedly missing fold landing rolls back the crossing and requests it rather than losing the transfer
+ok 26 - an unexpectedly missing fold landing rolls back the crossing and requests it rather than losing the transfer
+  ---
+  duration_ms: 18.447308
+  type: 'test'
+  ...
+# Subtest: 256 seeds: 121 deterministic connected reciprocal cells, central clear spawn, and farthest eastern Manila goal
+ok 27 - 256 seeds: 121 deterministic connected reciprocal cells, central clear spawn, and farthest eastern Manila goal
+  ---
+  duration_ms: 316.157845
+  type: 'test'
+  ...
+# Subtest: 100 seeds: physically walk the ordinary center-to-Manila path with no transfers or trapped corners
+ok 28 - 100 seeds: physically walk the ordinary center-to-Manila path with no transfers or trapped corners
+  ---
+  duration_ms: 4359.281601
+  type: 'test'
+  ...
+# Subtest: initial and settled seams are reciprocal rigid translations preserving yaw, pitch, and residual movement
+ok 29 - initial and settled seams are reciprocal rigid translations preserving yaw, pitch, and residual movement
+  ---
+  duration_ms: 420.312468
+  type: 'test'
+  ...
+# Subtest: landing exactly on a seam supports immediate reversal from either side in both states
+ok 30 - landing exactly on a seam supports immediate reversal from either side in both states
+  ---
+  duration_ms: 34.438448
+  type: 'test'
+  ...
+# Subtest: a dropped food object remains at the same coordinates through an initial shortcut and three repeatable settled loops
+ok 31 - a dropped food object remains at the same coordinates through an initial shortcut and three repeatable settled loops
+  ---
+  duration_ms: 248.06267
+  type: 'test'
+  ...
+# Subtest: the connection changes only once, after movement hides both apertures and clears the 4.5 m exclusion
+ok 32 - the connection changes only once, after movement hides both apertures and clears the 4.5 m exclusion
+  ---
+  duration_ms: 644.010882
+  type: 'test'
+  ...
+# Subtest: all three endpoint vestibules have physical ordinary escape paths from both sides in both fold states
+ok 33 - all three endpoint vestibules have physical ordinary escape paths from both sides in both fold states
+  ---
+  duration_ms: 3415.679075
+  type: 'test'
+  ...
+# Subtest: inactive endpoint and southern half of active vestibules do not transfer
+ok 34 - inactive endpoint and southern half of active vestibules do not transfer
+  ---
+  duration_ms: 31.135698
+  type: 'test'
+  ...
+# Subtest: manual door changes the room only after a full close inside; water is finite and the changed exit is traversable
+ok 35 - manual door changes the room only after a full close inside; water is finite and the changed exit is traversable
+  ---
+  duration_ms: 322.392214
+  type: 'test'
+  ...
+# Subtest: door closing safely reopens if the player blocks the leaf
+ok 36 - door closing safely reopens if the player blocks the leaf
+  ---
+  duration_ms: 25.218913
+  type: 'test'
+  ...
+# Subtest: pause and notes freeze simulation; restart resets inventory, central spawn, door, and fold state
+ok 37 - pause and notes freeze simulation; restart resets inventory, central spawn, door, and fold state
+  ---
+  duration_ms: 7.474195
+  type: 'test'
+  ...
+# Subtest: food and water depletion lose the run, and long frames are capped
+ok 38 - food and water depletion lose the run, and long frames are capped
+  ---
+  duration_ms: 1.445971
+  type: 'test'
+  ...
+# Subtest: solid walls and vestibule partitions prevent clipping under very large movement commands
+ok 39 - solid walls and vestibule partitions prevent clipping under very large movement commands
+  ---
+  duration_ms: 302.721873
+  type: 'test'
+  ...
+# Subtest: backpack opens from I or Tab, freezes all simulation and closes before Escape pauses
+ok 40 - backpack opens from I or Tab, freezes all simulation and closes before Escape pauses
+  ---
+  duration_ms: 103.255671
+  type: 'test'
+  ...
+# Subtest: portrait freezes an open backpack and cancels drag; background preserves manual pause on closing
+ok 41 - portrait freezes an open backpack and cancels drag; background preserves manual pause on closing
+  ---
+  duration_ms: 68.93922
+  type: 'test'
+  ...
+# Subtest: tap selection and a free-cell tap move exactly one item; rectangles cannot overlap or exceed grid
+ok 42 - tap selection and a free-cell tap move exactly one item; rectangles cannot overlap or exceed grid
+  ---
+  duration_ms: 60.660839
+  type: 'test'
+  ...
+# Subtest: only dragging past backpack left boundary can discard; repeated pointer-up preserves same world object
+ok 43 - only dragging past backpack left boundary can discard; repeated pointer-up preserves same world object
+  ---
+  duration_ms: 77.753873
+  type: 'test'
+  ...
+# Subtest: leaving discard region, pointer cancel, lost capture, second fingers and resize are lossless
+ok 44 - leaving discard region, pointer cancel, lost capture, second fingers and resize are lossless
+  ---
+  duration_ms: 66.50158
+  type: 'test'
+  ...
+# Subtest: valid drag moves to a grid location, invalid overlap restores, water lower-half preserves grab offset
+ok 45 - valid drag moves to a grid location, invalid overlap restores, water lower-half preserves grab offset
+  ---
+  duration_ms: 33.664681
+  type: 'test'
+  ...
+# Subtest: selected consume/drop use the exact instance, water drops from table to ground, restart clears UI state
+ok 46 - selected consume/drop use the exact instance, water drops from table to ground, restart clears UI state
+  ---
+  duration_ms: 35.51171
+  type: 'test'
+  ...
+# Subtest: goal fades by simulation time, controls contain no permanent survival buttons or seed debug text
+ok 47 - goal fades by simulation time, controls contain no permanent survival buttons or seed debug text
+  ---
+  duration_ms: 19.71695
+  type: 'test'
+  ...
+# Subtest: blocked drop feedback stays inside backpack and pointer-lock release does not add a pause
+ok 48 - blocked drop feedback stays inside backpack and pointer-lock release does not add a pause
+  ---
+  duration_ms: 27.212953
+  type: 'test'
+  ...
+# Subtest: reset preserves exactly four food IDs, two table water IDs and one phone ID with a physical 4×4 layout
+ok 49 - reset preserves exactly four food IDs, two table water IDs and one phone ID with a physical 4×4 layout
+  ---
+  duration_ms: 8.881969
+  type: 'test'
+  ...
+# Subtest: grid moves validate the exact footprint, boundaries, integer coordinates, and occupied cells atomically
+ok 50 - grid moves validate the exact footprint, boundaries, integer coordinates, and occupied cells atomically
+  ---
+  duration_ms: 9.059756
+  type: 'test'
+  ...
+# Subtest: arrange packs tall items first without changing identities, counts, survival, or consumed/world state
+ok 51 - arrange packs tall items first without changing identities, counts, survival, or consumed/world state
+  ---
+  duration_ms: 4.486508
+  type: 'test'
+  ...
+# Subtest: full capacity pickup keeps the world object and every inventory cell unchanged, including repeated attempts
+ok 52 - full capacity pickup keeps the world object and every inventory cell unchanged, including repeated attempts
+  ---
+  duration_ms: 6.009825
+  type: 'test'
+  ...
+# Subtest: pickup requires contiguous vertical cells rather than total free area and succeeds after arranging
+ok 53 - pickup requires contiguous vertical cells rather than total free area and succeeds after arranging
+  ---
+  duration_ms: 6.554453
+  type: 'test'
+  ...
+# Subtest: an impossible arrange has no partial side effects
+ok 54 - an impossible arrange has no partial side effects
+  ---
+  duration_ms: 1.350208
+  type: 'test'
+  ...
+# Subtest: pickup requires a reachable world object and never duplicates it on repeated calls
+ok 55 - pickup requires a reachable world object and never duplicates it on repeated calls
+  ---
+  duration_ms: 1.963058
+  type: 'test'
+  ...
+# Subtest: inventory freezes movement, hunger, thirst, door, approach, folds, and world interaction
+ok 56 - inventory freezes movement, hunger, thirst, door, approach, folds, and world interaction
+  ---
+  duration_ms: 1.713713
+  type: 'test'
+  ...
+# Subtest: inventory actions work while open, but closing never overrides pause, notes, menu, or an ending
+ok 57 - inventory actions work while open, but closing never overrides pause, notes, menu, or an ending
+  ---
+  duration_ms: 3.794289
+  type: 'test'
+  ...
+# Subtest: exact selected consumption removes only that object, clears its cells, and cannot respawn or consume twice
+ok 58 - exact selected consumption removes only that object, clears its cells, and cannot respawn or consume twice
+  ---
+  duration_ms: 1.97075
+  type: 'test'
+  ...
+# Subtest: full survival bars refuse consumption without moving or removing a selected item
+ok 59 - full survival bars refuse consumption without moving or removing a selected item
+  ---
+  duration_ms: 2.114645
+  type: 'test'
+  ...
+# Subtest: selected food and water drop onto the ground, remain stable, and can be recovered repeatedly
+ok 60 - selected food and water drop onto the ground, remain stable, and can be recovered repeatedly
+  ---
+  duration_ms: 74.747148
+  type: 'test'
+  ...
+# Subtest: dropping does not cross a thin wall even when the nominal landing point is empty
+ok 61 - dropping does not cross a thin wall even when the nominal landing point is empty
+  ---
+  duration_ms: 6.886983
+  type: 'test'
+  ...
+# Subtest: dropping near the table and live door chooses a safe unobstructed route
+ok 62 - dropping near the table and live door chooses a safe unobstructed route
+  ---
+  duration_ms: 4.617855
+  type: 'test'
+  ...
+# Subtest: an entirely blocked drop leaves object, grid, and survival state untouched
+ok 63 - an entirely blocked drop leaves object, grid, and survival state untouched
+  ---
+  duration_ms: 1.043256
+  type: 'test'
+  ...
+# Subtest: new markers in the changed exit stay visible and recoverable; old maze markers remain hidden
+ok 64 - new markers in the changed exit stay visible and recoverable; old maze markers remain hidden
+  ---
+  duration_ms: 2.390089
+  type: 'test'
+  ...
+# Subtest: restart clears inventory overlay and restores only the original seven items and survival values
+ok 65 - restart clears inventory overlay and restores only the original seven items and survival values
+  ---
+  duration_ms: 3.527106
+  type: 'test'
+  ...
+# Subtest: seven consecutive drops use separate free ground footprints and recover their original IDs without duplicates
+ok 66 - seven consecutive drops use separate free ground footprints and recover their original IDs without duplicates
+  ---
+  duration_ms: 51.615444
+  type: 'test'
+  ...
+# Subtest: occupied ground can reject a drop without partially removing it from its grid cell
+ok 67 - occupied ground can reject a drop without partially removing it from its grid cell
+  ---
+  duration_ms: 7.30498
+  type: 'test'
+  ...
+# Subtest: a bottle dropped across the doorway into Manila stays recoverable after room changes
+ok 68 - a bottle dropped across the doorway into Manila stays recoverable after room changes
+  ---
+  duration_ms: 3.20312
+  type: 'test'
+  ...
+# Subtest: lamp variations are seed-stable, position-stable, within ±8%, and do not consume game RNG
+ok 69 - lamp variations are seed-stable, position-stable, within ±8%, and do not consume game RNG
+  ---
+  duration_ms: 5.598027
+  type: 'test'
+  ...
+# Subtest: area fixture pools overlap smoothly but remain brighter below each fixture
+ok 70 - area fixture pools overlap smoothly but remain brighter below each fixture
+  ---
+  duration_ms: 2.899705
+  type: 'test'
+  ...
+# Subtest: wall obstruction blocks the direct component while preserving nonblack bounce
+ok 71 - wall obstruction blocks the direct component while preserving nonblack bounce
+  ---
+  duration_ms: 0.434202
+  type: 'test'
+  ...
+# Subtest: corner/contact shade is soft and locally 15–25% darker without self-shadowing a flat wall
+ok 72 - corner/contact shade is soft and locally 15–25% darker without self-shadowing a flat wall
+  ---
+  duration_ms: 0.161552
+  type: 'test'
+  ...
+# Subtest: ceiling bounce retains local variation and never treats an underside lamp as upward direct light
+ok 73 - ceiling bounce retains local variation and never treats an underside lamp as upward direct light
+  ---
+  duration_ms: 0.196335
+  type: 'test'
+  ...
+# Subtest: door surroundings are gently dimmed, positive and continuous with no special lamp
+ok 74 - door surroundings are gently dimmed, positive and continuous with no special lamp
+  ---
+  duration_ms: 0.15326
+  type: 'test'
+  ...
+# Subtest: every sampled maze surface stays finite/readable, and caches/ray work are bounded
+ok 75 - every sampled maze surface stays finite/readable, and caches/ray work are bounded
+  ---
+  duration_ms: 358.463348
+  type: 'test'
+  ...
+# Subtest: expanded map preserves the lighting algorithm and landscape manifest byte-for-byte
+ok 76 - expanded map preserves the lighting algorithm and landscape manifest byte-for-byte
+  ---
+  duration_ms: 9.933198
+  type: 'test'
+  ...
+# Subtest: prior menu, dialogs and landscape safeguards remain underneath scoped inventory and HUD overrides
+ok 77 - prior menu, dialogs and landscape safeguards remain underneath scoped inventory and HUD overrides
+  ---
+  duration_ms: 1.222336
+  type: 'test'
+  ...
+# Subtest: real initial view loading freezes a connected phone and resumes without battery or survival catch-up
+ok 78 - real initial view loading freezes a connected phone and resumes without battery or survival catch-up
+  ---
+  duration_ms: 5751.321963
+  type: 'test'
+  ...
+# Subtest: phone battery and ground identity survive chunk eviction and recovery at far negative coordinates
+ok 79 - phone battery and ground identity survive chunk eviction and recovery at far negative coordinates
+  ---
+  duration_ms: 80.758149
+  type: 'test'
+  ...
+# Subtest: old phone marker is retained atomically when returning to its streamed chunk with a full inventory
+ok 80 - old phone marker is retained atomically when returning to its streamed chunk with a full inventory
+  ---
+  duration_ms: 40.237217
+  type: 'test'
+  ...
+# Subtest: chunks east of the Manila landmark do not count as Manila or allow remote charging
+ok 81 - chunks east of the Manila landmark do not count as Manila or allow remote charging
+  ---
+  duration_ms: 2.040855
+  type: 'test'
+  ...
+# Subtest: leaving the room for streamed maze coordinates disconnects the precise phone before any charge
+ok 82 - leaving the room for streamed maze coordinates disconnects the precise phone before any charge
+  ---
+  duration_ms: 3.69533
+  type: 'test'
+  ...
+# Subtest: a held phone survives procedural cache churn and original Manila connection progression
+ok 83 - a held phone survives procedural cache churn and original Manila connection progression
+  ---
+  duration_ms: 47.049693
+  type: 'test'
+  ...
+# Subtest: selecting the stable phone opens a local reader and chapter/back/close restores backpack selection and focus
+ok 84 - selecting the stable phone opens a local reader and chapter/back/close restores backpack selection and focus
+  ---
+  duration_ms: 150.570512
+  type: 'test'
+  ...
+# Subtest: foreground frames drain the open phone once while freezing all world simulation
+ok 85 - foreground frames drain the open phone once while freezing all world simulation
+  ---
+  duration_ms: 104.153915
+  type: 'test'
+  ...
+# Subtest: depletion hides cached articles and charger UI restores them without replacing the phone
+ok 86 - depletion hides cached articles and charger UI restores them without replacing the phone
+  ---
+  duration_ms: 400.807089
+  type: 'test'
+  ...
+# Subtest: closed reader and backpack keep foreground charging active while the HUD reports the exact bound phone
+ok 87 - closed reader and backpack keep foreground charging active while the HUD reports the exact bound phone
+  ---
+  duration_ms: 141.81269
+  type: 'test'
+  ...
+# Subtest: background, blur and pagehide close the reader and freeze charge until explicit resume with no catch-up
+ok 88 - background, blur and pagehide close the reader and freeze charge until explicit resume with no catch-up
+  ---
+  duration_ms: 93.249239
+  type: 'test'
+  ...
+# Subtest: portrait preserves the reader but freezes battery, blocks its controls and restores focus on landscape
+ok 89 - portrait preserves the reader but freezes battery, blocks its controls and restores focus on landscape
+  ---
+  duration_ms: 147.606351
+  type: 'test'
+  ...
+# Subtest: manual pause, settings, menu and note freeze devices; continuing preserves charge and restarting resets it
+ok 90 - manual pause, settings, menu and note freeze devices; continuing preserves charge and restarting resets it
+  ---
+  duration_ms: 123.156723
+  type: 'test'
+  ...
+# Subtest: phone tab order stays in the visible enabled reader controls and never leaks gameplay keys
+ok 91 - phone tab order stays in the visible enabled reader controls and never leaks gameplay keys
+  ---
+  duration_ms: 44.529053
+  type: 'test'
+  ...
+# Subtest: reader opening releases pointer lock without adding a hidden manual pause
+ok 92 - reader opening releases pointer lock without adding a hidden manual pause
+  ---
+  duration_ms: 24.693724
+  type: 'test'
+  ...
+# Subtest: left-discarded phone retains stable identity and battery in its visible floor mesh and can be recovered
+ok 93 - left-discarded phone retains stable identity and battery in its visible floor mesh and can be recovered
+  ---
+  duration_ms: 30.409449
+  type: 'test'
+  ...
+# Subtest: table cable has visible geometry, a matching physical target and a collision-free approach
+ok 94 - table cable has visible geometry, a matching physical target and a collision-free approach
+  ---
+  duration_ms: 22.963175
+  type: 'test'
+  ...
+# Subtest: every guide chapter is local and usable without network or geolocation access
+ok 95 - every guide chapter is local and usable without network or geolocation access
+  ---
+  duration_ms: 20.128759
+  type: 'test'
+  ...
+# Subtest: offline cache includes the exact embedded guide code and phone icon without falling back to network
+ok 96 - offline cache includes the exact embedded guide code and phone icon without falling back to network
+  ---
+  duration_ms: 4.741922
+  type: 'test'
+  ...
+# Subtest: reset appends one full 1×1 phone after the six stable legacy items
+ok 97 - reset appends one full 1×1 phone after the six stable legacy items
+  ---
+  duration_ms: 15.499416
+  type: 'test'
+  ...
+# Subtest: phone opens only a held phone in play, and invalid opens preserve the current reader
+ok 98 - phone opens only a held phone in play, and invalid opens preserve the current reader
+  ---
+  duration_ms: 10.165066
+  type: 'test'
+  ...
+# Subtest: opening the reader freezes world state and disallows inventory and world actions
+ok 99 - opening the reader freezes world state and disallows inventory and world actions
+  ---
+  duration_ms: 2.45751
+  type: 'test'
+  ...
+# Subtest: device clock drains a full unpowered reader in eight minutes without consuming the phone
+ok 100 - device clock drains a full unpowered reader in eight minutes without consuming the phone
+  ---
+  duration_ms: 9.445055
+  type: 'test'
+  ...
+# Subtest: closed, unconnected phones do not drain and survival update never ticks devices implicitly
+ok 101 - closed, unconnected phones do not drain and survival update never ticks devices implicitly
+  ---
+  duration_ms: 8.094045
+  type: 'test'
+  ...
+# Subtest: each device tick clamps catch-up and ignores negative, zero, and nonfinite frame durations
+ok 102 - each device tick clamps catch-up and ignores negative, zero, and nonfinite frame durations
+  ---
+  duration_ms: 2.322388
+  type: 'test'
+  ...
+# Subtest: device time freezes explicitly in background/portrait/inactive UI and all nonplaying modes
+ok 103 - device time freezes explicitly in background/portrait/inactive UI and all nonplaying modes
+  ---
+  duration_ms: 202.272446
+  type: 'test'
+  ...
+# Subtest: backpack and reader freeze survival while connected charging continues exactly once per explicit tick
+ok 104 - backpack and reader freeze survival while connected charging continues exactly once per explicit tick
+  ---
+  duration_ms: 5.871928
+  type: 'test'
+  ...
+# Subtest: forty seconds of external power fully charges a dead phone even while reading
+ok 105 - forty seconds of external power fully charges a dead phone even while reading
+  ---
+  duration_ms: 79.175247
+  type: 'test'
+  ...
+# Subtest: charger refuses remote, blocked, wrong-kind, unavailable, and nonplaying targets atomically
+ok 106 - charger refuses remote, blocked, wrong-kind, unavailable, and nonplaying targets atomically
+  ---
+  duration_ms: 2.892304
+  type: 'test'
+  ...
+# Subtest: repeated connection is idempotent and explicit unplug immediately restores reading drain
+ok 107 - repeated connection is idempotent and explicit unplug immediately restores reading drain
+  ---
+  duration_ms: 1.515396
+  type: 'test'
+  ...
+# Subtest: invalid charger requests cannot clear or replace an existing cable while a reader is open
+ok 108 - invalid charger requests cannot clear or replace an existing cable while a reader is open
+  ---
+  duration_ms: 3.987538
+  type: 'test'
+  ...
+# Subtest: only one phone can bind to the charger and a different open phone still drains
+ok 109 - only one phone can bind to the charger and a different open phone still drains
+  ---
+  duration_ms: 2.867046
+  type: 'test'
+  ...
+# Subtest: moving away disconnects the cable before any later charge and cannot reconnect by returning
+ok 110 - moving away disconnects the cable before any later charge and cannot reconnect by returning
+  ---
+  duration_ms: 2.232363
+  type: 'test'
+  ...
+# Subtest: lost line of sight invalidates an existing charger binding with a single notification
+ok 111 - lost line of sight invalidates an existing charger binding with a single notification
+  ---
+  duration_ms: 0.908534
+  type: 'test'
+  ...
+# Subtest: dropping unplugs without changing battery and pickup never silently reconnects
+ok 112 - dropping unplugs without changing battery and pickup never silently reconnects
+  ---
+  duration_ms: 4.825577
+  type: 'test'
+  ...
+# Subtest: a blocked drop retains the held phone, battery, grid position, and cable binding
+ok 113 - a blocked drop retains the held phone, battery, grid position, and cable binding
+  ---
+  duration_ms: 3.70929
+  type: 'test'
+  ...
+# Subtest: invalidated or removed held phone cannot keep receiving power
+ok 114 - invalidated or removed held phone cannot keep receiving power
+  ---
+  duration_ms: 5.596885
+  type: 'test'
+  ...
+# Subtest: device operations clamp finite battery boundaries and never overcharge or underflow
+ok 115 - device operations clamp finite battery boundaries and never overcharge or underflow
+  ---
+  duration_ms: 1.25503
+  type: 'test'
+  ...
+# Subtest: repeated open/close cannot refill a battery or register additional drain
+ok 116 - repeated open/close cannot refill a battery or register additional drain
+  ---
+  duration_ms: 0.962205
+  type: 'test'
+  ...
+# Subtest: phone is not consumable under any kind alias and cannot affect survival meters
+ok 117 - phone is not consumable under any kind alias and cannot affect survival meters
+  ---
+  duration_ms: 4.313638
+  type: 'test'
+  ...
+# Subtest: arranging and moving a phone preserve its object, battery, ID, and exact one-cell occupancy
+ok 118 - arranging and moving a phone preserve its object, battery, ID, and exact one-cell occupancy
+  ---
+  duration_ms: 4.150453
+  type: 'test'
+  ...
+# Subtest: repeated phone drop/pickup preserves physical object, battery, and identity without duplication
+ok 119 - repeated phone drop/pickup preserves physical object, battery, and identity without duplication
+  ---
+  duration_ms: 20.723988
+  type: 'test'
+  ...
+# Subtest: full backpack refuses phone pickup atomically and retains the same world phone until space opens
+ok 120 - full backpack refuses phone pickup atomically and retains the same world phone until space opens
+  ---
+  duration_ms: 1.579322
+  type: 'test'
+  ...
+# Subtest: phone pickup requires reach and line of sight, with no battery or identity changes on failure
+ok 121 - phone pickup requires reach and line of sight, with no battery or identity changes on failure
+  ---
+  duration_ms: 0.459229
+  type: 'test'
+  ...
+# Subtest: real spatial-seam crossings preserve a carried phone and leave a dropped phone at its original location
+ok 122 - real spatial-seam crossings preserve a carried phone and leave a dropped phone at its original location
+  ---
+  duration_ms: 6.955386
+  type: 'test'
+  ...
+# Subtest: pause closes the reader, resume does not reopen it, and inventory close preserves explicit modes
+ok 123 - pause closes the reader, resume does not reopen it, and inventory close preserves explicit modes
+  ---
+  duration_ms: 4.378386
+  type: 'test'
+  ...
+# Subtest: charger interaction picks up nearby bottles first, then toggles a single held-phone cable
+ok 124 - charger interaction picks up nearby bottles first, then toggles a single held-phone cable
+  ---
+  duration_ms: 0.863246
+  type: 'test'
+  ...
+# Subtest: reset clears device bindings and restores exactly one full phone without duplicating old items
+ok 125 - reset clears device bindings and restores exactly one full phone without duplicating old items
+  ---
+  duration_ms: 5.436304
+  type: 'test'
+  ...
+# Subtest: manifest icons, scope, and all offline assets are local and exist
+ok 126 - manifest icons, scope, and all offline assets are local and exist
+  ---
+  duration_ms: 2.06434
+  type: 'test'
+  ...
+# Subtest: service-worker lifecycle and offline fetch run in mocked Cache API
+ok 127 - service-worker lifecycle and offline fetch run in mocked Cache API
+  ---
+  duration_ms: 4.890505
+  type: 'test'
+  ...
+# Subtest: visible version matches the active offline cache version
+ok 128 - visible version matches the active offline cache version
+  ---
+  duration_ms: 0.214793
+  type: 'test'
+  ...
+# Subtest: mobile UI keeps original controls, unique identifiers and explicit recovery/context labels
+ok 129 - mobile UI keeps original controls, unique identifiers and explicit recovery/context labels
+  ---
+  duration_ms: 2.043449
+  type: 'test'
+  ...
+# Subtest: reference menu keeps open typography, a yellow rail, safe insets and generous touch targets
+ok 130 - reference menu keeps open typography, a yellow rail, safe insets and generous touch targets
+  ---
+  duration_ms: 0.516165
+  type: 'test'
+  ...
+# Subtest: approved chevron wallpaper is preserved with a small local runtime copy
+ok 131 - approved chevron wallpaper is preserved with a small local runtime copy
+  ---
+  duration_ms: 5.998037
+  type: 'test'
+  ...
+# Subtest: approved small, faded wallpaper scale remains unchanged in the larger map
+ok 132 - approved small, faded wallpaper scale remains unchanged in the larger map
+  ---
+  duration_ms: 1.147753
+  type: 'test'
+  ...
+# Subtest: world-scale wall and floor UVs remain proportional and line up across differently sized pieces
+ok 133 - world-scale wall and floor UVs remain proportional and line up across differently sized pieces
+  ---
+  duration_ms: 9.21904
+  type: 'test'
+  ...
+# Subtest: ceiling uses downward-facing instanced panels with a real 25mm seam and bounded coverage
+ok 134 - ceiling uses downward-facing instanced panels with a real 25mm seam and bounded coverage
+  ---
+  duration_ms: 17.778239
+  type: 'test'
+  ...
+# Subtest: actual app freezes initial and restarted exploration until the full clear view is ready
+ok 135 - actual app freezes initial and restarted exploration until the full clear view is ready
+  ---
+  duration_ms: 8763.009421
+  type: 'test'
+  ...
+# Subtest: real chunk unload disposes owned geometries/instance buffers, never shared assets or Manila
+ok 136 - real chunk unload disposes owned geometries/instance buffers, never shared assets or Manila
+  ---
+  duration_ms: 26983.914119
+  type: 'test'
+  ...
+# Subtest: 10 km render coordinates, UVs, and camera rebasing stay small while world items remain absolute
+ok 137 - 10 km render coordinates, UVs, and camera rebasing stay small while world items remain absolute
+  ---
+  duration_ms: 12703.322126
+  type: 'test'
+  ...
+# Subtest: actual frame freezes chunk work in background and portrait without changing simulation
+ok 138 - actual frame freezes chunk work in background and portrait without changing simulation
+  ---
+  duration_ms: 232.972089
+  type: 'test'
+  ...
+# Subtest: 256 seeds: chunks are deterministic after reversed requests and LRU eviction, with connected reciprocal seams across negative coordinates
+ok 139 - 256 seeds: chunks are deterministic after reversed requests and LRU eviction, with connected reciprocal seams across negative coordinates
+  ---
+  duration_ms: 6017.759187
+  type: 'test'
+  ...
+# Subtest: long coordinate travel keeps the real procedural data LRU at 16 and regenerates identical negative chunks
+ok 140 - long coordinate travel keeps the real procedural data LRU at 16 and regenerates identical negative chunks
+  ---
+  duration_ms: 115.829778
+  type: 'test'
+  ...
+# Subtest: Game.move physically crosses real east, west, north, and south portals outside the original 11×11 map and still stops at closed walls
+ok 141 - Game.move physically crosses real east, west, north, and south portals outside the original 11×11 map and still stops at closed walls
+  ---
+  duration_ms: 1198.774656
+  type: 'test'
+  ...
+# Subtest: item ledger survives actual long walking, render unload, data eviction, revisit, drop, pickup, and consumption without resurrection
+ok 142 - item ledger survives actual long walking, render unload, data eviction, revisit, drop, pickup, and consumption without resurrection
+  ---
+  duration_ms: 390.891529
+  type: 'test'
+  ...
+# Subtest: the original Manila route and finite water remain usable after origin eviction, and reset creates a clean world and ledger
+ok 143 - the original Manila route and finite water remain usable after origin eviction, and reset creates a clean world and ledger
+  ---
+  duration_ms: 38.635502
+  type: 'test'
+  ...
+# Subtest: exported RenderChunkStream applies time and step budgets, prioritizes the center, and gates pending cells including negative coordinates
+ok 144 - exported RenderChunkStream applies time and step budgets, prioritizes the center, and gates pending cells including negative coordinates
+  ---
+  duration_ms: 0.581233
+  type: 'test'
+  ...
+# Subtest: the real render scheduler keeps ready plus pending at 25, disposes unloaded and canceled resources, and never revives stale jobs
+ok 145 - the real render scheduler keeps ready plus pending at 25, disposes unloaded and canceled resources, and never revives stale jobs
+  ---
+  duration_ms: 9.264733
+  type: 'test'
+  ...
+# Subtest: Game.move cannot enter a pending render region and resumes through the same open passage when its real scheduler finishes
+ok 146 - Game.move cannot enter a pending render region and resumes through the same open passage when its real scheduler finishes
+  ---
+  duration_ms: 2.782589
+  type: 'test'
+  ...
+# Subtest: a retained partial build stays the sole active iterator when the render center changes
+ok 147 - a retained partial build stays the sole active iterator when the render center changes
+  ---
+  duration_ms: 0.528403
+  type: 'test'
+  ...
+# Subtest: clearRadius never exposes unloaded or partial regions and becomes zero on a full clear
+ok 148 - clearRadius never exposes unloaded or partial regions and becomes zero on a full clear
+  ---
+  duration_ms: 0.789004
+  type: 'test'
+  ...
+# Subtest: view requests prioritize all required regions, cap optional prefetch at 49, and reject overflowing required sets atomically
+ok 149 - view requests prioritize all required regions, cap optional prefetch at 49, and reject overflowing required sets atomically
+  ---
+  duration_ms: 1.07855
+  type: 'test'
+  ...
+# Subtest: view request LRU retains recently seen ready regions for revisit and evicts only old unrequested entries when needed
+ok 150 - view request LRU retains recently seen ready regions for revisit and evicts only old unrequested entries when needed
+  ---
+  duration_ms: 5.290575
+  type: 'test'
+  ...
+# Subtest: turning a requested view cancels stale partial work while retaining completed regions and a single overlapping builder
+ok 151 - turning a requested view cancels stale partial work while retaining completed regions and a single overlapping builder
+  ---
+  duration_ms: 0.353801
+  type: 'test'
+  ...
+# Subtest: duplicate view points upgrade to required without wasting capacity and square-window compatibility survives mode switches
+ok 152 - duplicate view points upgrade to required without wasting capacity and square-window compatibility survives mode switches
+  ---
+  duration_ms: 0.495624
+  type: 'test'
+  ...
+# Subtest: wall-only shader halves albedo contrast before vertex lighting without another texture sample
+ok 153 - wall-only shader halves albedo contrast before vertex lighting without another texture sample
+  ---
+  duration_ms: 6.471809
+  type: 'test'
+  ...
+# Subtest: sampled yellow paper is converted once from sRGB and is unchanged by the 50% mix
+ok 154 - sampled yellow paper is converted once from sRGB and is unchanged by the 50% mix
+  ---
+  duration_ms: 4.943464
+  type: 'test'
+  ...
+# Subtest: every channel difference from paper is exactly halved with bounded output, including baked light
+ok 155 - every channel difference from paper is exactly halved with bounded output, including baked light
+  ---
+  duration_ms: 0.932149
+  type: 'test'
+  ...
+# Subtest: patch uses the pinned Three.js map shader and does not change alpha or light bake
+ok 156 - patch uses the pinned Three.js map shader and does not change alpha or light bake
+  ---
+  duration_ms: 1.062665
+  type: 'test'
+  ...
+1..156
+# tests 156
+# suites 0
+# pass 156
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 68172.357056

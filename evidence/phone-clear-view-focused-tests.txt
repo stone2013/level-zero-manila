@@ -1,0 +1,292 @@
+TAP version 13
+# Subtest: phone battery and ground identity survive chunk eviction and recovery at far negative coordinates
+ok 1 - phone battery and ground identity survive chunk eviction and recovery at far negative coordinates
+  ---
+  duration_ms: 34.957086
+  type: 'test'
+  ...
+# Subtest: old phone marker is retained atomically when returning to its streamed chunk with a full inventory
+ok 2 - old phone marker is retained atomically when returning to its streamed chunk with a full inventory
+  ---
+  duration_ms: 15.765787
+  type: 'test'
+  ...
+# Subtest: chunks east of the Manila landmark do not count as Manila or allow remote charging
+ok 3 - chunks east of the Manila landmark do not count as Manila or allow remote charging
+  ---
+  duration_ms: 1.868747
+  type: 'test'
+  ...
+# Subtest: leaving the room for streamed maze coordinates disconnects the precise phone before any charge
+ok 4 - leaving the room for streamed maze coordinates disconnects the precise phone before any charge
+  ---
+  duration_ms: 2.330459
+  type: 'test'
+  ...
+# Subtest: a held phone survives procedural cache churn and original Manila connection progression
+ok 5 - a held phone survives procedural cache churn and original Manila connection progression
+  ---
+  duration_ms: 15.819607
+  type: 'test'
+  ...
+# Subtest: selecting the stable phone opens a local reader and chapter/back/close restores backpack selection and focus
+ok 6 - selecting the stable phone opens a local reader and chapter/back/close restores backpack selection and focus
+  ---
+  duration_ms: 71.045984
+  type: 'test'
+  ...
+# Subtest: foreground frames drain the open phone once while freezing all world simulation
+ok 7 - foreground frames drain the open phone once while freezing all world simulation
+  ---
+  duration_ms: 64.268556
+  type: 'test'
+  ...
+# Subtest: depletion hides cached articles and charger UI restores them without replacing the phone
+ok 8 - depletion hides cached articles and charger UI restores them without replacing the phone
+  ---
+  duration_ms: 215.381575
+  type: 'test'
+  ...
+# Subtest: closed reader and backpack keep foreground charging active while the HUD reports the exact bound phone
+ok 9 - closed reader and backpack keep foreground charging active while the HUD reports the exact bound phone
+  ---
+  duration_ms: 40.671549
+  type: 'test'
+  ...
+# Subtest: background, blur and pagehide close the reader and freeze charge until explicit resume with no catch-up
+ok 10 - background, blur and pagehide close the reader and freeze charge until explicit resume with no catch-up
+  ---
+  duration_ms: 26.471813
+  type: 'test'
+  ...
+# Subtest: portrait preserves the reader but freezes battery, blocks its controls and restores focus on landscape
+ok 11 - portrait preserves the reader but freezes battery, blocks its controls and restores focus on landscape
+  ---
+  duration_ms: 42.798433
+  type: 'test'
+  ...
+# Subtest: manual pause, settings, menu and note freeze devices; continuing preserves charge and restarting resets it
+ok 12 - manual pause, settings, menu and note freeze devices; continuing preserves charge and restarting resets it
+  ---
+  duration_ms: 41.088354
+  type: 'test'
+  ...
+# Subtest: phone tab order stays in the visible enabled reader controls and never leaks gameplay keys
+ok 13 - phone tab order stays in the visible enabled reader controls and never leaks gameplay keys
+  ---
+  duration_ms: 28.378468
+  type: 'test'
+  ...
+# Subtest: reader opening releases pointer lock without adding a hidden manual pause
+ok 14 - reader opening releases pointer lock without adding a hidden manual pause
+  ---
+  duration_ms: 18.005159
+  type: 'test'
+  ...
+# Subtest: left-discarded phone retains stable identity and battery in its visible floor mesh and can be recovered
+ok 15 - left-discarded phone retains stable identity and battery in its visible floor mesh and can be recovered
+  ---
+  duration_ms: 18.332852
+  type: 'test'
+  ...
+# Subtest: table cable has visible geometry, a matching physical target and a collision-free approach
+ok 16 - table cable has visible geometry, a matching physical target and a collision-free approach
+  ---
+  duration_ms: 27.482562
+  type: 'test'
+  ...
+# Subtest: every guide chapter is local and usable without network or geolocation access
+ok 17 - every guide chapter is local and usable without network or geolocation access
+  ---
+  duration_ms: 21.052126
+  type: 'test'
+  ...
+# Subtest: offline cache includes the exact embedded guide code and phone icon without falling back to network
+ok 18 - offline cache includes the exact embedded guide code and phone icon without falling back to network
+  ---
+  duration_ms: 7.001165
+  type: 'test'
+  ...
+# Subtest: reset appends one full 1×1 phone after the six stable legacy items
+ok 19 - reset appends one full 1×1 phone after the six stable legacy items
+  ---
+  duration_ms: 9.126656
+  type: 'test'
+  ...
+# Subtest: phone opens only a held phone in play, and invalid opens preserve the current reader
+ok 20 - phone opens only a held phone in play, and invalid opens preserve the current reader
+  ---
+  duration_ms: 2.499693
+  type: 'test'
+  ...
+# Subtest: opening the reader freezes world state and disallows inventory and world actions
+ok 21 - opening the reader freezes world state and disallows inventory and world actions
+  ---
+  duration_ms: 1.307394
+  type: 'test'
+  ...
+# Subtest: device clock drains a full unpowered reader in eight minutes without consuming the phone
+ok 22 - device clock drains a full unpowered reader in eight minutes without consuming the phone
+  ---
+  duration_ms: 5.447411
+  type: 'test'
+  ...
+# Subtest: closed, unconnected phones do not drain and survival update never ticks devices implicitly
+ok 23 - closed, unconnected phones do not drain and survival update never ticks devices implicitly
+  ---
+  duration_ms: 7.291311
+  type: 'test'
+  ...
+# Subtest: each device tick clamps catch-up and ignores negative, zero, and nonfinite frame durations
+ok 24 - each device tick clamps catch-up and ignores negative, zero, and nonfinite frame durations
+  ---
+  duration_ms: 2.959965
+  type: 'test'
+  ...
+# Subtest: device time freezes explicitly in background/portrait/inactive UI and all nonplaying modes
+ok 25 - device time freezes explicitly in background/portrait/inactive UI and all nonplaying modes
+  ---
+  duration_ms: 138.12535
+  type: 'test'
+  ...
+# Subtest: backpack and reader freeze survival while connected charging continues exactly once per explicit tick
+ok 26 - backpack and reader freeze survival while connected charging continues exactly once per explicit tick
+  ---
+  duration_ms: 6.023856
+  type: 'test'
+  ...
+# Subtest: forty seconds of external power fully charges a dead phone even while reading
+ok 27 - forty seconds of external power fully charges a dead phone even while reading
+  ---
+  duration_ms: 78.252767
+  type: 'test'
+  ...
+# Subtest: charger refuses remote, blocked, wrong-kind, unavailable, and nonplaying targets atomically
+ok 28 - charger refuses remote, blocked, wrong-kind, unavailable, and nonplaying targets atomically
+  ---
+  duration_ms: 2.259183
+  type: 'test'
+  ...
+# Subtest: repeated connection is idempotent and explicit unplug immediately restores reading drain
+ok 29 - repeated connection is idempotent and explicit unplug immediately restores reading drain
+  ---
+  duration_ms: 1.432661
+  type: 'test'
+  ...
+# Subtest: invalid charger requests cannot clear or replace an existing cable while a reader is open
+ok 30 - invalid charger requests cannot clear or replace an existing cable while a reader is open
+  ---
+  duration_ms: 1.99797
+  type: 'test'
+  ...
+# Subtest: only one phone can bind to the charger and a different open phone still drains
+ok 31 - only one phone can bind to the charger and a different open phone still drains
+  ---
+  duration_ms: 1.720244
+  type: 'test'
+  ...
+# Subtest: moving away disconnects the cable before any later charge and cannot reconnect by returning
+ok 32 - moving away disconnects the cable before any later charge and cannot reconnect by returning
+  ---
+  duration_ms: 1.887084
+  type: 'test'
+  ...
+# Subtest: lost line of sight invalidates an existing charger binding with a single notification
+ok 33 - lost line of sight invalidates an existing charger binding with a single notification
+  ---
+  duration_ms: 0.961323
+  type: 'test'
+  ...
+# Subtest: dropping unplugs without changing battery and pickup never silently reconnects
+ok 34 - dropping unplugs without changing battery and pickup never silently reconnects
+  ---
+  duration_ms: 1.625441
+  type: 'test'
+  ...
+# Subtest: a blocked drop retains the held phone, battery, grid position, and cable binding
+ok 35 - a blocked drop retains the held phone, battery, grid position, and cable binding
+  ---
+  duration_ms: 1.988556
+  type: 'test'
+  ...
+# Subtest: invalidated or removed held phone cannot keep receiving power
+ok 36 - invalidated or removed held phone cannot keep receiving power
+  ---
+  duration_ms: 1.546983
+  type: 'test'
+  ...
+# Subtest: device operations clamp finite battery boundaries and never overcharge or underflow
+ok 37 - device operations clamp finite battery boundaries and never overcharge or underflow
+  ---
+  duration_ms: 1.35134
+  type: 'test'
+  ...
+# Subtest: repeated open/close cannot refill a battery or register additional drain
+ok 38 - repeated open/close cannot refill a battery or register additional drain
+  ---
+  duration_ms: 0.65956
+  type: 'test'
+  ...
+# Subtest: phone is not consumable under any kind alias and cannot affect survival meters
+ok 39 - phone is not consumable under any kind alias and cannot affect survival meters
+  ---
+  duration_ms: 0.655975
+  type: 'test'
+  ...
+# Subtest: arranging and moving a phone preserve its object, battery, ID, and exact one-cell occupancy
+ok 40 - arranging and moving a phone preserve its object, battery, ID, and exact one-cell occupancy
+  ---
+  duration_ms: 1.216277
+  type: 'test'
+  ...
+# Subtest: repeated phone drop/pickup preserves physical object, battery, and identity without duplication
+ok 41 - repeated phone drop/pickup preserves physical object, battery, and identity without duplication
+  ---
+  duration_ms: 8.355213
+  type: 'test'
+  ...
+# Subtest: full backpack refuses phone pickup atomically and retains the same world phone until space opens
+ok 42 - full backpack refuses phone pickup atomically and retains the same world phone until space opens
+  ---
+  duration_ms: 3.209539
+  type: 'test'
+  ...
+# Subtest: phone pickup requires reach and line of sight, with no battery or identity changes on failure
+ok 43 - phone pickup requires reach and line of sight, with no battery or identity changes on failure
+  ---
+  duration_ms: 0.541804
+  type: 'test'
+  ...
+# Subtest: real spatial-seam crossings preserve a carried phone and leave a dropped phone at its original location
+ok 44 - real spatial-seam crossings preserve a carried phone and leave a dropped phone at its original location
+  ---
+  duration_ms: 5.456164
+  type: 'test'
+  ...
+# Subtest: pause closes the reader, resume does not reopen it, and inventory close preserves explicit modes
+ok 45 - pause closes the reader, resume does not reopen it, and inventory close preserves explicit modes
+  ---
+  duration_ms: 4.351545
+  type: 'test'
+  ...
+# Subtest: charger interaction picks up nearby bottles first, then toggles a single held-phone cable
+ok 46 - charger interaction picks up nearby bottles first, then toggles a single held-phone cable
+  ---
+  duration_ms: 0.704769
+  type: 'test'
+  ...
+# Subtest: reset clears device bindings and restores exactly one full phone without duplicating old items
+ok 47 - reset clears device bindings and restores exactly one full phone without duplicating old items
+  ---
+  duration_ms: 3.008348
+  type: 'test'
+  ...
+1..47
+# tests 47
+# suites 0
+# pass 47
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 770.601721

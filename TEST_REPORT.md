@@ -173,3 +173,17 @@
 - STATIC ONLY：568×280 / 844×390 的 CSS 布局预算、安全区和 44px 操作目标，不是真实浏览器布局测量。
 - NOT TESTED：浏览器截图、真实 WebGL、手机操作、帧率/发热和 iOS 离线更新。没有绕过现有预览访问限制。
 - RELEASE APPROVED：用户已批准 GitHub 与 Pages 发布，部署结果另行验证；私人 Site 保持。详见 BACKPACK_HUD_REPORT.md。
+
+## v1.6.0 手机、充电线与持续生成（2026-10-06 获准发布）
+
+- PASS：156 项 Node 测试，0 失败、0 跳过。包含 86 项原有回归（按新增手机/异步生成调整明确假设）、29 项手机模拟、13 项手机 UI/离线检查、5 项手机与区块联合检查、1 项真实区块加载时钟检查，以及 22 项世界/渲染/清晰视野回归。
+- PASS：手机为独立 1×1 实例；开局满电，约 8 分钟有效亮屏续航、40 秒有效充电。重复开关、零电量、0–100% 钳制、正确手机 ID、不可食用、满包拾取失败、整理/拖放/拾回保持电量与身份。
+- PASS：充电线附近和视线检查，离开/放下/手动断开，满电显示、20% 低电阈值、不同手机只能绑定一部；背包/手机的设备时钟与探索暂停分离。后台、失焦、竖屏、菜单、手动暂停和视野加载均冻结，不补算时间。
+- PASS：真实四向区块接口和碰撞行走、负坐标、256 种子、布局缓存淘汰、资源释放、物品台账、马尼拉有限水和门的变化。三维几何与镜头局部坐标检查到正负 10 公里。
+- PASS：原雾距 16/80 米、76° FOV 和 65 米远裁剪保留。真实相机视锥所需区块优先、49 区上限、初始化/转向加载、手机电量等待、背景/方向冻结、宽屏边角、视野外回环落点及未就绪回退。
+- LIMIT：渲染区为 35×35 米、最多 49 个已完成/待完成区（最多 2,401 个地面格）；碰撞布局 LRU 为 16 块。加载软预算 8 毫秒/48 步，探索软预算 3 毫秒/24 步。超过 4:1 的窗口会提示缩窄；未静默舍弃可见区域。
+- MOCKED：DOM、输入分发、WebGL renderer 与离线 Cache API 为测试替身。明确标记的 bootControls 测试只跳过远处世界网格生成；真实世界网格、光照、裁剪、卸载、坐标和初始加载由 boot 测试覆盖，手机/房间网格仍是真实 Three.js 对象。
+- NOT TESTED：真实浏览器截图/GPU 栅格化、手机操作、FPS、发热、iPhone 安装或实体设备离线更新。首屏、快速转身或进入冷缓存区域可能等待，未声称无卡顿。
+- RELEASE APPROVED：用户已批准 GitHub 与 Pages 发布，部署结果另行验证。main 基线为 85128abbfd24231ac37ae1f28aa70c9713facc72；Pages 基线为 e329ccfb9fa966c76162f6cbd64c6ca3b68b46ec。preview-room、私人 Site 与 Unity 保持。
+
+最终证据：evidence/phone-streaming-final-tests.txt、evidence/phone-real-loading-tests.txt、evidence/clear-view-frustum-probe.json、evidence/phone-streaming-protected-files.json。最终运行规则见 PHONE_STREAMING_REPORT.md 与 CLEAR_VIEW_REPORT.md。STREAMING_WORLD_REPORT.md 明确标为已被替代的中间方案。

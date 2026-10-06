@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {boot} from './app-harness.mjs';
+import {bootControls as boot} from './app-harness.mjs';
 const click={stopPropagation(){}};
 const key=(code,extra={})=>({code,repeat:false,preventDefault(){},...extra});
 const pointer=(pointerId,clientX,clientY,extra={})=>({pointerId,clientX,clientY,button:0,preventDefault(){},stopPropagation(){},...extra});
@@ -30,7 +30,7 @@ test('portrait freezes an open backpack and cancels drag; background preserves m
 });
 
 test('tap selection and a free-cell tap move exactly one item; rectangles cannot overlap or exceed grid',()=>{
- const app=start();open(app);assert.equal(app.eval('inventoryCells.length'),16);assert.equal(app.eval('inventoryNodes.size'),4);
+ const app=start();open(app);assert.equal(app.eval('inventoryCells.length'),16);assert.equal(app.eval('inventoryNodes.size'),5);
  drag(app,'food-1');end(app,1,135,115);app.eval('inventoryCells[8].onclick()');assert.equal(app.eval("game.items[0].gridY"),2);assert.equal(app.eval('game.items[0].gridX'),0);
  app.eval('inventoryCells[1].onclick()');assert.equal(app.eval('game.items[0].gridY'),2,'occupied target rejected');
  app.eval("game.items[4].state='inventory';game.items[4].gridX=2;game.items[4].gridY=1;selectedItemId='water-1';renderInventory(true)");
@@ -43,9 +43,9 @@ test('only dragging past backpack left boundary can discard; repeated pointer-up
  const app=start();open(app);drag(app,'food-1');assert.equal(app.element('discard-zone').hidden,true);
  move(app,1,90,160);assert.equal(app.element('discard-zone').hidden,true,'left of grid but inside backpack is not discard');
  move(app,1,40,160);assert.equal(app.element('discard-zone').hidden,false);assert.equal(app.eval('game.items[0].state'),'inventory');end(app,1,40,160);
- assert.equal(app.eval('game.items[0].state'),'world');assert.equal(app.eval('game.items[0].y'),.005);assert.equal(app.eval('game.items.length'),6);assert.equal(app.element('discard-zone').hidden,true);
+ assert.equal(app.eval('game.items[0].state'),'world');assert.equal(app.eval('game.items[0].y'),.005);assert.equal(app.eval('game.items.length'),7);assert.equal(app.element('discard-zone').hidden,true);
  const after=app.eval('JSON.stringify(game.items)');end(app,1,40,160);assert.equal(app.eval('JSON.stringify(game.items)'),after);
- app.element('inventory-close').onclick();app.element('interact').onclick(click);assert.equal(app.eval('game.items[0].state'),'inventory');assert.equal(app.eval('game.items[0].id'),'food-1');assert.equal(app.eval('game.items.length'),6);
+ app.element('inventory-close').onclick();app.element('interact').onclick(click);assert.equal(app.eval('game.items[0].state'),'inventory');assert.equal(app.eval('game.items[0].id'),'food-1');assert.equal(app.eval('game.items.length'),7);
 });
 
 test('leaving discard region, pointer cancel, lost capture, second fingers and resize are lossless',()=>{

@@ -187,12 +187,12 @@ test('a dropped food object remains at the same coordinates through an initial s
       assert.equal(g.nearestItem(), item);
       assert.deepEqual(item, saved);
       assert.equal(g.items.find(i => i.id === id), item);
-      assert.equal(g.items.length, 6); assert.equal(new Set(g.items.map(i => i.id)).size, 6);
+      assert.equal(g.items.length, 7); assert.equal(new Set(g.items.map(i => i.id)).size, 7);
     }
     assert.equal(g.interact(), 'pickup');
     assert.equal(g.inventory('food')[0], item);
     g.food = 50; assert.equal(g.consume('food'), id);
-    assert.equal(item.state, 'consumed'); assert.equal(g.items.length, 6);
+    assert.equal(item.state, 'consumed'); assert.equal(g.items.length, 7);
   }
 });
 
@@ -306,7 +306,7 @@ test('pause and notes freeze simulation; restart resets inventory, central spawn
     g.resume(); assert.equal(g.mode, 'playing');
   }
   g.reset(4);
-  assert.equal(g.items.length, 6); assert.equal(g.inventory('food').length, 4); assert.equal(g.inventory('water').length, 0);
+  assert.equal(g.items.length, 7); assert.equal(g.inventory('food').length, 4); assert.equal(g.inventory('water').length, 0);
   assert.equal(g.door, 0); assert.equal(g.doorTarget, 0); assert.equal(g.changed, false);
   assert.equal(g.foldState, 0); assert.equal(g.foldPending, false); assert.equal(g.loops, 0);
   assert.equal(g.mode, 'menu'); assert.deepEqual([g.player.x, g.player.z], [27.5, 27.5]);

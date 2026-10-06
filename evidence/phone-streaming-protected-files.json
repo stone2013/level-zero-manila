@@ -1,0 +1,95 @@
+{
+  "protected_files": [
+    {
+      "path": "assets/source/level0-wallpaper-chevron-approved-v1.json",
+      "sha256": "0a35c742ccbb29441895602ebac948bf07ef3079515636953fc970cd9b38c966",
+      "unchanged": true
+    },
+    {
+      "path": "assets/source/level0-wallpaper-chevron-approved-v1.png",
+      "sha256": "274ae1ff3c477bd008749a21582fd7c8539b0941930c4188d3a8b14c99878a28",
+      "unchanged": true
+    },
+    {
+      "path": "assets/source/level0-ceiling-source.png",
+      "sha256": "80fe6fac363629d4e8ac9ed84c00c404caad288d426a2ec3484cacc94990cfe6",
+      "unchanged": true
+    },
+    {
+      "path": "assets/source/level0-carpet-source.png",
+      "sha256": "8258e3af0d97926e539b615d8a18f8cee936a6ba178b852e31731b750f5bee79",
+      "unchanged": true
+    },
+    {
+      "path": "assets/source/level0-wallpaper-source.png",
+      "sha256": "a96a97e7aa9d217fe5c021576fc30fa61380c3da7c34f82f2afa9bba40663518",
+      "unchanged": true
+    },
+    {
+      "path": "dist/textures/level0-wallpaper.webp",
+      "sha256": "435e3a154b5848d6f1b98e8357e7d2253983880d40d3e6f3d50d8cb5500c5ac5",
+      "unchanged": true
+    },
+    {
+      "path": "dist/textures/level0-ceiling.webp",
+      "sha256": "e24ea2c8b29a64b1dbfaf44a054f513bd81c9005cfc573f2cfc5f0883dbd9fdb",
+      "unchanged": true
+    },
+    {
+      "path": "dist/textures/level0-carpet.webp",
+      "sha256": "3981ed73b2065385a96c22163da449c69d67ce3b716613c8dde17cf3ff7fcc7f",
+      "unchanged": true
+    },
+    {
+      "path": "dist/vendor/THREE-LICENSE.txt",
+      "sha256": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601",
+      "unchanged": true
+    },
+    {
+      "path": "dist/vendor/three.module.min.js",
+      "sha256": "e2b5ee6bccd38fd6d8a2428546b83c5f2426d84b152ef82be8055556e3b40eb6",
+      "unchanged": true
+    },
+    {
+      "path": "dist/vendor/three.core.min.js",
+      "sha256": "61ba0df005b05991361d040d8ff670e1aadfd0ce7aeebd1fdb0725957a8957de",
+      "unchanged": true
+    },
+    {
+      "path": "dist/lighting.js",
+      "sha256": "92d0b8925092a0d4c2b414171acd880ff6332eb82726f51d298c7bb96c54efcb",
+      "unchanged": true
+    },
+    {
+      "path": "dist/manifest.webmanifest",
+      "sha256": "d2aba93336a48a58e50799bc67d5bbdd205ef3a635ff209ab7a19d5012d7446a",
+      "unchanged": true
+    },
+    {
+      "path": "dist/icons/icon-192.png",
+      "sha256": "c35c76a50fe1ad5257bca92779b7ab10e2bb25d19680d2b515ed365db2691f5c",
+      "unchanged": true
+    },
+    {
+      "path": "dist/icons/icon-512.png",
+      "sha256": "ef712385f808ade3bf4ea94780f2715d6cf6b13e8ae0aec4f4e8c8e375c3eb0c",
+      "unchanged": true
+    },
+    {
+      "path": "dist/icons/item-food.svg",
+      "sha256": "948d98ebed8d650d71129563a7bfe3f799bdc14ec89d41596e53fd62ab17f1a2",
+      "unchanged": true
+    },
+    {
+      "path": "dist/icons/item-water.svg",
+      "sha256": "9f51b4f8d91d6cea0d4f2b34edf620024c3a3085bea596da3e2c5e0e537ab589",
+      "unchanged": true
+    }
+  ],
+  "main_menu_markup_unchanged_except_version": true,
+  "original_makeMaze_blueprint_unchanged": true,
+  "device_tick_once_per_frame": true,
+  "fog_fov_far_clip_preserved": true,
+  "status": "PASS",
+  "real_gpu": "NOT TESTED"
+}

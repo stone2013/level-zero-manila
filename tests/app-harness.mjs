@@ -1,6 +1,7 @@
+import {RenderChunkStream,RENDER_CELLS,RENDER_METRES} from '../dist/world.js';
 import {seededLamps,createLightBake,doorSurroundFactor} from '../dist/lighting.js';
 import fs from'node:fs';import vm from'node:vm';import * as THREE from'../dist/vendor/three.module.min.js';import{Game,SIZE,CELL}from'../dist/game.js';
-const source=fs.readFileSync('dist/app.js','utf8').replace("import * as THREE from './vendor/three.module.min.js';",'').replace("import {Game,SIZE,CELL} from './game.js';",'').replace("import {seededLamps,createLightBake,doorSurroundFactor} from './lighting.js';",'');
+const source=fs.readFileSync('dist/app.js','utf8').replace("import * as THREE from './vendor/three.module.min.js';",'').replace("import {Game,SIZE,CELL} from './game.js';",'').replace("import {RenderChunkStream,RENDER_CELLS,RENDER_METRES} from './world.js';",'').replace("import {seededLamps,createLightBake,doorSurroundFactor} from './lighting.js';",'');
 export function boot(options={}){
  const {width=844,height=390,coarse=true,mobile=true,standalone=false,lock,fullscreen,platform='',userAgent}=options;
  const nodes=new Map(),listeners={},canvas2d={fillRect(){},fillText(){}},captured=new Map();
@@ -27,8 +28,14 @@ export function boot(options={}){
  if(fullscreen)document.documentElement.requestFullscreen=()=>fullscreen(document);
  class Renderer{constructor(){if(options.graphicsFailure)throw new Error("WebGLDisabled");this.shadowMap={};}setPixelRatio(v){this.ratio=v}setSize(w,h){this.width=w;this.height=h}render(scene,camera){rendered={scene,camera}}};class Loader{load(){return new THREE.Texture()}}
  const orientation={addEventListener(n,fn){on('orientation',n,fn)}};if(lock)orientation.lock=lock;
- const context={seededLamps,createLightBake,doorSurroundFactor,THREE:{...THREE,WebGLRenderer:Renderer,TextureLoader:Loader},Game:options.Game||Game,SIZE,CELL,document,window:{screen:{orientation},visualViewport:{addEventListener(n,fn){on('viewport',n,fn)}},addEventListener(n,fn){on('window',n,fn)}},navigator:{userAgent:userAgent??(mobile?'iPhone':'Desktop'),platform,maxTouchPoints:mobile?2:0},performance:{now:()=>now},crypto:{getRandomValues:a=>{a[0]=42;return a}},matchMedia:q=>({matches:q==='(pointer:coarse)'?coarse:q==='(any-hover: hover)'?!mobile:q==='(display-mode: standalone)'?standalone:false}),innerWidth:width,innerHeight:height,devicePixelRatio:3,requestAnimationFrame:fn=>frame=fn,setTimeout:fn=>fn(),console:options.graphicsFailure?{...console,error(){}}:console,AbortController};
+ const context={RenderChunkStream,RENDER_CELLS,RENDER_METRES,seededLamps,createLightBake,doorSurroundFactor,THREE:{...THREE,WebGLRenderer:Renderer,TextureLoader:Loader},Game:options.Game||Game,SIZE,CELL,document,window:{screen:{orientation},visualViewport:{addEventListener(n,fn){on('viewport',n,fn)}},addEventListener(n,fn){on('window',n,fn)}},navigator:{userAgent:userAgent??(mobile?'iPhone':'Desktop'),platform,maxTouchPoints:mobile?2:0},performance:{now:()=>now},crypto:{getRandomValues:a=>{a[0]=42;return a}},matchMedia:q=>({matches:q==='(pointer:coarse)'?coarse:q==='(any-hover: hover)'?!mobile:q==='(display-mode: standalone)'?standalone:false}),innerWidth:width,innerHeight:height,devicePixelRatio:3,requestAnimationFrame:fn=>frame=fn,setTimeout:fn=>fn(),console:options.graphicsFailure?{...console,error(){}}:console,AbortController};
  vm.createContext(context);vm.runInContext(options.sourceOverride||source,context);
+ if(options.lightweightStreaming&&!options.graphicsFailure)vm.runInContext(`createRenderChunk=(x,z)=>{const group=new THREE.Group();group.userData.chunkKey=x+','+z;mazeGroup.add(group);return{value:group,iterator:(function*(){group.visible=true})()}};chunkStream.create=createRenderChunk`,context);
+ function settle(){if(options.graphicsFailure)return;vm.runInContext('(()=>{let guard=0;while(worldLoading&&!viewOverflow&&guard++<100){chunkStream.process(Infinity,100000);updateStreamView()}})()',context)}
+ if(options.autoLoad!==false&&!options.graphicsFailure){settle();for(const id of ['start','restart','again']){const original=element(id).onclick;element(id).onclick=(...args)=>{const result=original(...args);settle();return result}}}
  const dispatch=(target,n,event={})=>{for(const fn of listeners[target+':'+n]||[])fn(event)};
- return{context,element,listeners,captured,dispatch,rotate(w,h){context.innerWidth=w;context.innerHeight=h;dispatch('window','resize')},frame:t=>{now=t;frame(t)},getRender:()=>rendered,eval:s=>vm.runInContext(s,context)}
+ return{context,element,listeners,captured,dispatch,settle,rotate(w,h){context.innerWidth=w;context.innerHeight=h;dispatch('window','resize')},frame:t=>{now=t;frame(t)},getRender:()=>rendered,eval:s=>vm.runInContext(s,context)}
 }
+
+// DOM/input-only suites can omit expensive world meshes. Rendering suites use boot.
+export function bootControls(options={}){return boot({...options,lightweightStreaming:true})}
