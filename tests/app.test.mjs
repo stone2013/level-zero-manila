@@ -7,9 +7,9 @@ function boot(options={}){
  function element(id){if(!nodes.has(id))nodes.set(id,{id,hidden:id!=='menu',disabled:id==='continue',style:{},textContent:'',inert:false,isConnected:true,classList:{add(){},remove(){}},addEventListener(n,fn){on(id,n,fn)},setAttribute(){},focus(){document.activeElement=this},setPointerCapture(p){captured.set(p,id)},releasePointerCapture(p){captured.delete(p)},getContext:()=>canvas2d,getBoundingClientRect:()=>({left:22,top:200,width:112,height:112})});return nodes.get(id)}
  let frame,rendered,now=0;const document={getElementById:element,createElement:()=>element('canvas-'+nodes.size),addEventListener(n,fn){on('document',n,fn)},exitPointerLock(){},hidden:false,documentElement:{}};
  if(fullscreen)document.documentElement.requestFullscreen=()=>fullscreen(document);
- class Renderer{constructor(){this.shadowMap={};}setPixelRatio(v){this.ratio=v}setSize(w,h){this.width=w;this.height=h}render(scene,camera){rendered={scene,camera}}};class Loader{load(){return new THREE.Texture()}}
+ class Renderer{constructor(){if(options.graphicsFailure)throw new Error("WebGLDisabled");this.shadowMap={};}setPixelRatio(v){this.ratio=v}setSize(w,h){this.width=w;this.height=h}render(scene,camera){rendered={scene,camera}}};class Loader{load(){return new THREE.Texture()}}
  const orientation={addEventListener(n,fn){on('orientation',n,fn)}};if(lock)orientation.lock=lock;
- const context={THREE:{...THREE,WebGLRenderer:Renderer,TextureLoader:Loader},Game,document,window:{screen:{orientation},visualViewport:{addEventListener(n,fn){on('viewport',n,fn)}},addEventListener(n,fn){on('window',n,fn)}},navigator:{userAgent:userAgent??(mobile?'iPhone':'Desktop'),platform,maxTouchPoints:mobile?2:0},performance:{now:()=>now},crypto:{getRandomValues:a=>{a[0]=42;return a}},matchMedia:q=>({matches:q==='(pointer:coarse)'?coarse:q==='(any-hover: hover)'?!mobile:q==='(display-mode: standalone)'?standalone:false}),innerWidth:width,innerHeight:height,devicePixelRatio:3,requestAnimationFrame:fn=>frame=fn,setTimeout:fn=>fn(),console,AbortController};
+ const context={THREE:{...THREE,WebGLRenderer:Renderer,TextureLoader:Loader},Game,document,window:{screen:{orientation},visualViewport:{addEventListener(n,fn){on('viewport',n,fn)}},addEventListener(n,fn){on('window',n,fn)}},navigator:{userAgent:userAgent??(mobile?'iPhone':'Desktop'),platform,maxTouchPoints:mobile?2:0},performance:{now:()=>now},crypto:{getRandomValues:a=>{a[0]=42;return a}},matchMedia:q=>({matches:q==='(pointer:coarse)'?coarse:q==='(any-hover: hover)'?!mobile:q==='(display-mode: standalone)'?standalone:false}),innerWidth:width,innerHeight:height,devicePixelRatio:3,requestAnimationFrame:fn=>frame=fn,setTimeout:fn=>fn(),console:options.graphicsFailure?{...console,error(){}}:console,AbortController};
  vm.createContext(context);vm.runInContext(source,context);
  const dispatch=(target,n,event={})=>{for(const fn of listeners[target+':'+n]||[])fn(event)};
  return{context,element,listeners,captured,dispatch,rotate(w,h){context.innerWidth=w;context.innerHeight=h;dispatch('window','resize')},frame:t=>{now=t;frame(t)},getRender:()=>rendered,eval:s=>vm.runInContext(s,context)}
@@ -19,7 +19,7 @@ assert.equal(app.eval('game.mode'),'menu');app.frame(100);assert.equal(app.getRe
 test('lighting stays bounded, instancing retains static geometry, and resolution budget is enforced',()=>{const app=boot();app.frame(100);const{scene}=app.getRender();let lights=0,points=0,instanced=0,instances=0;scene.traverse(o=>{if(o.isLight)lights++;if(o.isPointLight)points++;if(o.isInstancedMesh){instanced++;instances+=o.count}});assert.equal(lights,2);assert.equal(points,0);assert(instanced>=6);assert(instances>900);for(const[w,h,dpr,coarse]of [[390,844,3,true],[1366,1024,2,true],[3840,2160,2,false]]){const r=app.eval(`pixelRatio(${w},${h},${dpr},${coarse})`);assert(w*h*r*r<=(coarse?1100000:2000000)+.01);assert(r<=(coarse?1.35:1.6))}});
 test('fluorescent fill lifts downward ceiling illumination without adding lights or emissive surfaces',()=>{
  const app=boot();app.frame(100);const {scene}=app.getRender();const hemi=scene.children.find(o=>o.isHemisphereLight),directional=scene.children.find(o=>o.isDirectionalLight);
- assert.equal(hemi.intensity,1.45);assert.equal(hemi.color.getHex(),0xf5efcf);assert.equal(hemi.groundColor.getHex(),0xa59b72);assert.equal(directional.intensity,.7);assert.equal(app.eval('renderer.toneMappingExposure'),1.08);
+ assert.equal(hemi.intensity,1.9);assert.equal(hemi.color.getHex(),0xfff5e2);assert.equal(hemi.groundColor.getHex(),0xcdcdc2);assert.equal(directional.intensity,.28);assert.equal(app.eval('renderer.toneMappingExposure'),1);
  const luminance=c=>.2126*c.r+.7152*c.g+.0722*c.b;
  assert(luminance(hemi.groundColor)*hemi.intensity>8*luminance(new THREE.Color(0x393422))*.92);
  assert(luminance(hemi.color)/luminance(hemi.groundColor)<3);
@@ -30,9 +30,9 @@ test('raised physical ceilings align maze, room, exit, fixtures, trim and door l
  const matrix=new THREE.Matrix4(),pos=new THREE.Vector3(),quat=new THREE.Quaternion(),scale=new THREE.Vector3();
  function instances(group,material){const result=[];for(const mesh of group.children.filter(o=>o.material===material)){if(mesh.isInstancedMesh){for(let i=0;i<mesh.count;i++){mesh.getMatrixAt(i,matrix);matrix.decompose(pos,quat,scale);result.push({y:pos.y,h:scale.y})}}else result.push({y:mesh.position.y,h:mesh.scale.y})}return result}
  for(const group of [app.eval('mazeGroup'),app.eval('roomGroup')]){
-  for(const mesh of group.children.filter(o=>o.material===mat.ceiling)){assert(mesh.isInstancedMesh);mesh.getMatrixAt(0,matrix);matrix.decompose(pos,quat,scale);assert(Math.abs(pos.y-(H-.003))<1e-6)}
+  for(const mesh of group.children.filter(o=>o.material===mat.ceiling)){assert(mesh.isInstancedMesh);mesh.getMatrixAt(0,matrix);matrix.decompose(pos,quat,scale);assert(Math.abs(pos.y-(H-.02))<1e-6)}
   const backing=instances(group,mat.ceilingGrid);assert(backing.length);for(const b of backing)assert(Math.abs(b.y-b.h/2-H)<1e-6);
-  const fixtures=instances(group,mat.housing);assert(fixtures.length);for(const f of fixtures){assert(Math.abs(f.y-(H-.07))<1e-6);assert(f.y+f.h/2<H-.003)}
+  const fixtures=instances(group,mat.housing);assert(fixtures.length);for(const f of fixtures){assert(Math.abs(f.y-(H-.07))<1e-6);assert(f.y+f.h/2<H-.02)}
   for(const t of instances(group,mat.trim))assert(Math.abs(t.y-t.h/2)<1e-6||Math.abs(t.y+t.h/2-H)<1e-6);
  }
  for(const wall of app.eval('mazeGroup').children.filter(o=>o.material===mat.wall)){wall.geometry.computeBoundingBox();assert(Math.abs(wall.geometry.boundingBox.min.y+wall.position.y)<1e-6);assert(Math.abs(wall.geometry.boundingBox.max.y+wall.position.y-H)<1e-6)}
@@ -85,4 +85,36 @@ test('unsupported or denied orientation and fullscreen locks fail safely',async(
 
 test('iPad desktop identification and pointer-lock release do not break orientation pause',()=>{
  const ipad=boot({width:390,height:844,coarse:false,mobile:true,userAgent:'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15)',platform:'MacIntel'});assert.equal(ipad.eval('mobile'),true);assert.equal(ipad.eval('orientationBlocked'),true);ipad.element('start').onclick();assert.equal(ipad.eval('game.mode'),'menu');ipad.rotate(844,390);ipad.element('start').onclick();ipad.context.document.pointerLockElement=ipad.element('world');ipad.context.document.exitPointerLock=()=>{ipad.context.document.pointerLockElement=null;ipad.dispatch('document','pointerlockchange')};ipad.rotate(390,844);assert.equal(ipad.eval('game.mode'),'playing');ipad.element('resume').onclick();assert.equal(ipad.eval('canPlay()'),false);ipad.rotate(844,390);assert.equal(ipad.eval('canPlay()'),true);
+});
+
+// Mocked application checks below validate data/geometry, not rendered GPU images.
+test('local light falloff follows actual fixture positions with a bounded static geometry cost',()=>{
+ const app=boot();app.frame(100);const {scene}=app.getRender();
+ const group=app.eval('mazeGroup'),floor=app.eval('mat.floor');
+ assert.equal(group.userData.lamps.length,51);
+ assert.equal(app.eval('fixtureInfluence(mazeGroup,2.5,2.5)'),1);
+ assert(app.eval('fixtureInfluence(mazeGroup,0,0)')<.2);
+ assert.equal(app.eval('fixtureInfluence(roomGroup,game.maze.doorX+3,game.maze.doorZ)'),1);
+ const slab=group.children.find(o=>o.material===floor),colour=slab.geometry.attributes.color;
+ assert(colour&&colour.count>100);const values=Array.from(colour.array);assert(Math.min(...values)>=.74-.00001);assert(Math.max(...values)<=1.00001);assert(Math.max(...values)-Math.min(...values)>.15);
+ const panels=group.children.find(o=>o.material===app.eval('mat.ceiling'));assert(panels.instanceColor);assert.equal(panels.instanceColor.count,panels.count);
+ let uniqueTriangles=0;scene.traverse(o=>{if(o.geometry)uniqueTriangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3});assert(uniqueTriangles<30000);
+ const hemi=scene.children.find(o=>o.isHemisphereLight);assert(hemi.groundColor.b/hemi.groundColor.r>.85,'ceiling fill must not reintroduce a strong yellow filter');
+});
+test('context actions show the nearby target and empty supplies cannot be pressed',()=>{
+ const app=boot();app.element('start').onclick();assert.equal(app.element('interact').disabled,true);assert.equal(app.element('drink').disabled,true);assert.equal(app.element('eat').disabled,false);
+ app.eval('game.player.x=game.maze.doorX-.8;game.player.z=game.maze.doorZ;sync()');assert.equal(app.element('interact').disabled,false);assert.equal(app.element('interact-label').textContent,'开门');
+ app.element('interact').onclick({stopPropagation(){}});assert.equal(app.element('interact-label').textContent,'关门');
+ app.eval('for(const item of game.items)if(item.kind==="food")item.state="consumed";sync()');assert.equal(app.element('eat').disabled,true);assert.equal(app.element('drop').disabled,true);
+});
+test('WebGL failure remains explicit and prevents starting a broken game, while settings remain usable',()=>{
+ const app=boot({graphicsFailure:true});assert.equal(app.element('error').hidden,false);assert.equal(app.element('render-warning').hidden,false);assert.equal(app.element('start').disabled,true);
+ app.element('error-back').onclick();assert.equal(app.element('error').hidden,true);app.element('start').onclick();assert.equal(app.eval('game.mode'),'menu');
+ app.element('help-open').onclick();assert.equal(app.element('help').hidden,false);app.element('help-close').onclick();assert.equal(app.element('help').hidden,true);assert.equal(app.element('render-warning').hidden,false);
+});
+
+test('Escape closes settings without resuming simulation behind the overlay',()=>{
+ const app=boot();app.element('start').onclick();app.element('pause-help').onclick();assert.equal(app.eval('game.mode'),'paused');assert.equal(app.element('help').hidden,false);
+ app.dispatch('window','keydown',{code:'Escape'});assert.equal(app.element('help').hidden,true);assert.equal(app.eval('game.mode'),'paused');
+ app.element('resume').onclick();assert.equal(app.eval('game.mode'),'playing');
 });
