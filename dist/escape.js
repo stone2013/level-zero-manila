@@ -1,6 +1,10 @@
 // One bounded, temporary Level 0 connection. No existing world cell or item is
 // overwritten: only the player crosses space, and Manila remains at its origin.
 export const ESCAPE_TRIGGER_SECONDS=480,ESCAPE_MULTIPLIER=1.5,ESCAPE_SPEED=3.25*ESCAPE_MULTIPLIER;
+// Include the player's .22 m radius and one bounded movement substep: solid
+// collision can reject that last step before body contact at a tight corner.
+// The line-of-sight gate below still prevents grabs through structural walls.
+export const MONSTER_RADIUS=1.17,MONSTER_STEP=.08,ESCAPE_CAPTURE_DISTANCE=MONSTER_RADIUS+.22+MONSTER_STEP;
 const CELL=5,DIRS=[[0,-1],[1,0],[0,1],[-1,0]],key=(x,z)=>`${x},${z}`;
 export function makeEscapeLayout(game){
  let cx=-64,cz=-64;
@@ -56,9 +60,9 @@ function monsterMove(game,dt){
  const dx=to.x-m.x,dz=to.z-m.z,d=Math.hypot(dx,dz);if(d<1e-6){e.nav=[];e.navClock=0;return}
  // Slightly slower than the player's forced run. A warning provides a fair
  // start; short wrong branches cost ground, but never force a trap or warp.
- const move=Math.min(d,4.18*dt),steps=Math.max(1,Math.ceil(move/.08));m.yaw=Math.atan2(dx,-dz);m.clip='chase_run';
- for(let i=0;i<steps;i++){const x=m.x+dx/d*move/steps,z=m.z+dz/d*move/steps;if(x>=game.maze.doorX-1.25&&e.phase==='door')break;if(game.collides(x,z,{radius:1.17,ignoreRender:true}))break;m.x=x;m.z=z}
- if(!game.inRoom()&&Math.hypot(m.x-p.x,m.z-p.z)<1.05&&game.lineClear(m.x,m.z)){m.clip='jumpscare';setPhase(e,'caught-animation');game.events.push('它追上来了。')}
+ const move=Math.min(d,4.18*dt),steps=Math.max(1,Math.ceil(move/MONSTER_STEP));m.yaw=Math.atan2(dx,-dz);m.clip='chase_run';
+ for(let i=0;i<steps;i++){const x=m.x+dx/d*move/steps,z=m.z+dz/d*move/steps;if(x>=game.maze.doorX-1.25&&e.phase==='door')break;if(game.collides(x,z,{radius:MONSTER_RADIUS,ignoreRender:true}))break;m.x=x;m.z=z}
+ if(!game.inRoom()&&Math.hypot(m.x-p.x,m.z-p.z)<ESCAPE_CAPTURE_DISTANCE&&game.lineClear(m.x,m.z)){m.clip='jumpscare';setPhase(e,'caught-animation');game.events.push('它追上来了。')}
 }
 export function updateEscape(game,dt){
  const e=game.escape;

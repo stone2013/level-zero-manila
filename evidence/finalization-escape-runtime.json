@@ -1,0 +1,30 @@
+{
+  "environment": "Node with real Three.js scene objects, mocked renderer; not GPU",
+  "destinationQueuedWorkCpuMs": 2002.5393159999999,
+  "animation1000Ms": 38.45123499999954,
+  "meanAnimationMs": 0.03845123499999954,
+  "turnChecks": 128,
+  "blockingLoads": 0,
+  "newRegions": 0,
+  "entityDraws": 1,
+  "entityTriangles": 8260,
+  "routeDraws": 1,
+  "routeTriangles": 150,
+  "realLights": 2,
+  "dataCache": {
+    "resident": 16,
+    "limit": 16,
+    "generated": 35,
+    "evicted": 19
+  },
+  "render": {
+    "resident": 35,
+    "ready": 35,
+    "pending": 0,
+    "limit": 49,
+    "completed": 35,
+    "disposed": 0,
+    "maxResident": 35
+  },
+  "escapeCells": 121
+}

@@ -1,0 +1,19 @@
+{
+  "checked_at_utc": "2026-10-06T15:20:00Z",
+  "url": "https://stone2013.github.io/level-zero-manila/",
+  "observed_version": "v1.6.2",
+  "viewport": {
+    "width": 568,
+    "height": 280
+  },
+  "startup": "WebGL startup unavailable; start and continue disabled",
+  "observed_ui_checks": [
+    "error back to menu",
+    "settings open and scroll to close button",
+    "quality toggle standard to power-saving and restored",
+    "audio toggle on to off and restored",
+    "settings closed to menu"
+  ],
+  "offline_ui_label": "离线资源已就绪。已安装版本会在所有页面关闭后安全更新。",
+  "limitation": "Existing cloud-browser cache serves v1.6.2. These observations are not v1.6.3 or v1.6.4 QA and do not prove real offline startup or sound output. No other tabs/site storage were changed."
+}

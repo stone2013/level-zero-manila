@@ -1,0 +1,48 @@
+{
+  "label": "current",
+  "seed": 42,
+  "width": 844,
+  "height": 390,
+  "cases": [
+    {
+      "x": 27.5,
+      "z": 27.5,
+      "turns": 4,
+      "checks": 128,
+      "blockingLoads": 0,
+      "newRegions": 0,
+      "requiredRegionUnion": 4,
+      "peakResident": 16
+    },
+    {
+      "x": 37.5,
+      "z": 42.5,
+      "turns": 4,
+      "checks": 128,
+      "blockingLoads": 0,
+      "newRegions": 0,
+      "requiredRegionUnion": 6,
+      "peakResident": 20
+    },
+    {
+      "x": 57.5,
+      "z": 37.5,
+      "turns": 4,
+      "checks": 128,
+      "blockingLoads": 0,
+      "newRegions": 0,
+      "requiredRegionUnion": 7,
+      "peakResident": 24
+    },
+    {
+      "x": 10002.5,
+      "z": -10002.5,
+      "turns": 4,
+      "checks": 128,
+      "blockingLoads": 0,
+      "newRegions": 0,
+      "requiredRegionUnion": 4,
+      "peakResident": 32
+    }
+  ]
+}

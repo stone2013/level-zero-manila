@@ -1,0 +1,12 @@
+✔ complete ordinary journey dispatches production inputs through Manila and explicit demo completion (762.239379ms)
+✔ full 480-second production clock leads through marked chase, hidden seam and original Manila ending (828.930695ms)
+ℹ Production handler/frame integration: trigger 480.00 active seconds; escape route 47.10 active seconds. Fake DOM/GPU only.
+✔ depletion boundary shows one stable loss screen and full restart restores the complete run (92.665464ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1806.247687

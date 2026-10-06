@@ -1,0 +1,39 @@
+{
+  "baseline": "published v1.6.3 main cd0eb47c65e6365e12d1c592ab9117c531675fa6",
+  "candidate": "v1.6.4 unpublished",
+  "changed_runtime": [
+    "dist/sw.js",
+    "dist/app.js",
+    "dist/index.html",
+    "dist/escape.js"
+  ],
+  "byte_identical_runtime_files": {
+    "dist/style.css": "084d570eacf4d224631290df7d85e7af44559674935ea37c847c0cb53f4e62f6",
+    "dist/audio.js": "d17ce6438839a0a3f93abe405391700a129d35b6de33e94fc7f4bf265fb9147a",
+    "dist/world.js": "1c033c36c44ea3b52f17c44bfa026c50fe6a4dcedb6289b4441d997d8066d059",
+    "dist/lighting.js": "9b6432dcc548b4b29488ddfdd3ecb202f74a4615a6090e896992e37fcafbefbf",
+    "dist/manifest.webmanifest": "743d1f5bec7aa3462c8b24439041436338a1e39fce1f3b6ce93648e53bd49b59",
+    "dist/developer.js": "16af23e1c35e0a851810a3f3a91639af9f5a96eb10a70f2fdc8d4a04f93354ad",
+    "dist/monster.js": "438b3835c5cbf77d5048c0776271f3b361c101aabddc053a3931f4b970e304d7",
+    "dist/game.js": "f4b7f2002abe1d133235e1804122171df324dc6e955e81a227136e5cb89e7f73",
+    "dist/vendor/THREE-LICENSE.txt": "bfe119ea4fd413f5f7ca3fcd63adb0c4a073ed39daa2fe7d3e6b769e21272601",
+    "dist/vendor/three.module.min.js": "e2b5ee6bccd38fd6d8a2428546b83c5f2426d84b152ef82be8055556e3b40eb6",
+    "dist/vendor/three.core.min.js": "61ba0df005b05991361d040d8ff670e1aadfd0ce7aeebd1fdb0725957a8957de",
+    "dist/textures/level0-wallpaper.webp": "435e3a154b5848d6f1b98e8357e7d2253983880d40d3e6f3d50d8cb5500c5ac5",
+    "dist/textures/level0-ceiling.webp": "e24ea2c8b29a64b1dbfaf44a054f513bd81c9005cfc573f2cfc5f0883dbd9fdb",
+    "dist/textures/level0-carpet.webp": "3981ed73b2065385a96c22163da449c69d67ce3b716613c8dde17cf3ff7fcc7f",
+    "dist/icons/icon-192.png": "bb583a2f54de9386dc977865213877c4217988892300f4c0c5a4c1138cd00dd1",
+    "dist/icons/icon.svg": "8740b88879a66cf864902dc372171a83f02fff478bfad5fce8787209239db423",
+    "dist/icons/icon-512.png": "73dcb08542cbe91d733317d0fd7ff7904915b2fce1288c72c11b4a0d19c59747",
+    "dist/icons/apple-touch-icon.png": "bf4db34d30091cc29af9c5fdd639cea22789139097fab35d370bd48e4e11a6e7",
+    "dist/icons/icon-maskable-192.png": "bb583a2f54de9386dc977865213877c4217988892300f4c0c5a4c1138cd00dd1",
+    "dist/icons/item-phone.svg": "ce7c17bd79552d0ffea2e685277e0687e0d8fd026bc89dda2d27565ed7604aaa",
+    "dist/icons/item-food.svg": "948d98ebed8d650d71129563a7bfe3f799bdc14ec89d41596e53fd62ab17f1a2",
+    "dist/icons/favicon-16.png": "fec087780ddfa3a705a903ecc78f5219f0312cb72f0c68ca409e919f359f2147",
+    "dist/icons/icon-maskable-512.png": "73dcb08542cbe91d733317d0fd7ff7904915b2fce1288c72c11b4a0d19c59747",
+    "dist/icons/favicon-32.png": "1a4292c900dd8ebca1a3f965e18eaa1dfd6b781600123db733739ebc3eda7962",
+    "dist/icons/item-water.svg": "9f51b4f8d91d6cea0d4f2b34edf620024c3a3085bea596da3e2c5e0e537ab589",
+    "dist/assets/cable-monster/shadow-model.js": "23eed897e945219f2d720ca214fe60fe111242690bc1df832782bfbb894f1740",
+    "dist/assets/cable-monster/shadow-animation.js": "66af915b0e94b22a8959e5bacc81a60954876e98b3ff252c4007ab408ec6ffd1"
+  }
+}

@@ -1,0 +1,809 @@
+✖ stationary escape branch 0 far left corner is caught at 50 Hz (56.581611ms)
+✖ stationary escape branch 0 far right corner is caught at 50 Hz (31.677582ms)
+✖ stationary escape branch 1 far left corner is caught at 50 Hz (41.780294ms)
+✖ stationary escape branch 1 far right corner is caught at 50 Hz (31.380376ms)
+✖ stationary escape branch 2 far left corner is caught at 50 Hz (40.125769ms)
+✖ stationary escape branch 2 far right corner is caught at 50 Hz (49.689311ms)
+✖ stationary escape branch 3 far left corner is caught at 50 Hz (43.776237ms)
+✖ stationary escape branch 3 far right corner is caught at 50 Hz (43.538104ms)
+✖ stationary escape branch 4 far left corner is caught at 50 Hz (55.464419ms)
+✖ stationary escape branch 4 far right corner is caught at 50 Hz (61.872817ms)
+✖ stationary escape branch 5 far left corner is caught at 50 Hz (66.813819ms)
+✖ stationary escape branch 5 far right corner is caught at 50 Hz (59.387796ms)
+✖ stationary escape branch 6 far left corner is caught at 50 Hz (64.231421ms)
+✖ stationary escape branch 6 far right corner is caught at 50 Hz (79.008591ms)
+✖ stationary escape branch 7 far left corner is caught at 50 Hz (73.451507ms)
+✖ stationary escape branch 7 far right corner is caught at 50 Hz (88.881769ms)
+✖ stationary escape branch 0 far left corner is caught at 20 Hz (15.418395ms)
+✖ stationary escape branch 0 far right corner is caught at 20 Hz (16.99993ms)
+✖ stationary escape branch 1 far left corner is caught at 20 Hz (23.697407ms)
+✖ stationary escape branch 1 far right corner is caught at 20 Hz (19.344161ms)
+✖ stationary escape branch 2 far left corner is caught at 20 Hz (32.727934ms)
+✖ stationary escape branch 2 far right corner is caught at 20 Hz (27.237254ms)
+✖ stationary escape branch 3 far left corner is caught at 20 Hz (30.762167ms)
+✖ stationary escape branch 3 far right corner is caught at 20 Hz (21.462882ms)
+✖ stationary escape branch 4 far left corner is caught at 20 Hz (41.540565ms)
+✖ stationary escape branch 4 far right corner is caught at 20 Hz (30.75068ms)
+✖ stationary escape branch 5 far left corner is caught at 20 Hz (42.613125ms)
+✖ stationary escape branch 5 far right corner is caught at 20 Hz (36.231942ms)
+✖ stationary escape branch 6 far left corner is caught at 20 Hz (43.816391ms)
+✖ stationary escape branch 6 far right corner is caught at 20 Hz (41.238109ms)
+✖ stationary escape branch 7 far left corner is caught at 20 Hz (37.157422ms)
+✖ stationary escape branch 7 far right corner is caught at 20 Hz (75.368538ms)
+✔ corner capture retains the structural-wall line-of-sight guard (15.278535ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 1
+ℹ fail 32
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1559.785099
+
+✖ failing tests:
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 0 far left corner is caught at 50 Hz (56.581611ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 0 far right corner is caught at 50 Hz (31.677582ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 1 far left corner is caught at 50 Hz (41.780294ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 1 far right corner is caught at 50 Hz (31.380376ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 2 far left corner is caught at 50 Hz (40.125769ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 2 far right corner is caught at 50 Hz (49.689311ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 3 far left corner is caught at 50 Hz (43.776237ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 3 far right corner is caught at 50 Hz (43.538104ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 4 far left corner is caught at 50 Hz (55.464419ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 4 far right corner is caught at 50 Hz (61.872817ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 5 far left corner is caught at 50 Hz (66.813819ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 5 far right corner is caught at 50 Hz (59.387796ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 6 far left corner is caught at 50 Hz (64.231421ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 6 far right corner is caught at 50 Hz (79.008591ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 7 far left corner is caught at 50 Hz (73.451507ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 7 far right corner is caught at 50 Hz (88.881769ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.348599 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 0 far left corner is caught at 20 Hz (15.418395ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 0 far right corner is caught at 20 Hz (16.99993ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 1 far left corner is caught at 20 Hz (23.697407ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 1 far right corner is caught at 20 Hz (19.344161ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 2 far left corner is caught at 20 Hz (32.727934ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 2 far right corner is caught at 20 Hz (27.237254ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 3 far left corner is caught at 20 Hz (30.762167ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 3 far right corner is caught at 20 Hz (21.462882ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 4 far left corner is caught at 20 Hz (41.540565ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 4 far right corner is caught at 20 Hz (30.75068ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 5 far left corner is caught at 20 Hz (42.613125ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 5 far right corner is caught at 20 Hz (36.231942ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 6 far left corner is caught at 20 Hz (43.816391ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 6 far right corner is caught at 20 Hz (41.238109ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 7 far left corner is caught at 20 Hz (37.157422ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/final-review-game.test.mjs:36:2
+✖ stationary escape branch 7 far right corner is caught at 20 Hz (75.368538ms)
+  AssertionError [ERR_ASSERTION]: stationary corner player remains safe at gap 1.362532 m
+  + actual - expected
+  
+  + 'playing'
+  - 'caught'
+  
+      at waitForCapture (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:30:9)
+      at TestContext.<anonymous> (file:///workspace/scratch/ba66c468c368/level-zero-finalization/tests/final-review-game.test.mjs:47:3)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'playing',
+    expected: 'caught',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

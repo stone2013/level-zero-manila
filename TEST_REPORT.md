@@ -236,3 +236,10 @@ The historical reports below describe their original releases.
 ### 合并开发者工具后的最终结果
 
 278/278 测试通过，0 失败、0 跳过，约 32.2 秒。证据：evidence/developer-final-tests.txt。新增 20 项开发者动作模拟测试和 6 项实际 app 源码/模拟 DOM 测试。设置的键盘焦点回归已更新为包含新开关，原有禁用控件和循环焦点断言保留。真实 GUI/WebGL/iPhone/PWA 真机验证仍未执行。
+
+
+## Level 0 收尾 v1.6.4（2026-10-06 获准发布）
+
+基线 278 项通过；最终版本 338 / 338 项通过、0 失败、0 跳过。完整结果见 LEVEL_ZERO_FINALIZATION_REPORT.md 和 evidence/finalization-full-tests.txt。新增两条完整生产输入/帧循环通关、失败重开、追逐墙角/帧间隔边界、52,200 帧门扇碰撞、输入生命周期和离线依赖闭包验证。
+
+本次云浏览器实际拿到的是旧缓存 v1.6.2 且无法启动 WebGL，其菜单降级检查不计作候选版浏览器验收。真机 GPU、触控、声音、安装、离线和性能仍为 NOT TESTED。本版已获准发布，实际线上状态以对应部署记录为准。
