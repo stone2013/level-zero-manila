@@ -41,10 +41,10 @@ test('blocked opening remains frozen across backpack and manual pause, then resu
 
 test('exit crossing commits one terminal result before survival can overwrite it',()=>{
  for(const resource of ['food','hydration']){
-  const g=roomGame();g.door=g.doorTarget=1;
-  g.player.x=g.maze.doorX-8.28;g.player.z=g.maze.doorZ;g.player.yaw=-Math.PI/2;
+  const g=roomGame();g.transitionZone('level1');g.events=[];
+  g.player.x=0;g.player.z=-42.78;g.player.yaw=0;
   g[resource]=.0001;g.update(.05,{forward:1});
-  assert.equal(g.mode,'won');assert.deepEqual(g.events,['exit']);
+  assert.equal(g.mode,'won');assert.deepEqual(g.events,['level1-demo-end']);
   const final=g.snapshot();for(let i=0;i<20;i++){g.update(.05,{forward:1});g.updateDevices(.05)}
   assert.deepEqual(g.snapshot(),final,'terminal simulation and devices stay frozen');
  }

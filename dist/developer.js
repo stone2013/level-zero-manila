@@ -16,12 +16,13 @@ function unavailable(game){
 }
 function jumpUnavailable(game){
  const reason=unavailable(game);if(reason)return reason;
+ if(game.zone&&game.zone!=='level0')return '7:30 事件只在 Level 0 使用。';
  if(game.escape?.triggered||game.escape?.phase!=='idle')return '本轮事件已触发或已跳过；请重新开始后测试 7:30。';
  if(game.foundManila||game.entered||game.inRoom()||game.changed)return '本轮已发现马尼拉房间；请重新开始后测试 7:30。';
  return '';
 }
 function outsideUnavailable(game){
- return unavailable(game)||(game.changed?'房门连接已经改变，不能再传送到原来的门外。':'');
+ return unavailable(game)||(game.zone&&game.zone!=='level0'?'已离开 Level 0，马尼拉传送不可用。':game.changed?'房门连接已经改变，不能再传送到原来的门外。':'');
 }
 function spawnUnavailable(game){
  return unavailable(game)||(game.items.filter(item=>item.developerSpawned===true||/^debug-(?:food|water|phone)-\d+$/.test(item.id)).length>=DEVELOPER_ITEM_LIMIT?`本轮最多生成 ${DEVELOPER_ITEM_LIMIT} 件调试物品；请重新开始后继续测试。`:'');
@@ -35,7 +36,7 @@ export function setDeveloperEnabled(game,enabled){
 
 export function developerStatus(game){
  const reason=unavailable(game),spawnReason=spawnUnavailable(game),jumpReason=jumpUnavailable(game),outsideReason=outsideUnavailable(game);
- return {enabled:game?.developerEnabled===true,available:!reason,reason:reason||'开发者工具已启用。',canSpawn:!spawnReason,canJumpTime:!jumpReason,canTeleportInside:!reason,canTeleportOutside:!outsideReason,spawnReason,jumpReason,teleportReason:reason,outsideReason};
+ return {enabled:game?.developerEnabled===true,available:!reason,reason:reason||'开发者工具已启用。',canSpawn:!spawnReason,canJumpTime:!jumpReason,canTeleportInside:!reason&&(!game.zone||game.zone==='level0'),canTeleportOutside:!outsideReason,spawnReason,jumpReason,teleportReason:reason,outsideReason};
 }
 
 // A disposable view lets the ordinary inventory and drop code plan the entire
@@ -56,7 +57,7 @@ function itemSerial(game){
 export function spawnDeveloperItem(game,kind){
  const reason=spawnUnavailable(game);if(reason)return {ok:false,reason};
  if(!KINDS.has(kind))return {ok:false,reason:'只能生成干粮、饮用水或手机。'};
- const serial=itemSerial(game),item={id:`debug-${kind}-${serial}`,kind,developerSpawned:true,state:'world',gridX:null,gridY:null,x:0,y:.005,z:0,placement:'ground',area:game.inRoom()||game.changed?'room':'maze'};
+ const serial=itemSerial(game),item={id:`debug-${kind}-${serial}`,kind,developerSpawned:true,state:'world',gridX:null,gridY:null,x:0,y:.005,z:0,placement:'ground',zone:game.zone||'level0',area:game.inRoom()||game.changed?'room':'maze'};
  if(kind==='phone')item.battery=100;
  const view=simulationView(game);view.items=[...game.items,item];
  const size=view.itemSize(item),slot=size&&view.firstInventorySlot(item.id);
@@ -92,6 +93,7 @@ function teleportSpot(game,target){
 
 export function teleportDeveloper(game,target='inside'){
  const reason=unavailable(game);if(reason)return {ok:false,reason};
+ if(game.zone&&game.zone!=='level0')return {ok:false,reason:'已离开 Level 0，马尼拉传送不可用。'};
  if(!['inside','outside'].includes(target))return {ok:false,reason:'请选择马尼拉房间内或门外。'};
  if(target==='outside'){const blocked=outsideUnavailable(game);if(blocked)return {ok:false,reason:blocked}}
  const spot=teleportSpot(game,target);if(!spot)return {ok:false,reason:'传送位置被实体障碍占用，未移动玩家。'};
@@ -103,6 +105,6 @@ export function teleportDeveloper(game,target='inside'){
  game.pendingFold=null;game.foldPending=false;game.disconnectCharger();
  Object.assign(game.player,spot,{yaw:inside?-Math.PI/2:Math.PI/2,pitch:0});
  game.foundManila=true;if(inside){game.entered=true;game.door=game.doorTarget=1}
- const message=inside?'已传送到马尼拉房间内，门已打开；请手动关门以继续原结局。':'已传送到马尼拉房间门外，原房门状态保持不变。';
+ const message=inside?'已传送到马尼拉房间内，门已打开；请手动关门以进入连接区。':'已传送到马尼拉房间门外，原房门状态保持不变。';
  return {ok:true,reason:message+(bypassedChase?' 开发者传送已跳过本次追逐，怪物与黑场已结束。':''),target,position:{...spot},bypassedChase};
 }

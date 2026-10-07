@@ -115,7 +115,7 @@ export class GameAudio{
   if(escapeActive){
    this.pursuitClock+=Math.min(.05,Math.max(0,dt));const dx=entity.x-p.x,dz=entity.z-p.z,d=Math.hypot(dx,dz);
    if(this.pursuitClock>=(game.escape.phase==='warning'?.66:.39)){const pan=d?(dx*Math.cos(p.yaw)+dz*Math.sin(p.yaw))/d:0;this.cue('pursuit',Math.max(.12,.9-d/45),pan);this.pursuitClock=0}
-  }else if(game.entered&&!game.changed){
+  }else if((!game.zone||game.zone==='level0')&&game.entered&&!game.changed){
    this.pursuitClock+=Math.min(.05,Math.max(0,dt));
    const closeness=Math.min(1,Math.max(0,game.approach)/45);
    if(this.pursuitClock>=1.22-.4*closeness){this.cue('pursuit',.55+.35*closeness);this.pursuitClock=0}

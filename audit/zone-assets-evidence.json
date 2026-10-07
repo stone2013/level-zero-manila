@@ -1,0 +1,205 @@
+{
+  "measuredAt": "2026-10-07T03:02:11.425Z",
+  "method": "Node official GLTFLoader parse and assembly. PNG dimensions inspected, image decode stubbed. CPU figures exclude actual PNG decode, GPU upload, shader compile and rendering. No FPS claim.",
+  "zones": {
+    "hub": {
+      "meshes": 51,
+      "triangles": 20416,
+      "materials": 14,
+      "textures": 5,
+      "geometries": 46,
+      "sampledWalkablePoints": 0,
+      "missingFloors": 0,
+      "nearbyUnexpectedGeometry": 0,
+      "glbBytes": 1382376,
+      "canvasTextureRGBABytes": 491520,
+      "parseAssembleMs": 38.57,
+      "decodedImageCount": 4,
+      "decodedImageRGBABytes": 1048576,
+      "textureDimensions": [
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ]
+      ],
+      "traversableRays": [],
+      "disposal": {
+        "expected": {
+          "geometry": 46,
+          "material": 14,
+          "texture": 5
+        },
+        "actual": {
+          "geometry": 46,
+          "material": 14,
+          "texture": 5
+        },
+        "remainingChildren": 0,
+        "remainingResourceUserData": [],
+        "allDecodedImagesClosed": true
+      }
+    },
+    "level1": {
+      "meshes": 209,
+      "triangles": 17220,
+      "materials": 37,
+      "textures": 23,
+      "geometries": 123,
+      "sampledWalkablePoints": 408,
+      "missingFloors": 0,
+      "nearbyUnexpectedGeometry": 0,
+      "glbBytes": 2215840,
+      "canvasTextureRGBABytes": 3932160,
+      "parseAssembleMs": 65.85,
+      "decodedImageCount": 15,
+      "decodedImageRGBABytes": 3932160,
+      "textureDimensions": [
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ],
+        [
+          256,
+          256
+        ]
+      ],
+      "traversableRays": [
+        {
+          "origin": [
+            0,
+            1.6,
+            -20
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "distance": 3,
+          "hits": []
+        },
+        {
+          "origin": [
+            0,
+            1.6,
+            -26
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "distance": 7,
+          "hits": []
+        },
+        {
+          "origin": [
+            0,
+            1.6,
+            -28
+          ],
+          "direction": [
+            -1,
+            0,
+            0
+          ],
+          "distance": 5,
+          "hits": []
+        },
+        {
+          "origin": [
+            0,
+            1.6,
+            -35
+          ],
+          "direction": [
+            0,
+            0,
+            -1
+          ],
+          "distance": 7,
+          "hits": []
+        }
+      ],
+      "disposal": {
+        "expected": {
+          "geometry": 123,
+          "material": 37,
+          "texture": 23
+        },
+        "actual": {
+          "geometry": 123,
+          "material": 37,
+          "texture": 23
+        },
+        "remainingChildren": 0,
+        "remainingResourceUserData": [],
+        "allDecodedImagesClosed": true
+      }
+    }
+  }
+}

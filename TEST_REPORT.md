@@ -1,3 +1,20 @@
+# v1.7.0 Level 1 candidate verification
+
+2026-10-07. Local candidate; publication is separate. Current tests are in evidence/level1-full-tests.txt. The earlier version sections below are historical.
+
+- Original v1.6.4 baseline:338/338 passed before edits.
+- Current regression:358/358 passed,zero failures or skips (49.395 seconds); evidence/level1-full-tests.txt. Complete normal and 480-second chase routes use production input handlers with no player-coordinate/time/event-state writes; both now continue through connection room and Level1 to the explicit pipe-demo ending.
+- Held-wall input route starts at actual spawn. Release, pause, bag, background and orientation cancellation are tested. Resource identity, full-bag supply retry, finite crates, zone-specific drops, phone state, load failure/retry and late-load disposal are covered.
+- Corrected Level130 GLB and separate Level1 doorway use actual official GLTFLoader parsing. PNG texture dimensions/color space are inspected; image decoding is stubbed for Node, not claimed as GPU verification.
+- Exhaustive actual-triangle body audit:13,289 simulation-clear grid positions,425,248 probes,zero rendered surface overlaps. This caught and corrected pipe risers, door-body bounds and wall thickness before completion. See audit/zone-collision-evidence.json.
+- Asset load/disposal, floor coverage and four route-ray checks pass. Numeric scene/resource/CPU results and exclusions are in audit/zone-assets-evidence.json.
+- PWA cache closure covers local modules, loader utilities, textures/UI and14 GLBs. Tests use mocked Cache API; real phone install/offline restart remains unverified.
+- Blender CPU assembly previews inspect layout only. No real WebGL/GPU, browser audio,multitouch,FPS,battery or thermal pass is claimed.
+
+See LEVEL_ONE_BUILD_REPORT.md for implemented scope and publication/device checklist.
+
+---
+
 # v1.6.2 generation performance verification
 
 Candidate date: 2026-10-06. Full aggregate: 216/216 tests passed with `npm test`.

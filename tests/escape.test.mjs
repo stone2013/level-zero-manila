@@ -167,7 +167,7 @@ test('retry preserves current resources, identity, consumed and grounded items; 
  g.reset(99);assert.equal(g.escape.phase,'idle');assert.equal(g.escape.triggered,false);assert.equal(g.escape.layout,null);assert.equal(g.elapsed,0);assert.equal(g.food,100);assert.equal(g.hydration,100);assert.equal(g.phone('phone-1').battery,100);assert.equal(g.inventory('food').length,4);assert.equal(g.items.filter(i=>i.kind==='water').length,2);assert.equal(new Set(g.items.map(i=>i.id)).size,7);assert.equal(g.world.escapeLayout,undefined);
 });
 
-test('Manila seam, door close and reopen preserve the original ending, two waters and one charger',()=>{
+test('Manila seam, door close and reopen lead to the hub, preserving two waters and one charger',()=>{
  const g=new Game(42);g.start();g.drop('food-1');const grounded=fingerprint(g).filter(i=>i.state==='world'),charger=g.chargerPosition();begin(g);runRoute(g);until(g,()=>g.escape.phase==='door');
  assert.equal(g.player.x,g.maze.doorX-2.5);assert.equal(g.player.z,g.maze.doorZ);walk(g,{x:g.maze.doorX-1.25,z:g.maze.doorZ});
  assert.equal(g.interact(),'door');tick(g,.7);assert.equal(g.door,1);
@@ -176,9 +176,9 @@ test('Manila seam, door close and reopen preserve the original ending, two water
  assert.deepEqual(fingerprint(g).filter(i=>i.state==='world'),grounded);assert.deepEqual(g.chargerPosition(),charger);assert.equal(g.items.filter(i=>i.kind==='water').length,2);assert.equal(new Set(g.items.map(i=>i.id)).size,g.items.length);
  assert.equal(g.interact(),'door');tick(g,.7);assert.equal(g.door,1);
  // move() ends as soon as the original exit threshold is crossed.
- g.player.yaw=-Math.PI/2;untilMovementToWin(g);assert.equal(g.mode,'won');assert.equal(g.events.filter(x=>x==='exit').length,1);assert.equal(g.escape.phase,'finished');
+ g.player.yaw=-Math.PI/2;untilMovementToHub(g);assert.equal(g.mode,'playing');assert.equal(g.zone,'hub');assert.equal(g.events.filter(x=>x==='exit').length,0);assert.equal(g.escape.phase,'finished');
 });
-function untilMovementToWin(g){for(let i=0;i<500&&g.mode==='playing';i++)g.update(DT,{forward:1});assert.equal(g.mode,'won')}
+function untilMovementToHub(g){for(let i=0;i<500&&g.zone==='level0';i++)g.update(DT,{forward:1});assert.equal(g.zone,'hub')}
 
 
 test('monster rounds every late bend and catches a player who stops one cell before the end',t=>{

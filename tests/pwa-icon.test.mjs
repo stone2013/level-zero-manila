@@ -25,9 +25,9 @@ test('Apple touch and browser icons are local, correct-size and included in offl
   for(const [filename,size] of [['apple-touch-icon.png',180],['favicon-32.png',32],['favicon-16.png',16]]) {
     assert(html.includes(`sizes="${size}x${size}" href="./icons/${filename}"`));
     assert.deepEqual(pngInfo('dist/icons/'+filename),{width:size,height:size,depth:8,colorType:2});
-    assert(sw.includes(`'./icons/${filename}'`));
+    assert(sw.includes(`'./icons/${filename}'`)||sw.includes(`"./icons/${filename}"`));
   }
-  for(const filename of ['icon-192.png','icon-512.png','icon-maskable-192.png','icon-maskable-512.png','icon.svg']) assert(sw.includes(`'./icons/${filename}'`));
+  for(const filename of ['icon-192.png','icon-512.png','icon-maskable-192.png','icon-maskable-512.png','icon.svg']) assert(sw.includes(`'./icons/${filename}'`)||sw.includes(`"./icons/${filename}"`));
   assert(html.includes('type="image/svg+xml" sizes="any" href="./icons/icon.svg"'));
   assert(!html.includes('href="data:image/svg+xml'));
 });

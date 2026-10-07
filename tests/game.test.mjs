@@ -12,8 +12,8 @@ function tick(g, seconds, input = {}) {
 // No teleport helper, synthetic fold state, or player-position assignment is used.
 function walk(g, x, z, onStep = () => {}) {
   let count = 0;
-  const loops = g.loops;
-  while (g.mode === 'playing' && Math.hypot(g.player.x - x, g.player.z - z) > 1e-7 && count++ < 20000) {
+  const loops = g.loops, zone = g.zone;
+  while (g.mode === 'playing' && g.zone === zone && Math.hypot(g.player.x - x, g.player.z - z) > 1e-7 && count++ < 20000) {
     const dx = x - g.player.x, dz = z - g.player.z, length = Math.hypot(dx, dz);
     g.player.yaw = Math.atan2(dx, -dz);
     g.update(.02, {forward: Math.min(1, length / .041)});
@@ -22,7 +22,7 @@ function walk(g, x, z, onStep = () => {}) {
   }
   assert(count < 20000, `blocked at ${JSON.stringify(g.player)} towards ${x},${z}`);
   assert(!g.collides(g.player.x, g.player.z), 'walking must end outside collision geometry');
-  if (g.mode === 'playing') assert(Math.hypot(g.player.x - x, g.player.z - z) < 1e-6);
+  if (g.mode === 'playing' && g.zone === zone) assert(Math.hypot(g.player.x - x, g.player.z - z) < 1e-6);
 }
 function center(m, index) {const c = m.cells[index]; return [(c.x + .5) * CELL, (c.z + .5) * CELL];}
 function cellIndex(g) {return Math.floor(g.player.z / CELL) * SIZE + Math.floor(g.player.x / CELL);}
@@ -156,7 +156,7 @@ test('landing exactly on a seam supports immediate reversal from either side in 
     const g = new Game(42); g.start(); if (state) changedOnce(g);
     const [from, to] = g.activeFolds();
     enterVestibule(g, from, side); walk(g, from.px + side * .04, from.pz);
-    const loops = g.loops; g.player.yaw = -.73; g.player.pitch = .18;
+    const loops = g.loops, zone = g.zone; g.player.yaw = -.73; g.player.pitch = .18;
     g.move(from.px - g.player.x, 0);
     assert.equal(g.loops, loops + 1);
     assert.equal(Math.sign(g.player.x - to.px), -side, 'exact-plane landing must keep its crossing side');
@@ -284,7 +284,7 @@ test('manual door changes the room only after a full close inside; water is fini
     assert.equal(g.inventory('water').length, 0);
     assert.equal(g.items.filter(i => i.kind === 'water' && i.state === 'consumed').length, 2);
     walk(g, m.doorX + 2.1, m.doorZ); assert.equal(g.interact(), 'door'); tick(g, 1);
-    walk(g, m.doorX - 8.4, m.doorZ); assert.equal(g.mode, 'won');
+    walk(g, m.doorX - 8.4, m.doorZ); assert.equal(g.mode, 'playing'); assert.equal(g.zone, 'hub');
   }
 });
 
