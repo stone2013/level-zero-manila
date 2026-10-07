@@ -12,6 +12,9 @@
 <path d="M22 94q34 5 68 0M20 102q36 8 72 0M20 118q36 8 72 0M20 135q36 8 72 0M20 151q36 8 72 0M20 168q36 8 72 0M20 184q36 8 72 0M20 201q36 8 72 0M20 217q36 8 72 0" stroke="#2d3a36" stroke-opacity=".55" stroke-width="4"/>
 <path d="M21 91q35 7 70 0M20 100q36 7 72 0M20 115q36 8 72 0M20 132q36 8 72 0M20 148q36 8 72 0M20 165q36 8 72 0M20 181q36 8 72 0M20 198q36 8 72 0M20 214q36 8 72 0" stroke="url(#shine)" stroke-width="2.4"/>
 <path d="m31 80 3-15 11-19M29 89v134M81 70l3 14M83 93v133" stroke="#fbfff3" stroke-opacity=".4" stroke-width="3" stroke-linecap="round"/>
+<path d="M20 127q36 7 72 0v49q-36 7-72 0Z" fill="#e7e8d4" stroke="#bec7b6" stroke-width="1"/>
+<path d="M20 128q36 7 72 0v4q-36 7-72 0ZM20 172q36 7 72 0v4q-36 7-72 0Z" fill="#30505a"/>
+<path d="M39 137h34v31H39z" fill="#3d7888"/><path d="M56 140c-3 5-9 11-9 16a9 9 0 0 0 18 0c0-5-6-11-9-16Z" fill="#f0f6e9"/>
 <path d="M29 229c-5 13 2 17 9 10l10-8c2 11 6 16 9 16 4 0 7-7 8-16l10 8c8 8 15 0 8-9M36 50q20 8 40 0M28 64q28 8 56 0" stroke="url(#shine)" stroke-width="1.5"/>
 <path d="M37 26h38v9H37z" fill="#aab4b1" fill-opacity=".75" stroke="#d3d9d0"/>
 <path d="M36 10q20-5 40 0v18q-20 6-40 0V10Z" fill="url(#cap)" stroke="#e2e4dc" stroke-width="1.2"/>
