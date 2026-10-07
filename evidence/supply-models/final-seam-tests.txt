@@ -1,0 +1,13 @@
+✔ supply geometry is finite, floor-grounded, metre-scale and one opaque draw per item (75.013959ms)
+✔ ten supplies share exactly two geometries and one material; dispose is once and reuse is fresh (84.571066ms)
+✔ visual creation cannot mutate inventory, pickup radius, collision, IDs or survival (56.025855ms)
+✔ app rebuild disposes shared supply resources once and preserves phone construction (313.557831ms)
+✔ offline cache includes supply module and candidate version (0.743765ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 830.349378

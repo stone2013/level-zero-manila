@@ -1,3 +1,7 @@
+# v1.7.1 supply model verification
+
+363/363 tests pass after model integration (original 358 + five new model/cache/disposal tests). Full log: evidence/supply-models/full-tests.txt. Final geometry preview and limitations: SUPPLY_MODEL_REPORT.md. Publication approved; deployment verification is recorded separately. Earlier sections below are historical.
+
 # v1.7.0 Level 1 candidate verification
 
 2026-10-07. Local candidate; publication is separate. Current tests are in evidence/level1-full-tests.txt. The earlier version sections below are historical.

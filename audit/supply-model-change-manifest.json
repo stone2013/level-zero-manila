@@ -1,0 +1,49 @@
+{
+  "baselineMain": "81294a1238d4543e0a77d48c54e2d2a1d9d984b1",
+  "baselineGhPages": "d47a042e1f3deff0b7478b4ea7dd122ba62b7fd0",
+  "changed": [
+    "README.md",
+    "TEST_REPORT.md",
+    "dist/app.js",
+    "dist/icons/item-water.svg",
+    "dist/index.html",
+    "dist/sw.js",
+    "tests/app-harness.mjs",
+    "tests/pwa.test.mjs"
+  ],
+  "added": [
+    "SUPPLY_MODEL_REPORT.md",
+    "audit/supply-model-budget.json",
+    "audit/supply-model-change-manifest.json",
+    "dist/assets/supplies/supply-models.js",
+    "evidence/supply-models/PREVIEW-CAPTIONS.md",
+    "evidence/supply-models/actual-assets-front-closeup.png",
+    "evidence/supply-models/actual-assets-ground-scale-10-items.png",
+    "evidence/supply-models/actual-assets-reverse-closeup.png",
+    "evidence/supply-models/actual-geometry.json",
+    "evidence/supply-models/actual-supply-previews.blend",
+    "evidence/supply-models/export-actual-geometry.mjs",
+    "evidence/supply-models/final-seam-tests.txt",
+    "evidence/supply-models/full-tests.txt",
+    "evidence/supply-models/geometry-stats.json",
+    "evidence/supply-models/render-actual-geometry.py",
+    "evidence/supply-models/render-log.txt",
+    "evidence/supply-models/render-verification.json",
+    "tests/supply-models.test.mjs"
+  ],
+  "unchangedProtected": {
+    "game.js": "0c54879e32d6863da02c8a6159199f24ab81828295311cc988983b6d74e37c18",
+    "world.js": "1c033c36c44ea3b52f17c44bfa026c50fe6a4dcedb6289b4441d997d8066d059",
+    "zones.js": "bbf6c12505d187794070960a284c2acfd42da987a7a080a5fba548a505a3d815",
+    "zone-render.js": "db732f640f3babc212373429f46da9610a44e8c3b38d88b97d533f43e7108a31",
+    "developer.js": "228e753aef118e5a083807a68077987bfea7967cc7264efb263720ece0f48367",
+    "escape.js": "6026daad0383ebae27824e973032f117b014e8ff0a4f7a4d66b8cf659d7d6eb3",
+    "audio.js": "7cb6f9cc300eb851a9ea7a8674c7764a4a09e0780d1dab8a67584769a411fedd",
+    "monster.js": "438b3835c5cbf77d5048c0776271f3b361c101aabddc053a3931f4b970e304d7",
+    "style.css": "084d570eacf4d224631290df7d85e7af44559674935ea37c847c0cb53f4e62f6",
+    "icons/item-food.svg": "948d98ebed8d650d71129563a7bfe3f799bdc14ec89d41596e53fd62ab17f1a2",
+    "icons/item-phone.svg": "ce7c17bd79552d0ffea2e685277e0687e0d8fd026bc89dda2d27565ed7604aaa"
+  },
+  "protectedByteIdentical": true,
+  "published": false
+}

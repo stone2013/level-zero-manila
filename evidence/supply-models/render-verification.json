@@ -1,0 +1,132 @@
+{
+  "engine": "Cycles CPU",
+  "resolution": [
+    1600,
+    1200
+  ],
+  "samples": 64,
+  "source": "dist/assets/supplies/supply-models.js",
+  "sourceStats": {
+    "food": {
+      "triangles": 1880,
+      "drawCalls": 1,
+      "bounds": {
+        "min": [
+          -0.1679999977350235,
+          0,
+          -0.09300000220537186
+        ],
+        "max": [
+          0.1679999977350235,
+          0.05559999868273735,
+          0.09300000220537186
+        ]
+      }
+    },
+    "water": {
+      "triangles": 1422,
+      "drawCalls": 1,
+      "bounds": {
+        "min": [
+          -0.066600002348423,
+          0,
+          -0.06750000268220901
+        ],
+        "max": [
+          0.066600002348423,
+          0.3474999964237213,
+          0.0681999996304512
+        ]
+      }
+    }
+  },
+  "sourceSha256": "5443b87332aa9f40b60fb79033e6c906cddc086164f0c9b189b1ff051704ac5d",
+  "coordinateMapping": "(Three x, Three y, Three z) -> (x, -z, y)",
+  "placementChecks": [
+    {
+      "object": "Actual food",
+      "kind": "food",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual water",
+      "kind": "water",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual food",
+      "kind": "food",
+      "flipped": true,
+      "ground_min_z": -6.797380436296407e-10
+    },
+    {
+      "object": "Actual water",
+      "kind": "water",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual food",
+      "kind": "food",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual food.001",
+      "kind": "food",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual food.002",
+      "kind": "food",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual food.003",
+      "kind": "food",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual food.004",
+      "kind": "food",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual water",
+      "kind": "water",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual water.001",
+      "kind": "water",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual water.002",
+      "kind": "water",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual water.003",
+      "kind": "water",
+      "flipped": false,
+      "ground_min_z": 0.0
+    },
+    {
+      "object": "Actual water.004",
+      "kind": "water",
+      "flipped": false,
+      "ground_min_z": 0.0
+    }
+  ],
+  "notGameplayScreenshot": true
+}

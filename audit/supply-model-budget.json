@@ -1,0 +1,49 @@
+{
+  "method": "Actual Three.js factory geometry; single shared Lambert material; no GPU measurement",
+  "models": {
+    "food": {
+      "triangles": 1880,
+      "drawCalls": 1,
+      "bounds": {
+        "min": [
+          -0.1679999977350235,
+          0,
+          -0.09300000220537186
+        ],
+        "max": [
+          0.1679999977350235,
+          0.05559999868273735,
+          0.09300000220537186
+        ]
+      },
+      "attributeBytes": 203040
+    },
+    "water": {
+      "triangles": 1422,
+      "drawCalls": 1,
+      "bounds": {
+        "min": [
+          -0.066600002348423,
+          0,
+          -0.06750000268220901
+        ],
+        "max": [
+          0.066600002348423,
+          0.3474999964237213,
+          0.0681999996304512
+        ]
+      },
+      "attributeBytes": 153576
+    }
+  },
+  "tenItems": {
+    "food": 5,
+    "water": 5,
+    "triangles": 16510,
+    "drawCalls": 10,
+    "uniqueGeometries": 2,
+    "uniqueMaterials": 1,
+    "sharedAttributeBytes": 356616
+  },
+  "sourceBytes": 6151
+}
