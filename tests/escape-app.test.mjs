@@ -10,7 +10,7 @@ test('real app keeps blackout until entire destination view is generated and cre
  a.eval('chunkStream.clear();requestedSelection=null;updateStreamView()');const before=state(a);a.eval('chunkStream.process=()=>0');for(let i=0;i<20;i++)r.frame();assert.equal(state(a),before,'loading must freeze simulation and animation together');
  a.eval('chunkStream.process=RenderChunkStream.prototype.process');a.settle();r.frame();
  assert.equal(a.eval('game.escape.phase'),'warning');assert.equal(a.element('escape-blackout').style.opacity,'0');
- assert.equal(a.eval('monsterVisual.root.name'),'CableMonster_V2');assert.equal(a.eval('escapeMarks.isInstancedMesh'),true);assert.equal(a.eval('escapeMarks.count'),50);
+ assert.equal(a.eval('monsterVisual.root.name'),'CableMonster_V2');assert.equal(a.eval('escapeMarks.isInstancedMesh'),true);assert.equal(a.eval('escapeMarks.count'),84);assert.equal(a.eval('escapeMarks.name'),'Escape route black wall arrows');
  assert.equal(a.element('escape-guide').hidden,false);
  assert.equal(a.eval('scene.children.filter(o=>o.isLight).length'),2);
  assert(a.eval('chunkStream.stats().resident<=49'));

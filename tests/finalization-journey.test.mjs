@@ -85,7 +85,7 @@ test('complete ordinary journey dispatches production inputs through Manila and 
  assert.equal(read('game.escape.phase'),'idle');assert.equal(read('monsterVisual'),null);
 });
 
-test('full 480-second production clock leads through marked chase, hidden seam, Manila, hub and Level 1 pipe ending',t=>{
+test('full 480-second production clock leads through wall-marked chase, continuous Manila entrance, hub and Level 1 pipe ending',t=>{
  const j=journey(),{a,read,step}=j;
  // All 480 seconds pass through app.frame(), with no developer clock jump.
  for(let i=0;i<9599;i++)step();assert.equal(read('game.escape.phase'),'idle');
@@ -98,7 +98,8 @@ test('full 480-second production clock leads through marked chase, hidden seam, 
  j.until('game.escape.phase==="warning"',200);
  const start=read('game.elapsed'),route=read('game.escape.layout.route.slice(game.escape.layout.startIndex+1).map(p=>({...p}))');
  for(const p of route)j.walk(p,{stopAtSeam:true});
- assert.equal(read('game.escape.phase'),'seam');
+ assert.equal(read('game.escape.phase'),'door');
+ assert.equal(read('game.escape.connection'),1,'no final teleport connection');
  const duration=read('game.elapsed')-start;assert(duration>=45&&duration<=60);
  j.until('game.escape.phase==="door"',100);j.finishManila();j.finishLevel1();
  assert.equal(read('game.escape.phase'),'finished');assert.equal(read('game.escape.monster.active'),false);

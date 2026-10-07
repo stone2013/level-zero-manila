@@ -1,5 +1,5 @@
-// One bounded, temporary Level 0 connection. No existing world cell or item is
-// overwritten: only the player crosses space, and Manila remains at its origin.
+// A bounded escape road ends at the single existing Manila room. The initial
+// blackout relocates that room once; the final approach has no hidden teleport.
 export const ESCAPE_TRIGGER_SECONDS=480,ESCAPE_MULTIPLIER=1.5,ESCAPE_SPEED=3.25*ESCAPE_MULTIPLIER;
 // Include the player's .22 m radius and one bounded movement substep: solid
 // collision can reject that last step before body contact at a tight corner.
@@ -21,9 +21,13 @@ export function makeEscapeLayout(game){
  // later section, turn into accidental shortcuts, or strand the player.
  const branches=[];
  for(let row=0;row<4;row++)for(const x of [3,6]){const a=[x,1+row*2],b=[x,2+row*2];open(a,b);branches.push(b)}
+ // Open the road directly into the real room and reserve its entire footprint.
+ get(9,9).open[1]=true;
  for(const c of cells)c.open.forEach((v,d)=>{if(!v){const[dx,dz]=DIRS[d];c.walls.push({x:(c.x+.5+dx*.5)*CELL,z:(c.z+.5+dz*.5)*CELL,w:d%2?.16:CELL,d:d%2?CELL:.16,key:`${d%2}:${d===3?c.x-1:c.x},${d===0?c.z-1:c.z}`})}});
+ get(10,9).active=false;get(10,9).walls=[];
+ cells.push({x:ox+11,z:oz+9,active:false,open:[false,false,false,false],walls:[]});
  const points=route.map(([x,z])=>({x:(ox+x+.5)*CELL,z:(oz+z+.5)*CELL}));
- return {cx,cz,ox,oz,cells,route:points,branches:branches.map(([x,z])=>({x:ox+x,z:oz+z})),startIndex:4,start:points[4],end:points.at(-1),distance:(points.length-1-4)*CELL,lookup:new Map(cells.map(c=>[key(c.x,c.z),c])),indices:new Map(points.map((p,i)=>[key(Math.floor(p.x/CELL),Math.floor(p.z/CELL)),i]))};
+ return {cx,cz,ox,oz,cells,door:{x:(ox+10)*CELL,z:(oz+9.5)*CELL},route:points,branches:branches.map(([x,z])=>({x:ox+x,z:oz+z})),startIndex:4,start:points[4],end:points.at(-1),distance:(points.length-1-4)*CELL,lookup:new Map(cells.map(c=>[key(c.x,c.z),c])),indices:new Map(points.map((p,i)=>[key(Math.floor(p.x/CELL),Math.floor(p.z/CELL)),i]))};
 }
 export function resetEscape(){return{phase:'idle',triggered:false,time:0,chaseTime:0,layout:null,monster:null,progress:0,navClock:0,nav:[],connection:0,attempt:0}}
 export function escapeForced(game){return ['warning','chase','door'].includes(game.escape.phase)}
@@ -35,7 +39,17 @@ export function escapeDirection(game){
  let target;
  if(i===undefined){let nearest=Infinity;for(const point of e.layout.route){const d=Math.hypot(point.x-p.x,point.z-p.z);if(d<nearest){nearest=d;target=point}}}
  else target=e.layout.route[Math.min(i+1,e.layout.route.length-1)];
- return {...target,label:i===undefined?'短支路 · 返回灯下箭头':'沿灯下箭头逃向木门 · 移动时自动疾跑'};
+ return {...target,label:i===undefined?'短支路 · 返回墙上黑色箭头':'沿墙上黑色箭头逃向木门 · 移动时自动疾跑'};
+}
+function connectManila(game){
+ const e=game.escape;if(e.roomOffset)return;
+ const m=game.maze,dx=e.layout.door.x-m.doorX,dz=e.layout.door.z-m.doorZ;
+ e.roomOffset={x:dx,z:dz};
+ // Preserve identities, consumption, battery and inventory state. Maze drops stay put.
+ for(const item of game.items)if(item.state==='world'&&item.area==='room'){item.x+=dx;item.z+=dz}
+ for(const wall of game.roomWalls){wall.x+=dx;wall.z+=dz}
+ for(const obstacle of game.obstacles){obstacle.x+=dx;obstacle.z+=dz}
+ m.doorX+=dx;m.doorZ+=dz;game.world.cache.clear();
 }
 function setPhase(e,phase){e.phase=phase;e.time=0}
 function placeStart(game){const e=game.escape,l=e.layout;Object.assign(game.player,l.start,{yaw:Math.PI/2,pitch:0});e.monster={...l.route[0],yaw:Math.PI/2,clip:'walk',active:true};e.progress=l.startIndex;e.nav=[];e.navClock=0;e.chaseTime=0;e.attempt++;game.pendingFold=null;game.disconnectCharger();}
@@ -45,7 +59,7 @@ export function retryEscape(game){if(game.mode!=='caught'||!game.escape.layout)r
 // midway through a cell can cut an inside corner and strand a wide entity.
 function pathBetween(game,start,target){
  const e=game.escape,l=e.layout,from=key(Math.floor(start.x/CELL),Math.floor(start.z/CELL)),to=key(Math.floor(target.x/CELL),Math.floor(target.z/CELL));
- const allowed=(x,z)=>e.phase==='door'?x>=0&&x<11&&z>=0&&z<11:l.lookup.has(key(x,z));
+ const allowed=(x,z)=>l.lookup.has(key(x,z));
  const q=[from],parents=new Map([[from,null]]);
  for(let i=0;i<q.length&&i<121;i++){const at=q[i];if(at===to)break;const[x,z]=at.split(',').map(Number),c=game.world.cell(x,z);for(let d=0;d<4;d++){if(!c.open[d])continue;const[dx,dz]=DIRS[d],xx=x+dx,zz=z+dz,k=key(xx,zz);if(allowed(xx,zz)&&!parents.has(k)){parents.set(k,at);q.push(k)}}}
  if(!parents.has(to))return[];
@@ -75,21 +89,15 @@ export function updateEscape(game,dt){
  if(['suppressed','finished','caught'].includes(e.phase))return;
  e.time+=dt;
  if(e.phase==='flicker'&&e.time>=2.4){setPhase(e,'blackout');return}
- if(e.phase==='blackout'&&e.time>=.85){e.layout??=makeEscapeLayout(game);game.world.escapeLayout=e.layout;placeStart(game);e.connection++;setPhase(e,'loading');return}
- if(e.phase==='loading'&&(!game.escapeViewReady||game.escapeViewReady())){setPhase(e,'warning');game.events.push('身后有东西。沿灯下箭头跑！移动时速度与消耗为快走的 1.5 倍。');return}
+ if(e.phase==='blackout'&&e.time>=.85){e.layout??=makeEscapeLayout(game);game.world.escapeLayout=e.layout;connectManila(game);placeStart(game);e.connection++;setPhase(e,'loading');return}
+ if(e.phase==='loading'&&(!game.escapeViewReady||game.escapeViewReady())){setPhase(e,'warning');game.events.push('身后有东西。沿墙上黑色箭头跑！移动时速度与消耗为快走的 1.5 倍。');return}
  if(e.phase==='warning'){if(e.time>=3.2)setPhase(e,'chase');return}
- if(e.phase==='seam'&&e.time>=.2){Object.assign(game.player,{x:game.maze.doorX-2.5,z:game.maze.doorZ,yaw:Math.PI/2,pitch:0});e.monster.active=false;setPhase(e,'seam-loading');e.connection++;return}
- if(e.phase==='seam-loading'&&(!game.escapeViewReady||game.escapeViewReady())){
-  // Place the same entity at an original-route cell, well behind the doorway.
-  const route=game.maze.route,c=game.maze.cells[route[Math.max(0,route.length-5)]];
-  Object.assign(e.monster,{x:(c.x+.5)*CELL,z:(c.z+.5)*CELL,clip:'chase_run',active:true});e.nav=[];e.navClock=0;setPhase(e,'door');game.events.push('木门！进去后手动把门完全关上。');return;
- }
  if(e.phase==='caught-animation'){if(e.time>=2.6){setPhase(e,'caught');game.mode='caught'}return}
  if(['chase','door'].includes(e.phase)){
   e.chaseTime+=dt;if(game.changed){e.monster.active=false;setPhase(e,'finished');return}
   if(e.phase==='chase'){
    const i=e.layout.indices.get(key(Math.floor(game.player.x/CELL),Math.floor(game.player.z/CELL)));if(i!==undefined)e.progress=Math.max(e.progress,i);
-   if(Math.hypot(game.player.x-e.layout.end.x,game.player.z-e.layout.end.z)<.65){setPhase(e,'seam');return}
+   if(i===e.layout.route.length-1){setPhase(e,'door');game.events.push('木门！进去后手动把门完全关上。')}
   }
   monsterMove(game,dt);
  }

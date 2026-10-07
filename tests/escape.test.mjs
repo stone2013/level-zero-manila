@@ -18,16 +18,19 @@ function begin(g=new Game(42)){
 }
 // Every route leg below uses player yaw plus actual update() movement input.
 // There is no position assignment, teleport or test-only collision bypass.
-function walk(g,to,{stopAtSeam=false,onStep=()=>{}}={}){
+function walk(g,to,{onStep=()=>{}}={}){
  let count=0;
- while(distance(g.player,to)>1e-7&&!(stopAtSeam&&g.escape.phase==='seam')){
+ while(distance(g.player,to)>1e-7){
   assert.equal(g.mode,'playing');assert(!['caught-animation','caught'].includes(g.escape.phase));
   assert(count++<15000,`blocked at ${JSON.stringify(g.player)} toward ${JSON.stringify(to)}`);
   const dx=to.x-g.player.x,dz=to.z-g.player.z,d=Math.hypot(dx,dz);
   g.player.yaw=Math.atan2(dx,-dz);
   const forced=['warning','chase','door'].includes(g.escape.phase),speed=forced?ESCAPE_SPEED:2.05;
-  const oldConnection=g.escape.connection,m=g.escape.monster&&{...g.escape.monster};
+  const oldConnection=g.escape.connection,p={...g.player},m=g.escape.monster&&{...g.escape.monster};
   g.update(DT,{forward:Math.min(1,d/(speed*DT))});
+  assert(distance(p,g.player)<=speed*DT+1e-8,'player must move continuously without a final seam teleport');
+  assert.equal(g.escape.connection,oldConnection,'walking the escape route must not reconnect the world');
+  assert(!['seam','seam-loading','blackout','loading'].includes(g.escape.phase),'no blackout or loading transition during the route');
   assert(!g.collides(g.player.x,g.player.z),'player must not enter wall geometry');
   if(g.escape.monster?.active){
    assert(!g.collides(g.escape.monster.x,g.escape.monster.z,{radius:1.17,ignoreRender:true}),'monster must not enter wall geometry');
@@ -39,8 +42,8 @@ function walk(g,to,{stopAtSeam=false,onStep=()=>{}}={}){
 }
 function runRoute(g,onStep=()=>{}){
  let seconds=0;const l=g.escape.layout;
- for(let i=l.startIndex+1;i<l.route.length;i++)seconds+=walk(g,l.route[i],{stopAtSeam:true,onStep});
- assert.equal(g.escape.phase,'seam');return seconds;
+ for(let i=l.startIndex+1;i<l.route.length;i++)seconds+=walk(g,l.route[i],{onStep});
+ assert.equal(g.escape.phase,'door');near(distance(g.player,l.end),0);return seconds;
 }
 function fingerprint(g){return g.items.map(i=>({...i}))}
 
@@ -77,15 +80,18 @@ test('flicker, blackout and readiness gate freeze transition and preserve all it
  tick(g,.4,{forward:1});near(g.player.x,position.x);near(g.player.z,position.z);
  until(g,()=>g.escape.phase==='loading');const arrival={...g.player};assert.equal(g.escape.monster.clip,'walk');
  tick(g,2,{forward:1});assert.equal(g.escape.phase,'loading');assert.deepEqual(g.player,arrival);assert.equal(g.openInventory(),false);
- assert.strictEqual(g.items,items);g.items.forEach((i,j)=>assert.strictEqual(i,refs[j]));assert.deepEqual(fingerprint(g),original);
+ assert.strictEqual(g.items,items);g.items.forEach((i,j)=>assert.strictEqual(i,refs[j]));
+ const offset=g.escape.roomOffset;assert(offset);
+ assert.deepEqual(fingerprint(g),original.map(i=>i.state==='world'&&i.area==='room'?{...i,x:i.x+offset.x,z:i.z+offset.z}:i));
  ready=true;g.update(DT);assert.equal(g.escape.phase,'warning');assert.equal(escapeDarkness(g),0);
 });
 
 test('escape topology is bounded, reciprocal, marked, and protects existing ground items',()=>{
  const g=new Game(1);g.start();g.drop('food-1');const original=fingerprint(g),layout=makeEscapeLayout(g);
- assert.equal(layout.cells.length,121);assert.equal(layout.lookup.size,121);assert.equal(layout.distance,230);assert.equal(layout.branches.length,8);
+ assert.equal(layout.cells.length,122);assert.equal(layout.lookup.size,122);assert.equal(layout.cells.filter(c=>c.active).length,120);assert.equal(layout.cells.filter(c=>!c.active).length,2);assert.equal(layout.distance,230);assert.equal(layout.branches.length,8);
  assert.deepEqual(layout.start,layout.route[layout.startIndex]);assert.deepEqual(layout.end,layout.route.at(-1));
- for(const c of layout.cells)for(let d=0;d<4;d++)if(c.open[d]){const[dx,dz]=DIRS[d],n=layout.lookup.get(`${c.x+dx},${c.z+dz}`);assert(n,'no exit into unbounded procedural cells');assert(n.open[(d+2)%4])}
+ for(const c of layout.cells)for(let d=0;d<4;d++)if(c.open[d]){const[dx,dz]=DIRS[d],n=layout.lookup.get(`${c.x+dx},${c.z+dz}`);assert(n,'no exit into unbounded procedural cells');if(!n.active){assert.equal(d,1);near((c.x+1)*CELL,layout.door.x);near((c.z+.5)*CELL,layout.door.z);assert.equal(n.walls.length,0,'the room reservation must not seal the entrance')}else assert(n.open[(d+2)%4])}
+ near(layout.door.x,layout.end.x+CELL/2);near(layout.door.z,layout.end.z);
  for(const c of layout.branches)assert.equal(layout.lookup.get(`${c.x},${c.z}`).open.filter(Boolean).length,1,'wrong branches have a return route');
  assert.deepEqual(fingerprint(g),original);for(const item of g.items.filter(i=>i.state==='world'))assert(!layout.lookup.has(`${Math.floor(item.x/CELL)},${Math.floor(item.z/CELL)}`));
 });
@@ -132,8 +138,8 @@ test('all eight wrong branches remain walkable back to a marked route, with trut
   assert(index>=l.startIndex,'each tested detour occurs after player spawn');
   for(let i=l.startIndex+1;i<=index;i++)walk(g,l.route[i]);
   walk(g,point(branch));const hint=escapeDirection(g);assert(hint.label.includes('返回'));near(distance(hint,junction),0);
-  walk(g,junction);assert(escapeDirection(g).label.includes('沿灯下箭头'));
-  for(let i=index+1;i<l.route.length;i++)walk(g,l.route[i],{stopAtSeam:true});assert.equal(g.escape.phase,'seam');
+  walk(g,junction);assert(escapeDirection(g).label.includes('沿墙上黑色箭头'));
+  for(let i=index+1;i<l.route.length;i++)walk(g,l.route[i]);assert.equal(g.escape.phase,'door');
  }
 });
 
@@ -167,13 +173,13 @@ test('retry preserves current resources, identity, consumed and grounded items; 
  g.reset(99);assert.equal(g.escape.phase,'idle');assert.equal(g.escape.triggered,false);assert.equal(g.escape.layout,null);assert.equal(g.elapsed,0);assert.equal(g.food,100);assert.equal(g.hydration,100);assert.equal(g.phone('phone-1').battery,100);assert.equal(g.inventory('food').length,4);assert.equal(g.items.filter(i=>i.kind==='water').length,2);assert.equal(new Set(g.items.map(i=>i.id)).size,7);assert.equal(g.world.escapeLayout,undefined);
 });
 
-test('Manila seam, door close and reopen lead to the hub, preserving two waters and one charger',()=>{
- const g=new Game(42);g.start();g.drop('food-1');const grounded=fingerprint(g).filter(i=>i.state==='world'),charger=g.chargerPosition();begin(g);runRoute(g);until(g,()=>g.escape.phase==='door');
- assert.equal(g.player.x,g.maze.doorX-2.5);assert.equal(g.player.z,g.maze.doorZ);walk(g,{x:g.maze.doorX-1.25,z:g.maze.doorZ});
+test('continuous Manila endpoint, door close and reopen lead to the hub, preserving finite room supplies',()=>{
+ const g=new Game(42);g.start();g.drop('food-1');const grounded=fingerprint(g).filter(i=>i.state==='world'&&i.area==='maze'),charger=g.chargerPosition();begin(g);runRoute(g);
+ assert.equal(g.escape.phase,'door');near(g.player.x,g.maze.doorX-2.5);near(g.player.z,g.maze.doorZ);walk(g,{x:g.maze.doorX-1.25,z:g.maze.doorZ});
  assert.equal(g.interact(),'door');tick(g,.7);assert.equal(g.door,1);
  walk(g,{x:g.maze.doorX+1.7,z:g.maze.doorZ});assert(g.inRoom());assert(g.entered);assert.equal(g.changed,false);assert.equal(g.escape.phase,'door');
  assert.equal(g.interact(),'door');until(g,()=>g.door===0,2);assert(g.changed);assert.equal(g.escape.phase,'finished');assert.equal(g.escape.monster.active,false);
- assert.deepEqual(fingerprint(g).filter(i=>i.state==='world'),grounded);assert.deepEqual(g.chargerPosition(),charger);assert.equal(g.items.filter(i=>i.kind==='water').length,2);assert.equal(new Set(g.items.map(i=>i.id)).size,g.items.length);
+ assert.deepEqual(fingerprint(g).filter(i=>i.state==='world'&&i.area==='maze'),grounded);assert.deepEqual(g.chargerPosition(),{x:charger.x+g.escape.roomOffset.x,z:charger.z+g.escape.roomOffset.z});assert.equal(g.items.filter(i=>i.kind==='water').length,2);assert.equal(new Set(g.items.map(i=>i.id)).size,g.items.length);
  assert.equal(g.interact(),'door');tick(g,.7);assert.equal(g.door,1);
  // move() ends as soon as the original exit threshold is crossed.
  g.player.yaw=-Math.PI/2;untilMovementToHub(g);assert.equal(g.mode,'playing');assert.equal(g.zone,'hub');assert.equal(g.events.filter(x=>x==='exit').length,0);assert.equal(g.escape.phase,'finished');
