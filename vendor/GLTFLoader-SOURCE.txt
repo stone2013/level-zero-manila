@@ -1,0 +1,4 @@
+Three.js r180 official addons, MIT license (see THREE-LICENSE.txt).
+https://github.com/mrdoob/three.js/blob/r180/examples/jsm/loaders/GLTFLoader.js
+https://github.com/mrdoob/three.js/blob/r180/examples/jsm/utils/BufferGeometryUtils.js
+Only import paths changed to same-directory local Three.js and utility modules.
