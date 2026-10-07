@@ -549,21 +549,40 @@ function initInventory(){
 function syncEscapeVisual(dt=0,active=false){
  if(game.zone!=='level0'){$('escape-blackout').style.opacity='0';$('escape-guide').hidden=true;return}
  const e=game.escape;
+ if(e.roomOffset){roomGroup.position.set(e.roomOffset.x,0,e.roomOffset.z);exitGroup.position.set(e.roomOffset.x,0,e.roomOffset.z)}
  $('escape-blackout').style.opacity=String(escapeDarkness(game));
  const direction=escapeDirection(game),visible=direction&&game.mode==='playing'&&!game.inventoryOpen&&!game.phoneOpenId;
  $('escape-guide').hidden=!visible;
  if(visible){const angle=Math.atan2(direction.x-game.player.x,-(direction.z-game.player.z))-game.player.yaw;$('escape-arrow').style.transform=`rotate(${angle}rad)`;$('escape-guide-copy').textContent=direction.label}
  if(e.layout&&escapeMarkLayout!==e.layout){
-  escapeMarks?.removeFromParent();
+  if(escapeMarks){escapeMarks.removeFromParent();escapeMarks.geometry.dispose();escapeMarks.material.dispose();escapeMarks.dispose()}
+  // Paint lies in the local XY plane and points along +X. Each instance follows
+  // the real next route segment on a solid wall, including the final door leg.
   const geometry=new THREE.BufferGeometry();
-  geometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array([-.10,.015,.6,.10,.015,-.15,.10,.015,.6,-.10,.015,.6,-.10,.015,-.15,.10,.015,-.15,-.4,.015,-.1,0,.015,-.75,.4,.015,-.1]),3));
+  geometry.setAttribute('position',new THREE.BufferAttribute(new Float32Array([-.66,-.095,0,.15,-.095,0,.15,.095,0,-.66,-.095,0,.15,.095,0,-.66,.095,0,.10,-.34,0,.74,0,0,.10,.34,0]),3));
   geometry.computeVertexNormals();
-  escapeMarks=new THREE.InstancedMesh(geometry,new THREE.MeshBasicMaterial({color:0xc0c393,side:THREE.DoubleSide}),e.layout.route.length-1);
-  escapeMarks.name='Escape route floor marks';const dummy=new THREE.Object3D();
-  e.layout.route.slice(0,-1).forEach((p,i)=>{const next=e.layout.route[i+1];dummy.position.set(p.x,0,p.z);dummy.rotation.y=Math.atan2(-(next.x-p.x),-(next.z-p.z));dummy.updateMatrix();escapeMarks.setMatrixAt(i,dummy.matrix)});
+  const marks=[];
+  e.layout.route.forEach((p,i)=>{
+   const next=e.layout.route[i+1]||e.layout.door,dx=Math.sign(next.x-p.x),dz=Math.sign(next.z-p.z);
+   const cell=e.layout.lookup.get(Math.floor(p.x/CELL)+','+Math.floor(p.z/CELL));
+   for(const wall of cell.walls){
+    const alongX=wall.w>wall.d;
+    if(alongX?dz!==0:dx!==0)continue;
+    // The 16 cm walls extend into the cell. Keep paint 12 mm in front of the
+    // interior face, not at the wall centre or coplanar with the wallpaper.
+    const x=alongX?p.x:wall.x+Math.sign(p.x-wall.x)*(wall.w/2+.012);
+    const z=alongX?wall.z+Math.sign(p.z-wall.z)*(wall.d/2+.012):p.z;
+    marks.push({x,z,yaw:Math.atan2(-dz,dx)});
+   }
+   // At a turn the closed wall ahead of the incoming segment is selected above;
+   // its sideways arrow is visible on approach and points into the open passage.
+  });
+  escapeMarks=new THREE.InstancedMesh(geometry,new THREE.MeshBasicMaterial({color:0x101010,side:THREE.DoubleSide}),marks.length);
+  escapeMarks.name='Escape route black wall arrows';const dummy=new THREE.Object3D();
+  marks.forEach((mark,i)=>{dummy.position.set(mark.x,1.55,mark.z);dummy.rotation.set(0,mark.yaw,0);dummy.updateMatrix();escapeMarks.setMatrixAt(i,dummy.matrix)});
   escapeMarks.instanceMatrix.needsUpdate=true;escapeMarks.computeBoundingSphere();scene.add(escapeMarks);escapeMarkLayout=e.layout;
  }
- if(escapeMarks)escapeMarks.visible=['loading','warning','chase','caught-animation','caught'].includes(e.phase);
+ if(escapeMarks)escapeMarks.visible=['loading','warning','chase','door','caught-animation','caught'].includes(e.phase);
  if(e.monster?.active){
   if(!monsterVisual){monsterVisual=createCableMonster(THREE);scene.add(monsterVisual.root)}
   monsterVisual.root.position.set(e.monster.x,0,e.monster.z);monsterVisual.root.rotation.y=-e.monster.yaw;
@@ -612,7 +631,7 @@ function sync(){
  $('food-meter').style.width=game.food+'%';$('water-meter').style.width=game.hydration+'%';$('food-value').textContent=Math.ceil(game.food);$('water-value').textContent=Math.ceil(game.hydration);
  $('food-meter').parentElement?.setAttribute('aria-valuenow',String(Math.ceil(game.food)));$('water-meter').parentElement?.setAttribute('aria-valuenow',String(Math.ceil(game.hydration)));
  $('zone').textContent=game.zone==='hub'?'连接区':game.zone==='level1'?'LEVEL 1 · EASY':game.inRoom()?'MANILA':game.changed?'UNKNOWN':'LEVEL 0';
- const objective=game.zone==='hub'?'寻找侧墙绿色标识的 Level 1 入口':game.zone==='level1'?(game.level1.phase==='warning'?'灯光不稳，绿色标识通向缓冲休息区':game.level1.phase==='dark'?'短暂停电，沿绿色标识缓行':'搜寻补给，沿管道找到过渡通道'):game.escape.triggered&&!['finished','suppressed'].includes(game.escape.phase)?'沿灯下箭头逃向木门':game.changed?'重新开门，进入连接区':game.entered?'把门完全关上':game.loops?'换条路寻找木门':'找到一扇木门';
+ const objective=game.zone==='hub'?'寻找侧墙绿色标识的 Level 1 入口':game.zone==='level1'?(game.level1.phase==='warning'?'灯光不稳，绿色标识通向缓冲休息区':game.level1.phase==='dark'?'短暂停电，沿绿色标识缓行':'搜寻补给，沿管道找到过渡通道'):game.escape.triggered&&!['finished','suppressed'].includes(game.escape.phase)?'沿墙上黑色箭头逃向木门':game.changed?'重新开门，进入连接区':game.entered?'把门完全关上':game.loops?'换条路寻找木门':'找到一扇木门';
  if(objective!==objectiveKey){objectiveKey=objective;objectiveUntil=game.elapsed+6;$('objective').textContent=objective}
  $('objective').hidden=game.elapsed>objectiveUntil;
  const i=game.nearestItem();$('prompt').textContent=!canPlay()?'':game.zone!=='level0'?(game.zonePrompt?.()||''):game.nearAbnormalWall?.()?`按住交互穿过异常墙面 ${Math.floor((game.abnormalWall.hold||0)/2*100)}%`:i?(i.kind==='phone'?'拾回手机':i.kind==='food'?`拾回干粮 ${i.id.split('-').at(-1)}`:'拾起饮用水'):game.nearCharger()?(game.chargingPhoneId?'断开充电线':game.inventory('phone').length?'接上充电线':'查看充电线'):game.nearNote()?'阅读纸条':game.nearDoor()?(game.doorTarget>.5?'关门':'开门'):'';
