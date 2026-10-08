@@ -37,7 +37,7 @@ export class GameAudio{
   this.buffers=new Map();this.voices=new Set();this.generation=0;this.errorReported=false;
   this.resetTracking();
  }
- resetTracking(){this.position=null;this.stride=0;this.pursuitClock=0;this.previousDoor=null;this.previousLoops=null;this.previousEscape=null}
+ resetTracking(){this.position=null;this.stride=0;this.pursuitClock=0;this.previousDoor=null;this.previousLoops=null;this.previousEscape=null;this.previousLevelOne=null}
  setEnabled(enabled){this.enabled=Boolean(enabled);if(!this.enabled){this.unlocked=false;this.stop()}}
  // Invoke synchronously from the input event, before fullscreen consumes activation.
  // Promise completion never plays a queued cue or revives paused/background audio.
@@ -112,7 +112,18 @@ export class GameAudio{
   this.position={x:p.x,z:p.z};
   const entity=game.escape?.monster,escapeActive=entity?.active&&['warning','chase','door'].includes(game.escape.phase);
   if(game.changed&&this.previousEscape!=='finished')for(const voice of [...this.voices])if(voice.kind==='pursuit'){voice.source.onended=null;try{voice.source.stop()}catch{}voice.source.disconnect();voice.gain.disconnect();voice.panner?.disconnect();this.voices.delete(voice)}
-  if(escapeActive){
+  const l1=game.zone==='level1'?game.level1:null;
+  if(this.hum)this.hum.gain.gain.value=l1?.phase==='dark'?.12:l1?.phase==='warning'?.6:1;
+  if(l1?.phase!==this.previousLevelOne){
+   if(l1?.phase==='warning')this.cue('flicker',.65);
+   if(l1?.phase==='lit')for(const voice of [...this.voices])if(voice.kind==='pursuit'){voice.source.onended=null;try{voice.source.stop()}catch{}voice.source.disconnect();voice.gain.disconnect();voice.panner?.disconnect();this.voices.delete(voice)}
+   this.previousLevelOne=l1?.phase??null;
+  }
+  if(l1?.danger?.active){
+   const e=l1.danger,dx=e.x-p.x,dz=e.z-p.z,d=Math.hypot(dx,dz);
+   this.pursuitClock+=Math.min(.05,Math.max(0,dt));
+   if(d<16&&this.pursuitClock>=(l1.phase==='warning'?.85:.58)){this.cue('pursuit',Math.max(.12,.65-d/28),d?(dx*Math.cos(p.yaw)+dz*Math.sin(p.yaw))/d:0);this.pursuitClock=0}
+  }else if(escapeActive){
    this.pursuitClock+=Math.min(.05,Math.max(0,dt));const dx=entity.x-p.x,dz=entity.z-p.z,d=Math.hypot(dx,dz);
    if(this.pursuitClock>=(game.escape.phase==='warning'?.66:.39)){const pan=d?(dx*Math.cos(p.yaw)+dz*Math.sin(p.yaw))/d:0;this.cue('pursuit',Math.max(.12,.9-d/45),pan);this.pursuitClock=0}
   }else if((!game.zone||game.zone==='level0')&&game.entered&&!game.changed){
