@@ -1,0 +1,157 @@
+{
+  "note": "Node CPU simulation with actual collision and input vectors. Not GPU FPS, audible or human playtest evidence. Visual opportunity uses line-of-sight, not camera framing.",
+  "results": [
+    {
+      "branch": "direct",
+      "sprint": false,
+      "prepareMs": 77.237566,
+      "phases": [
+        {
+          "phase": "lit",
+          "t": 0.025,
+          "x": 0,
+          "z": 4.44875
+        },
+        {
+          "phase": "warning",
+          "t": 14.014634146341622,
+          "x": -4.429999999999991,
+          "z": -9.8
+        },
+        {
+          "phase": "dark",
+          "t": 20.01829268292682,
+          "x": 0.6374999999999932,
+          "z": -15.9
+        },
+        {
+          "phase": "lit",
+          "t": 28.010365853658087,
+          "x": 0,
+          "z": -22.921249999999976
+        }
+      ],
+      "activeSeconds": 7.992073170731763,
+      "darkActiveSeconds": 7.992073170731763,
+      "visibleSeconds": 3.1530487804878042,
+      "minDistance": 8.20151243673994,
+      "maxTickMs": 4.9118649999999775,
+      "totalTickMs": 81.25614099999984,
+      "ticks": 1514,
+      "mode": "won",
+      "elapsed": 37.71280487804781,
+      "averageTickMs": 0.05366984214002632
+    },
+    {
+      "branch": "direct",
+      "sprint": true,
+      "prepareMs": 58.09792899999999,
+      "phases": [
+        {
+          "phase": "lit",
+          "t": 0.025,
+          "x": 0,
+          "z": 4.41875
+        },
+        {
+          "phase": "warning",
+          "t": 14.019230769230894,
+          "x": 5,
+          "z": -16.0625
+        },
+        {
+          "phase": "dark",
+          "t": 20.00576923076913,
+          "x": 0,
+          "z": -30.518750000000022
+        }
+      ],
+      "activeSeconds": 3.8249999999999904,
+      "darkActiveSeconds": 3.8249999999999904,
+      "visibleSeconds": 3.7249999999999908,
+      "minDistance": 8.343750000000025,
+      "maxTickMs": 6.227949000000024,
+      "totalTickMs": 93.91316299999983,
+      "ticks": 958,
+      "mode": "won",
+      "elapsed": 23.805769230768913,
+      "averageTickMs": 0.098030441544885
+    },
+    {
+      "branch": "refuge",
+      "sprint": false,
+      "prepareMs": 51.66623900000002,
+      "phases": [
+        {
+          "phase": "lit",
+          "t": 0.025,
+          "x": 0,
+          "z": 4.44875
+        },
+        {
+          "phase": "warning",
+          "t": 14.014634146341622,
+          "x": -4.429999999999991,
+          "z": -9.8
+        },
+        {
+          "phase": "dark",
+          "t": 20.01829268292682,
+          "x": 0.6374999999999932,
+          "z": -15.9
+        },
+        {
+          "phase": "lit",
+          "t": 28.010365853658087,
+          "x": 0,
+          "z": -22.921249999999976
+        }
+      ],
+      "activeSeconds": 7.992073170731763,
+      "darkActiveSeconds": 7.992073170731763,
+      "visibleSeconds": 3.1530487804878042,
+      "minDistance": 8.20151243673994,
+      "maxTickMs": 3.2618210000000545,
+      "totalTickMs": 74.75411300000007,
+      "ticks": 1711,
+      "mode": "won",
+      "elapsed": 42.606097560974234,
+      "averageTickMs": 0.04369030566919934
+    },
+    {
+      "branch": "refuge",
+      "sprint": true,
+      "prepareMs": 52.088982999999985,
+      "phases": [
+        {
+          "phase": "lit",
+          "t": 0.025,
+          "x": 0,
+          "z": 4.41875
+        },
+        {
+          "phase": "warning",
+          "t": 14.019230769230894,
+          "x": 5,
+          "z": -16.0625
+        },
+        {
+          "phase": "dark",
+          "t": 20.00576923076913,
+          "x": -2.5187499999999994,
+          "z": -28
+        }
+      ],
+      "activeSeconds": 6.896153846153922,
+      "darkActiveSeconds": 6.896153846153922,
+      "visibleSeconds": 3.738461538461531,
+      "minDistance": 8.23821364511142,
+      "maxTickMs": 12.350952000000007,
+      "totalTickMs": 95.32606600000315,
+      "ticks": 1082,
+      "mode": "won",
+      "elapsed": 26.876923076922633,
+      "averageTickMs": 0.08810172458410642
+    }
+  ]
+}

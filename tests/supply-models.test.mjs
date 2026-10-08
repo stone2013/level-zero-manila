@@ -42,5 +42,5 @@ test('app rebuild disposes shared supply resources once and preserves phone cons
  assert.equal(app.eval("[...itemMeshes.values()].filter(g=>g.children[0]?.userData.sharedSupply).length"),6);
 });
 test('offline cache includes supply module and candidate version',()=>{
- const sw=fs.readFileSync('dist/sw.js','utf8');assert(sw.includes('./assets/supplies/supply-models.js'));assert(sw.includes('v1.7.2'));
+ const sw=fs.readFileSync('dist/sw.js','utf8');assert(sw.includes('./assets/supplies/supply-models.js'));assert(sw.includes('demo-v1.0-rc1'));
 });

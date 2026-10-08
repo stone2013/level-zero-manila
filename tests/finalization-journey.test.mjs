@@ -46,12 +46,12 @@ export function journey(options={}){
   interact();until('game.door===1',30);walk({x:door.x-8.5,z:door.z},{zoneChange:true});
   assert.equal(read('game.zone'),'hub');assert.equal(a.element('ending').hidden,true);
  }
- function finishLevel1(){
+ function finishLevel1(branch="direct"){
   walk({x:0,z:4.5});assert.equal(read('game.hub.sealed'),true);
   walk({x:5.3,z:3.3});interact();step();
   assert.equal(read('game.zone'),'level1');assert.equal(a.element('ending').hidden,true);
   assert.equal(read('game.escape.monster?.active||false'),false);
-  walk({x:0,z:-43},{win:true});
+  finishLevelOneRoute(branch);
   assert.equal(a.element('ending').hidden,false);
   assert.match(a.element('end-eyebrow').textContent,/DEMO COMPLETE/);
   assert.match(a.element('end-copy').innerHTML,/Level 1|管道|演示/);
@@ -59,7 +59,12 @@ export function journey(options={}){
   const final=read('JSON.stringify(game.snapshot())');a.dispatch('window','blur');step();
   assert.equal(read('JSON.stringify(game.snapshot())'),final);
  }
- return {a,read,step,walk,press,release,look,until,finishManila,finishLevel1,interact};
+ function finishLevelOneRoute(branch='direct'){
+  for(const [x,z] of [[0,2],[5,2],[5,-9.8],[-5,-9.8],[-5,-15.9],[5,-15.9],[5,-20],[0,-20],[0,-28]])walk({x,z});
+  if(branch==='refuge')for(const [x,z] of [[-5,-28],[-5,-37],[0,-37]])walk({x,z});
+  walk({x:0,z:-43},{win:true});
+ }
+ return {a,read,step,walk,press,release,look,until,finishManila,finishLevel1,finishLevelOneRoute,interact};
 }
 
 test('complete ordinary journey dispatches production inputs through Manila and hub, side-wall Level 1 and pipe demo completion',()=>{
@@ -101,7 +106,7 @@ test('full 480-second production clock leads through wall-marked chase, continuo
  assert.equal(read('game.escape.phase'),'door');
  assert.equal(read('game.escape.connection'),1,'no final teleport connection');
  const duration=read('game.elapsed')-start;assert(duration>=45&&duration<=60);
- j.until('game.escape.phase==="door"',100);j.finishManila();j.finishLevel1();
+ j.until('game.escape.phase==="door"',100);j.finishManila();j.finishLevel1("refuge");
  assert.equal(read('game.escape.phase'),'finished');assert.equal(read('game.escape.monster.active'),false);
  assert.equal(read('game.items.length'),7);
  t.diagnostic(`Production handler/frame integration: trigger 480.00 active seconds; escape route ${duration.toFixed(2)} active seconds. Fake DOM/GPU only.`);
@@ -164,7 +169,7 @@ test('Level 1 crate supplies are finite and a full bag can retry pickup after ma
  // Full-bag and hunger fixture, then only production bag and interaction controls.
  read("game.food=90");
  read(`for(let y=0;y<4;y++)for(let x=0;x<4;x++)if(!game.inventory().some(i=>{const s=game.itemSize(i);return x>=i.gridX&&x<i.gridX+s.w&&y>=i.gridY&&y<i.gridY+s.h}))game.items.push({id:'fill-'+x+'-'+y,kind:'food',state:'inventory',gridX:x,gridY:y,zone:'level1'})`);
- j.walk({x:0,z:2});j.walk({x:0,z:-6});j.walk({x:5,z:-6});j.interact();
+ j.walk({x:0,z:2});j.walk({x:5,z:2});j.walk({x:5,z:-6});j.interact();
  assert.equal(read('game.items.find(i=>i.id==="l1-crate-2-food").state'),'world');
  for(let i=0;i<3;i++)j.interact();assert.equal(read('game.items.filter(i=>i.id==="l1-crate-2-food").length'),1);
  a.element('backpack').onclick(click);read('inventoryNodes.get("food-1").onclick({detail:0})');a.element('consume-item').onclick();a.element('inventory-close').onclick();j.interact();
@@ -205,4 +210,25 @@ test('all seven original hub doors stay inactive; only the distinct side-wall do
  j.walk({x:5.25,z:3.3});step();assert.equal(read('game.nearHubDoor().id'),'hub-level1');
  const food=read('game.food'),hydration=read('game.hydration'),items=read('JSON.stringify(game.items)');
  j.interact();assert.equal(read('game.zone'),'level1');assert.equal(read('game.food'),food);assert.equal(read('game.hydration'),hydration);assert.equal(read('JSON.stringify(game.items)'),items);
+});
+
+test('direct wall entry completes refuge route through production movement and shows the Level 2 boundary',()=>{
+ const j=journey(),{a,read,step}=j,w=read('({...game.abnormalWall})');
+ j.walk({x:w.x+w.normalX*.75,z:w.z+w.normalZ*.75});j.press('KeyE');for(let i=0;i<41;i++)step();j.release('KeyE');
+ assert.equal(read('game.zone'),'level1');assert.equal(read('game.hub.sealed'),false);
+ j.finishLevelOneRoute('refuge');assert.equal(a.element('ending').hidden,false);assert.match(a.element('end-copy').innerHTML,/Level 2/);assert.equal(read('keys.size'),0);assert.equal(a.element('level1-retry').hidden,true);
+});
+
+test('natural Level 1 capture freezes during bag, phone and pause, reports entity cause and retries without duplicating supplies',()=>{
+ const j=journey(),{a,read,step}=j,w=read('({...game.abnormalWall})');
+ j.walk({x:w.x+w.normalX*.75,z:w.z+w.normalZ*.75});j.press('KeyE');for(let i=0;i<41;i++)step();j.release('KeyE');
+ j.walk({x:-4,z:2});j.interact();assert(read('game.level1.crates[0].opened'));
+ j.walk({x:0,z:2});j.walk({x:5,z:2});j.walk({x:5,z:0});j.until('game.level1.phase==="warning"');
+ const freeze=()=>{const danger=read('JSON.stringify(game.level1.danger)'),time=read('game.level1.elapsed');for(let i=0;i<40;i++)step();assert.equal(read('game.level1.elapsed'),time);assert.equal(read('JSON.stringify(game.level1.danger)'),danger)};
+ a.element('pause').onclick();freeze();a.element('resume').onclick();
+ a.element('backpack').onclick(click);freeze();read('inventoryNodes.get("phone-1").onclick({detail:0})');a.element('consume-item').onclick();const battery=read('game.phone("phone-1").battery');freeze();assert(read('game.phone("phone-1").battery')<battery);a.element('phone-close').onclick();a.element('inventory-close').onclick();
+ j.until('game.mode==="lost"',320);assert.equal(read('game.level1.failure'),'entity');assert.equal(a.element('ending').hidden,false);assert.match(a.element('end-title').textContent,/轮廓/);assert.match(a.element('end-copy').innerHTML,/补给不会重新生成/);assert.equal(a.element('level1-retry').hidden,false);assert.equal(read('keys.size'),0);
+ const supplies=read('JSON.stringify(game.items)'),crates=read('JSON.stringify(game.level1.crates)'),checkpoint=read('JSON.stringify(game.level1.danger.checkpoint)'),elapsed=read('game.level1.elapsed');for(let i=0;i<20;i++)step();assert.equal(read('game.level1.elapsed'),elapsed);
+ a.element('level1-retry').onclick();assert.equal(read('game.mode'),'playing');assert.equal(a.element('ending').hidden,true);assert.equal(read('game.level1.failure'),null);assert.equal(read('game.level1.elapsed'),0);assert.equal(read('game.level1.retries'),1);assert.equal(read('JSON.stringify(game.items)'),supplies);assert.equal(read('JSON.stringify(game.level1.crates)'),crates);assert.equal(read('JSON.stringify(game.level1.danger.checkpoint)'),checkpoint);assert(!read('game.level1.danger.active'));
+ j.finishLevelOneRoute('direct');assert.equal(a.element('ending').hidden,false);assert.match(a.element('end-eyebrow').textContent,/DEMO COMPLETE/);
 });

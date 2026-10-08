@@ -114,6 +114,6 @@ test('final review: the versioned offline cache closes over every local module, 
  handlers.fetch({request:{method:'GET',mode:'navigate',url:scope+'?offline-check=1'},respondWith:promise=>response=promise});
  assert.deepEqual(await response,fs.readFileSync('dist/index.html'));
  assert.equal(network,0);assert(required.size>=28);
- const version=html.match(/HTML \/ PWA · (v[\d.]+)/)?.[1];assert(version);
+ const version=html.match(/HTML \/ PWA · ([a-z0-9.-]+)/)?.[1];assert(version);
  assert.match(fs.readFileSync('dist/sw.js','utf8'),new RegExp(`CACHE=PREFIX\\+'${version.replaceAll('.','\\.')}'`));
 });

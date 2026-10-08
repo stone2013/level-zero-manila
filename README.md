@@ -1,3 +1,7 @@
+# Demo v1.0 candidate · 2026-10-08
+
+This RC1 stage update adds the complete Level 1 gameplay loop. Read [DEMO_V1_CANDIDATE.md](DEMO_V1_CANDIDATE.md) for current scope, controls, test results and verification limits. Historical release notes below describe the v1.7.2 baseline.
+
 # v1.7.1 水与干粮模型细化
 
 细化饮用水和干粮模型。用户已于 2026-10-07 批准发布；远端与部署结果见 RELEASE_V1.7.1.md。功能与 v1.7.0 相同；验收见 SUPPLY_MODEL_REPORT.md。以下旧版本发布记录为历史。
