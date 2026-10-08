@@ -1,3 +1,4 @@
+import {LEVEL_ONE_EXIT} from '../dist/level-one-layout.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Game} from '../dist/game.js';
@@ -42,7 +43,7 @@ test('blocked opening remains frozen across backpack and manual pause, then resu
 test('exit crossing commits one terminal result before survival can overwrite it',()=>{
  for(const resource of ['food','hydration']){
   const g=roomGame();g.transitionZone('level1');g.events=[];
-  g.player.x=0;g.player.z=-42.78;g.player.yaw=0;
+  g.player.x=0;g.player.z=LEVEL_ONE_EXIT.z+.02;g.player.yaw=0;
   g[resource]=.0001;g.update(.05,{forward:1});
   assert.equal(g.mode,'won');assert.deepEqual(g.events,['level1-demo-end']);
   const final=g.snapshot();for(let i=0;i<20;i++){g.update(.05,{forward:1});g.updateDevices(.05)}

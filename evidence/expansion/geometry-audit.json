@@ -1,0 +1,20 @@
+{
+  "method": "Actual GLTFLoader-transformed triangles, spatially binned. Full six-sector simulation-clear .5m grid plus wall-hug probes; 32 horizontal body probes per point. No visible-surface intersections within .219m body radius.",
+  "results": [
+    {
+      "zone": "level1",
+      "safe": 59898,
+      "bodyHeights": [
+        0.25,
+        0.6,
+        1.2,
+        1.6
+      ],
+      "directions": 8,
+      "gridStep": 0.5,
+      "rayLength": 0.219,
+      "counts": {},
+      "examples": {}
+    }
+  ]
+}

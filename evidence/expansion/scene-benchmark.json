@@ -1,0 +1,264 @@
+{
+  "method": "Node actual GLTF assembly; PNG dimensions read with image decode stubbed. Object counts and CPU timings are not GPU draw calls/FPS. Sector groups detach for visibility but share resident resources.",
+  "resident": {
+    "meshes": 945,
+    "triangles": 35540,
+    "materials": 85,
+    "textures": 54,
+    "geometries": 223,
+    "areaMeshes": [
+      169,
+      168,
+      130,
+      168,
+      166,
+      127
+    ]
+  },
+  "assembleMilliseconds": 85.26339899999999,
+  "initialGlbBytes": 1213716,
+  "canvasTextureBytes": 6340608,
+  "visible": [
+    {
+      "area": 0,
+      "z": 5,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 1,
+      "residentMeshes": 928,
+      "visibleMeshes": 169,
+      "visibleAreaIds": [
+        0
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 0,
+      "z": -45,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 1,
+      "residentMeshes": 928,
+      "visibleMeshes": 169,
+      "visibleAreaIds": [
+        0
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 0,
+      "z": -95,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 2,
+      "residentMeshes": 928,
+      "visibleMeshes": 337,
+      "visibleAreaIds": [
+        0,
+        1
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 1,
+      "z": -97,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 2,
+      "residentMeshes": 928,
+      "visibleMeshes": 337,
+      "visibleAreaIds": [
+        0,
+        1
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 1,
+      "z": -147,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 1,
+      "residentMeshes": 928,
+      "visibleMeshes": 168,
+      "visibleAreaIds": [
+        1
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 1,
+      "z": -197,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 2,
+      "residentMeshes": 928,
+      "visibleMeshes": 298,
+      "visibleAreaIds": [
+        1,
+        2
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 2,
+      "z": -199,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 2,
+      "residentMeshes": 928,
+      "visibleMeshes": 298,
+      "visibleAreaIds": [
+        1,
+        2
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 2,
+      "z": -249,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 1,
+      "residentMeshes": 928,
+      "visibleMeshes": 130,
+      "visibleAreaIds": [
+        2
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 2,
+      "z": -299,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 2,
+      "residentMeshes": 928,
+      "visibleMeshes": 298,
+      "visibleAreaIds": [
+        2,
+        3
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 3,
+      "z": -301,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 2,
+      "residentMeshes": 928,
+      "visibleMeshes": 298,
+      "visibleAreaIds": [
+        2,
+        3
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 3,
+      "z": -351,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 1,
+      "residentMeshes": 928,
+      "visibleMeshes": 168,
+      "visibleAreaIds": [
+        3
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 3,
+      "z": -401,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 2,
+      "residentMeshes": 928,
+      "visibleMeshes": 334,
+      "visibleAreaIds": [
+        3,
+        4
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 4,
+      "z": -403,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 2,
+      "residentMeshes": 928,
+      "visibleMeshes": 334,
+      "visibleAreaIds": [
+        3,
+        4
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 4,
+      "z": -453,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 1,
+      "residentMeshes": 928,
+      "visibleMeshes": 166,
+      "visibleAreaIds": [
+        4
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 4,
+      "z": -503,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 2,
+      "residentMeshes": 928,
+      "visibleMeshes": 293,
+      "visibleAreaIds": [
+        4,
+        5
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 5,
+      "z": -505,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 2,
+      "residentMeshes": 928,
+      "visibleMeshes": 293,
+      "visibleAreaIds": [
+        4,
+        5
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 5,
+      "z": -555,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 1,
+      "residentMeshes": 928,
+      "visibleMeshes": 127,
+      "visibleAreaIds": [
+        5
+      ],
+      "labelTextures": 43
+    },
+    {
+      "area": 5,
+      "z": -605,
+      "residentAreaCount": 6,
+      "visibleAreaCount": 1,
+      "residentMeshes": 928,
+      "visibleMeshes": 127,
+      "visibleAreaIds": [
+        5
+      ],
+      "labelTextures": 43
+    }
+  ],
+  "maxVisibleAreaMeshes": 337,
+  "sampledFloorPoints": 2007,
+  "missingFloors": 0,
+  "disposalExpected": {
+    "geometry": 223,
+    "material": 85,
+    "texture": 54
+  },
+  "disposal": {
+    "geometry": 223,
+    "material": 85,
+    "texture": 54
+  },
+  "remainingChildren": 0,
+  "decodedImages": 13
+}

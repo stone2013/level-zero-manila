@@ -1,3 +1,4 @@
+import {LEVEL_ONE_AREAS} from '../dist/level-one-layout.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -18,22 +19,21 @@ test('official local GLTF loader preserves mapped pack materials and hub seal',a
  root.updateMatrixWorld(true);assert.ok(new THREE.Raycaster(new THREE.Vector3(0,1.6,5),new THREE.Vector3(0,0,1),0,2).intersectObject(root,true).some(hit=>hit.object.name==='hub-entry-reveal'));assert.equal(root.getObjectByName('hub-rear-seal').visible,false);setZoneVisualState(root,{sealed:true});assert.equal(root.getObjectByName('hub-rear-seal').visible,true);
  assert.ok(root.getObjectByName('level1-active-door'));disposeZoneVisual(root);disposeZoneVisual(root);assert.equal(root.children.length,0);
 });
-test('hall has traversable rendered portal, real refuge/pipe modules, dark controls and independent visits',async()=>{
- const root=await loadZoneVisual('level1');assert.ok(root.userData.zoneStats.textures>=4);
- for(const name of ['north-wall-left','refuge-floor','refuge-bench','pipe-module--38','pipe-end'])assert.ok(root.getObjectByName(name),name);
- root.updateMatrixWorld(true);const ray=new THREE.Raycaster(new THREE.Vector3(0,1.6,-20),new THREE.Vector3(0,0,-1),0,4);
- assert.equal(ray.intersectObject(root,true).length,0,'north portal must not contain packed wall or closed door');
+test('six assembled sectors have continuous portals, real refuge/pipe modules, dark controls and independent visits',async()=>{
+ const root=await loadZoneVisual('level1');assert.ok(root.userData.zoneStats.textures>=3);
+ for(const name of ['area-0-floor','area-4-bench-1','area-5-pipe-1','level-one-area-5'])assert.ok(root.getObjectByName(name),name);
+ root.updateMatrixWorld(true);for(const area of LEVEL_ONE_AREAS.slice(0,-1)){const ray=new THREE.Raycaster(new THREE.Vector3(0,1.6,area.bounds.minZ+1),new THREE.Vector3(0,0,-1),0,2);assert.equal(ray.intersectObject(root,true).length,0,'sector portal must stay physically open');}
  const another=await loadZoneVisual('level1');const before=another.userData.emissives.map(x=>x.material.emissiveIntensity);
- setZoneVisualState(root,{phase:'dark',openedCrates:['l1-crate-1']});assert.equal(root.getObjectByName('supply-marker-1').visible,false);assert.equal(root.getObjectByName('supply-marker-2').visible,true);assert.ok(root.userData.emissives.some(x=>!x.safety&&x.material.emissiveIntensity<x.intensity));assert.deepEqual(another.userData.emissives.map(x=>x.material.emissiveIntensity),before);assert.ok(root.userData.emissives.filter(x=>x.safety).every(x=>x.material.emissiveIntensity===x.intensity));setZoneVisualState(root,{phase:'lit'});assert.ok(root.userData.emissives.every(x=>x.material.emissiveIntensity===x.intensity));
+ setZoneVisualState(root,{phase:'dark',openedCrates:['l1-a1-crate-1']});assert.equal(root.getObjectByName('supply-marker-l1-a1-crate-1').visible,false);assert.equal(root.getObjectByName('supply-marker-l1-a1-crate-2').visible,true);assert.ok(root.userData.emissives.some(x=>!x.safety&&x.material.emissiveIntensity<x.intensity));assert.deepEqual(another.userData.emissives.map(x=>x.material.emissiveIntensity),before);assert.ok(root.userData.emissives.filter(x=>x.safety).every(x=>x.material.emissiveIntensity===x.intensity));setZoneVisualState(root,{phase:'lit'});assert.ok(root.userData.emissives.every(x=>x.material.emissiveIntensity===x.intensity));
  const signs=root.userData.emissives.filter(x=>x.material.name==='Green safety sign');assert.ok(signs.length>=3,'actual safety sign materials must be registered, not an empty safety filter');
  const fluorescent=root.userData.emissives.find(x=>!x.safety&&/fluor|light|lamp/i.test(x.material.name));assert.ok(fluorescent,'fixture must expose a fluorescent material');
  setZoneVisualState(root,{phase:'warning',elapsed:28.1});const pulseLow=fluorescent.material.emissiveIntensity;
  setZoneVisualState(root,{phase:'warning',elapsed:28.6});const pulseHigh=fluorescent.material.emissiveIntensity;
- assert.ok(pulseHigh>pulseLow,'six-second warning must alternate fluorescent brightness');
+ assert.ok(pulseHigh>pulseLow,'warning must gently vary fluorescent brightness');
  assert.ok(signs.every(x=>x.material.emissiveIntensity===x.intensity),'green signs remain steady during warning');
  setZoneVisualState(root,{phase:'dark',elapsed:34});assert.ok(signs.every(x=>x.material.emissiveIntensity===x.intensity),'green signs remain readable during blackout');
  assert.ok(fluorescent.material.emissiveIntensity<pulseLow);setZoneVisualState(root,{phase:'lit'});
- const geom=root.getObjectByName('pipe-module--38').children.find(x=>x.isMesh).geometry;let count=0;geom.addEventListener('dispose',()=>count++);disposeZoneVisual(root);assert.equal(count,1);assert.deepEqual(Object.keys(root.userData).sort(),['disposed','zone','zoneStats']);disposeZoneVisual(another);
+ const geom=root.getObjectByName('area-5-pipe-1').children.find(x=>x.isMesh).geometry;let count=0;geom.addEventListener('dispose',()=>count++);disposeZoneVisual(root);assert.equal(count,1);assert.deepEqual(Object.keys(root.userData).sort(),['disposed','zone','zoneStats']);disposeZoneVisual(another);
 });
 test('runtime assets remain self-contained GLB files with embedded textures',async()=>{
  for(const name of ZONE_ASSET_FILES){const b=await readFile(new URL(`../dist/assets/level1/${name}`,import.meta.url));assert.equal(b.toString('utf8',0,4),'glTF');const j=JSON.parse(b.toString('utf8',20,20+b.readUInt32LE(12)));assert.ok((j.images??[]).every(i=>i.bufferView!==undefined&&!i.uri),name);}

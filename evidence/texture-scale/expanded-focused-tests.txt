@@ -1,0 +1,33 @@
+Actual per-sector mesh budgets: [ 164, 162, 127, 162, 162, 129 ]
+Shelf compaction: {
+  beforeMeshes: 61,
+  afterMeshes: 4,
+  triangles: 1212,
+  exactMaterials: 4
+}
+✔ actual kit assembles six distinct sectors within resident and portal draw budgets (47.081833ms)
+✔ solid walls match every authored footprint, perimeter and 4.2m ceiling (20.018384ms)
+✔ streaming detaches distant matrices, retains neighboring portal sectors, and restores all ownership (18.425711ms)
+✔ crate markers, precise safe patches and clue labels follow world-space gameplay data (12.449926ms)
+✔ label texture cache uses small canvases and all sectors receive world-space UVs before detach (23.217634ms)
+✔ shelf compaction preserves every material, transformed triangle, normal, atlas UV and authored label (21.069642ms)
+✔ compacted shelf geometry is shared within a visit, independent across visits and disposed once after streaming (31.495326ms)
+✔ three numbered wall-flush beats per flank stay clear of body routes and share paired label maps (10.530517ms)
+✔ official local GLTF loader preserves mapped pack materials and hub seal (53.144962ms)
+✔ six assembled sectors have continuous portals, real refuge/pipe modules, dark controls and independent visits (197.138388ms)
+✔ runtime assets remain self-contained GLB files with embedded textures (10.841979ms)
+✔ canvas safety labels use the same sRGB texture for color and emissive text (51.667763ms)
+✔ real 4m kit supports 2–32m walls, anisotropic floors, nested rotation and scale at 2m/tile (34.331371ms)
+✔ world texture phase matches across neighboring module boundaries, including negative coordinates (5.874663ms)
+✔ actual hall, ceilings, columns and every assembled expansion use isotropic 2m/tile mapping (130.906579ms)
+✔ labels, atlas-like mixed materials, wood and metal retain original UVs and texture transforms (2.049244ms)
+✔ shared templates become independent UV buffers without new textures/materials or triangles (3.19934ms)
+✔ far-coordinate architecture preserves strict density and repeat phase beyond z=-600 (3.528513ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 436.874012

@@ -1,3 +1,4 @@
+import {LEVEL_ONE_EXIT} from '../dist/level-one-layout.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Game} from '../dist/game.js';
@@ -179,6 +180,6 @@ test('teleport from chase still requires manual close and preserves the hub tran
  assert.equal(g.interact(),'door');tick(g,1);assert.equal(g.door,0);assert.equal(g.changed,true);assert.equal(g.escape.phase,'finished');assert.equal(g.escape.monster,null);assert.deepEqual(g.chargerPosition(),charger);unchanged();
  assert.equal(g.interact(),'door');tick(g,1);assert.equal(g.door,1);g.player.yaw=-Math.PI/2;
  for(let i=0;i<600&&g.zone==='level0';i++)g.update(DT,{forward:1});assert.equal(g.mode,'playing');assert.equal(g.zone,'hub');assert.equal(g.events.filter(event=>event==='exit').length,0);assert.equal(g.items.filter(item=>item.kind==='water').length,2);unchanged();
- g.transitionZone('level1');g.player.x=0;g.player.z=-42.79;g.player.yaw=0;g.update(DT,{forward:1});assert.equal(g.mode,'won');
+ g.transitionZone('level1');g.player.x=0;g.player.z=LEVEL_ONE_EXIT.z+.01;g.player.yaw=0;g.update(DT,{forward:1});assert.equal(g.mode,'won');
  const before=state(g);assert.equal(teleportDeveloper(g).ok,false);assert.equal(jumpDeveloperTime(g).ok,false);assert.equal(spawnDeveloperItem(g,'food').ok,false);assert.equal(state(g),before);
 });

@@ -1,7 +1,9 @@
+import {buildLevelOneAreas,setLevelOneAreaVisibility,restoreLevelOneAreas} from './level-one-area-render.js';
 import * as THREE from './vendor/three.module.min.js';
 import {LEVEL1} from './zones.js';
 import {createLevelOneEntityVisual,updateLevelOneEntityVisual} from './level-one-entity-visual.js';
 import { GLTFLoader } from './vendor/GLTFLoader.js';
+import {applyWorldScaleTextures} from './zone-texture-scale.js';
 
 const ASSETS = new URL('./assets/level1/', import.meta.url);
 const loader = new GLTFLoader();
@@ -45,7 +47,7 @@ export async function loadZoneVisual(zone) {
   const object=template.clone(true);object.name=name;object.position.set(x,y,z);object.rotation.y=ry;object.scale.set(sx,sy,sz);root.add(object);return object;
  };
  try {
-  root.add(await load(zone==='hub'?'hub.glb':'level1-hall.glb'));
+  if(zone==='hub')root.add(await load('hub.glb'));
   if(zone==='hub'){
    const [blue,door]=await Promise.all([module('blue-wall-2m'),module('white-panel-door')]);
    const seal=add(blue,'hub-rear-seal',0,0,6.5,0,6,1,1);seal.visible=false;
@@ -65,57 +67,12 @@ export async function loadZoneVisual(zone) {
    entry.userData.destination='level1';
    const label=sign('LEVEL 1',1.65,.4);label.position.set(5.82,2.85,3.3);label.rotation.y=-Math.PI/2;root.add(label);
   }else{
-   root.updateMatrixWorld(true);
-   root.traverse(object=>{
-    if(!object.isMesh)return;
-    if(object.material.name==='Concrete warm aggregate')removeTriangles(object,points=>points.every(p=>p.z < -21.89));
-    if(['Ivory painted door','Brushed galvanized steel'].includes(object.material.name))removeTriangles(object,points=>points.every(p=>p.z < -21.7 && Math.abs(p.x)<.8 && p.y<2.4));
-   });
-   const names=['concrete-wall-4m','concrete-floor-4m','fluorescent-fixture','wood-crate-large','wood-crate-small','unattended-bench','pipe-elbow-brackets','emergency-light','shelf-loaded'];
-   const models=await Promise.all(names.map(module));const kit=Object.fromEntries(names.map((n,i)=>[n,models[i]]));
-   const wall=(name,x,z,length,ry=0)=>add(kit['concrete-wall-4m'],name,x,0,z,ry,length/4);
-   const slab=(name,x,z,width,depth,y=0)=>add(kit['concrete-floor-4m'],name,x,y,z,0,width/4,1,depth/4);
-   // Full-height portal replaces the pack's solid end wall and closed door.
-   wall('hall-south-boundary',0,6,16);
-   wall('north-wall-left',-5,-22,6);wall('north-wall-right',5,-22,6);
-   for(const [name,x,z,w,d] of [['continuation',0,-28,4,12],['refuge',-5,-27.5,6,5],['pipe',0,-39,3.2,10],['refuge-bypass',-5,-34,2,8],['refuge-return',-2.8,-37,2.4,2]]){
-    slab(`${name}-floor`,x,z,w,d);slab(`${name}-ceiling`,x,z,w,d,4.2);
-   }
-   wall('continuation-east',2,-28,12,Math.PI/2);
-   wall('continuation-west-south',-2,-23.5,3,Math.PI/2);
-   wall('continuation-west-north',-2,-32,4,Math.PI/2);
-   wall('refuge-south',-5,-25,6);wall('refuge-north-left',-7,-30,2);wall('refuge-north-right',-3,-30,2);wall('refuge-west',-8,-27.5,5,Math.PI/2);
-   wall('pipe-east',1.6,-39,10,Math.PI/2);wall('pipe-west-south',-1.6,-35,2,Math.PI/2);wall('pipe-west-north',-1.6,-41,6,Math.PI/2);
-   wall('bypass-west',-6,-34,8,Math.PI/2);wall('bypass-east',-4,-33,6,Math.PI/2);wall('bypass-north',-3.8,-38,4.4);wall('bypass-return-south',-2.8,-36,2.4);wall('pipe-end',0,-44,3.2);
-   wall('pipe-threshold-left',-1.8,-34,.4);wall('pipe-threshold-right',1.8,-34,.4);
-   for(const z of [-24,-29,-33,-37,-41])add(kit['fluorescent-fixture'],`extension-fixture-${z}`,0,3.65,z);
-   add(kit['fluorescent-fixture'],'refuge-fixture',-5,3.65,-27.5);
+   const names=['concrete-wall-4m','concrete-floor-4m','concrete-column','fluorescent-fixture','wood-crate-large','wood-crate-small','unattended-bench','pipe-elbow-brackets','emergency-light','shelf-loaded'];
+   const models=await Promise.all(names.map(module)),kit=Object.fromEntries(names.map((n,i)=>[n,models[i]]));
+   buildLevelOneAreas(root,kit);
    const presence=createLevelOneEntityVisual();root.add(presence);root.userData.presence=presence;
-   // Reused warehouse dividers: author collision and rendering from one layout.
-   for(const [i,b] of LEVEL1.baffles.entries())wall(`warehouse-divider-${i}`,b.x,b.z,b.w);
-   for(const [text,x,z] of [['PASSAGE →',2.6,-4.88],['← PASSAGE',-2.6,-11.68],['PASSAGE →',2.6,-17.68]]){const label=sign(text,2,.36);label.position.set(x,2.55,z);root.add(label);}
-   for(const [name,x,z,w,d] of [['entry',0,3.6,4,3.2],['east',6.4,-19.75,2.2,2.5],['refuge',-5,-27.5,5.2,4.2]]){
-    const marker=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({color:0x397664,transparent:true,opacity:.25,depthWrite:false}));marker.rotation.x=-Math.PI/2;marker.position.set(x,.012,z);marker.name=`shelter-floor-${name}`;root.add(marker);
-    const label=sign('LIT SHELTER',1.8,.3);label.position.set(x,2.65,z-.6);root.add(label);
-   }
-   add(kit['emergency-light'],'entry-safety-lamp',0,2.7,5.85,Math.PI);
-   add(kit['emergency-light'],'east-safety-lamp',7.83,2.7,-19.75,-Math.PI/2);
-   for(const z of [-32,-36]){add(kit['emergency-light'],`bypass-safety-lamp-${z}`,-5.83,2.7,z,Math.PI/2);}
-   let crateIndex=0;root.userData.supplyCrates=[];
-   for(const [x,z] of [[-5,2],[6,-6],[-5,-19.5],[-6,-27]]){
-    const c=add(kit['wood-crate-large'],`supply-crate-${x}-${z}`,x,0,z);c.userData.supplyCrate=true;c.userData.crateId=`l1-crate-${++crateIndex}`;
-    const marker=sign('SUPPLIES',.66,.16);marker.position.set(x,.83,z+.03);marker.name=`supply-marker-${crateIndex}`;root.add(marker);root.userData.supplyCrates.push({id:c.userData.crateId,crate:c,marker});
-   }
-   add(kit['wood-crate-small'],'refuge-small-crate',-6.8,0,-28.7);
-   add(kit['unattended-bench'],'refuge-bench',-7,0,-29.45);
-   add(kit['shelf-loaded'],'refuge-shelf',-7.3,0,-26,Math.PI/2);
-   for(const z of [-35,-38,-41])add(kit['pipe-elbow-brackets'],`pipe-module-${z}`,1.24,0,z);
-   add(kit['emergency-light'],'refuge-safety-lamp',-7.83,2.7,-27.5,Math.PI/2);
-   add(kit['emergency-light'],'pipe-safety-lamp',0,2.7,-43.85);
-   for(const [text,x,y,z,width] of [['SAFE ROUTE ← / PIPES ↑',0,3.2,-24.8,3.2],['SAFE ROUTE ↑',-5,2.65,-29.86,1.6],['REJOIN PIPES →',-5,2.65,-37.85,1.8],['PIPE PASSAGE',0,3.15,-34.2,2.5],['DEMO ENDS HERE',0,2.2,-43.85,2.6]]){
-    const label=sign(text,width);label.position.set(x,y,z);root.add(label);
-   }
   }
+  applyWorldScaleTextures(root);
   const materials=new Set(),geometries=new Set(),textures=new Set();let meshes=0,triangles=0;
   root.traverse(o=>{if(!o.isMesh)return;o.castShadow=false;o.receiveShadow=false;meshes++;geometries.add(o.geometry);triangles+=(o.geometry.index?.count??o.geometry.attributes.position.count)/3;
    for(const m of Array.isArray(o.material)?o.material:[o.material]){materials.add(m);for(const value of Object.values(m))if(value?.isTexture)textures.add(value);}
@@ -130,8 +87,9 @@ export async function loadZoneVisual(zone) {
  }
 }
 
-export function setZoneVisualState(root,{sealed=false,phase='lit',openedCrates=[],elapsed=0,danger=null}={}){
+export function setZoneVisualState(root,{sealed=false,phase='lit',openedCrates=[],elapsed=0,danger=null,player=null}={}){
  if(!root||root.userData.disposed)return;
+ if(player)setLevelOneAreaVisibility(root,player);
  if(root.userData.presence)updateLevelOneEntityVisual(root.userData.presence,danger,elapsed);
  if(root.userData.seal)root.userData.seal.visible=sealed;
  if(root.userData.entryReveal)root.userData.entryReveal.visible=!sealed;
@@ -147,6 +105,7 @@ export function setZoneVisualState(root,{sealed=false,phase='lit',openedCrates=[
 /** Dispose shared intra-zone assets exactly once; never touches another visit. */
 export function disposeZoneVisual(root){
  if(!root||root.userData.disposed)return;
+ restoreLevelOneAreas(root);
  const geometries=new Set(),materials=new Set(),textures=new Set(),images=new Set();
  root.traverse(o=>{if(!o.isMesh)return;geometries.add(o.geometry);for(const m of Array.isArray(o.material)?o.material:[o.material]){materials.add(m);for(const v of Object.values(m))if(v?.isTexture){textures.add(v);if(v.source?.data)images.add(v.source.data);}}});
  geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());images.forEach(i=>i.close?.());root.removeFromParent();root.clear();root.userData={zone:root.userData.zone,zoneStats:root.userData.zoneStats,disposed:true};

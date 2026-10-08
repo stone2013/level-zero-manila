@@ -421,7 +421,7 @@ function syncZoneVisual(){
   return;
  }
  if(noclipCue)noclipCue.visible=false;
- if(zoneVisual)setZoneVisualState(zoneVisual,{sealed:game.hub.sealed,phase:game.level1.phase,elapsed:game.level1.elapsed,openedCrates:game.level1.crates.filter(c=>c.opened).map(c=>c.id),danger:game.level1.danger});
+ if(zoneVisual)setZoneVisualState(zoneVisual,{sealed:game.hub.sealed,phase:game.level1.phase,elapsed:game.level1.elapsed,openedCrates:game.level1.crates.filter(c=>c.opened).map(c=>c.id),danger:game.level1.danger,player:game.player,area:game.level1.area});
  const dark=game.zone==='level1'&&game.level1.phase==='dark',warning=game.zone==='level1'&&game.level1.phase==='warning';
  for(const light of scene.children.filter(o=>o.isLight))light.intensity=light.isHemisphereLight?(dark?.12:warning?(.85+.10*Math.sin(game.level1.elapsed*Math.PI)):1.5):(dark?.015:.20);
 }
@@ -464,7 +464,7 @@ function renderInventory(force=false){
 const PHONE_GUIDE=Object.freeze([
  {title:'LEVEL 0 · 零层',copy:'黄色墙纸、潮湿地毯、灯管低鸣。相似的走廊容易让人误判方向。\n\n放下的物品会留在原地，可以作为路标。空间连接偶尔会改变；反复见到同一份干粮时，试试别的岔路。\n\n留意木门上的 MANILA 标识。节省饮水，背包里的干粮不能代替水。'},
  {title:'MANILA · 马尼拉房间',copy:'房间内有长凳、纸条和有限的饮用水。先读纸条，再留意门外动静。\n\n本次探索手记：进入房间后把木门完全关上。外面安静后，再检查门另一侧。\n\n桌边的线连着墙上插座。靠近后接上手机可充电；离开桌边或放下手机会断开。'},
- {title:'LEVEL 1 · 人工设施',copy:'混凝土柱厅、货架与管线。木箱内可能有有限补给；带走的物资不会刷新。\n\n灯光会先闪烁预警，再短暂停电。绿色标识指向缓冲休息区。这里没有常驻居民。\n\n连接区的七扇白门暂未开放；侧墙另有 Level 1 入口。管道通道是本次演示的终点，Level 2 尚未开放。'}
+ {title:'LEVEL 1 · 人工设施',copy:'六个相连仓库区：收货大厅、货架仓库、装卸中庭、管线交叉区、避难储藏区与管道接近区。木箱内补给有限，带走后不会刷新。\n\n部分路段会先变暗预警，再短暂停电。绿色服务间可以绕行；拐角可遮挡实体视线，奔跑声可能吸引追踪。这里没有常驻居民。\n\n连接区的七扇白门暂未开放；侧墙另有 Level 1 入口。管道通道是本次演示的终点，Level 2 尚未开放。'}
 ]);
 let phoneChapter=-1,phoneSignature='';
 const phoneChapterButtons=[];
@@ -630,8 +630,8 @@ function sync(){
  for(const i of game.items){const g=itemMeshes.get(i.id)||createItemMesh(i);g.visible=game.worldItemVisible(i);g.position.set(i.x,i.y??.005,i.z)}
  $('food-meter').style.width=game.food+'%';$('water-meter').style.width=game.hydration+'%';$('food-value').textContent=Math.ceil(game.food);$('water-value').textContent=Math.ceil(game.hydration);
  $('food-meter').parentElement?.setAttribute('aria-valuenow',String(Math.ceil(game.food)));$('water-meter').parentElement?.setAttribute('aria-valuenow',String(Math.ceil(game.hydration)));
- $('zone').textContent=game.zone==='hub'?'连接区':game.zone==='level1'?'LEVEL 1 · EASY':game.inRoom()?'MANILA':game.changed?'UNKNOWN':'LEVEL 0';
- const objective=game.zone==='hub'?'寻找侧墙绿色标识的 Level 1 入口':game.zone==='level1'?(game.levelOneSafe()?'绿色光区安全 · 左侧休息区可绕行到管道':game.level1.phase==='warning'?'即将停电 · 远离暗处轮廓，可继续前进或进入绿色光区':game.level1.phase==='dark'?'停电 · 保持移动与距离，绿色光区可以躲避':'沿标识绕过隔断 · 搜寻有限补给，前往管道出口'):game.escape.triggered&&!['finished','suppressed'].includes(game.escape.phase)?'沿墙上黑色箭头逃向木门':game.changed?'重新开门，进入连接区':game.entered?'把门完全关上':game.loops?'换条路寻找木门':'找到一扇木门';
+ $('zone').textContent=game.zone==='hub'?'连接区':game.zone==='level1'?`LEVEL 1 · ${String(game.level1.area+1).padStart(2,'0')}/06`:game.inRoom()?'MANILA':game.changed?'UNKNOWN':'LEVEL 0';
+ const objective=game.zone==='hub'?'寻找侧墙绿色标识的 Level 1 入口':game.zone==='level1'?game.levelOneObjective():game.escape.triggered&&!['finished','suppressed'].includes(game.escape.phase)?'沿墙上黑色箭头逃向木门':game.changed?'重新开门，进入连接区':game.entered?'把门完全关上':game.loops?'换条路寻找木门':'找到一扇木门';
  if(objective!==objectiveKey){objectiveKey=objective;objectiveUntil=game.elapsed+6;$('objective').textContent=objective}
  $('objective').hidden=game.zone!=='level1'&&game.elapsed>objectiveUntil;
  const i=game.nearestItem();$('prompt').textContent=!canPlay()?'':game.zone!=='level0'?(game.zonePrompt?.()||''):game.nearAbnormalWall?.()?`按住交互穿过异常墙面 ${Math.floor((game.abnormalWall.hold||0)/2*100)}%`:i?(i.kind==='phone'?'拾回手机':i.kind==='food'?`拾回干粮 ${i.id.split('-').at(-1)}`:'拾起饮用水'):game.nearCharger()?(game.chargingPhoneId?'断开充电线':game.inventory('phone').length?'接上充电线':'查看充电线'):game.nearNote()?'阅读纸条':game.nearDoor()?(game.doorTarget>.5?'关门':'开门'):'';

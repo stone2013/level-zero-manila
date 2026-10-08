@@ -1,0 +1,55 @@
+{
+  "method": "Collision-planned continuous all-notes/all-supply-branches route. Real simulation and danger, no coordinate writes after explicit arrival fixture, no idle/reading dwell, no arbitrary repeats or drop/retrieve stress. This is scripted coverage, not human first-play timing.",
+  "results": [
+    {
+      "movement": "walk",
+      "outcome": "won",
+      "blocked": false,
+      "activeSeconds": 401.17559374546033,
+      "travelledMetres": 822.354507235073,
+      "notesRead": 6,
+      "cratesOpened": 10,
+      "arrival": {
+        "food": 62,
+        "hydration": 26,
+        "battery": 37
+      },
+      "end": {
+        "food": 56.38389168760376,
+        "hydration": 87.95972921898483,
+        "battery": 37
+      },
+      "consumed": [
+        "l1-a1-crate-1-water",
+        "l1-a2-crate-1-water"
+      ],
+      "idleOrReadingDwellSeconds": 0,
+      "extraSectorRepeats": 0
+    },
+    {
+      "movement": "sprint",
+      "outcome": "won",
+      "blocked": false,
+      "activeSeconds": 253.02121931946272,
+      "travelledMetres": 822.3189627880572,
+      "notesRead": 6,
+      "cratesOpened": 10,
+      "arrival": {
+        "food": 62,
+        "hydration": 26,
+        "battery": 37
+      },
+      "end": {
+        "food": 55.42209829769235,
+        "hydration": 84.29026464762786,
+        "battery": 37
+      },
+      "consumed": [
+        "l1-a1-crate-1-water",
+        "l1-a2-crate-1-water"
+      ],
+      "idleOrReadingDwellSeconds": 0,
+      "extraSectorRepeats": 0
+    }
+  ]
+}

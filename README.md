@@ -1,3 +1,15 @@
+# Published Level 1 six-sector expansion + texture correction
+
+The user approved this demo-v1.0-rc2-dev stage update for the existing official site on2026-10-08. See [RELEASE_DEMO_V1_RC2.md](RELEASE_DEMO_V1_RC2.md) and [EXPANSION_REVIEW_REPORT.md](EXPANSION_REVIEW_REPORT.md) for scope and verification. Older checkpoint/release sections below are historical.
+
+# Unpublished Level 1 expansion + texture correction
+
+Read [EXPANSION_REVIEW_REPORT.md](EXPANSION_REVIEW_REPORT.md) for the current candidate, measured timings and remaining verification. Earlier checkpoints and release notes below are historical.
+
+# Unpublished Level 1 expansion checkpoint
+
+This workspace is newer than the official RC1 release. Read [DEVELOPMENT_CHECKPOINT.md](DEVELOPMENT_CHECKPOINT.md) for its current status and validation limits. Historical release information follows.
+
 # Demo v1.0 candidate · 2026-10-08
 
 This RC1 stage update adds the complete Level 1 gameplay loop. Read [DEMO_V1_CANDIDATE.md](DEMO_V1_CANDIDATE.md) for current scope, controls, test results and verification limits. Historical release notes below describe the v1.7.2 baseline.

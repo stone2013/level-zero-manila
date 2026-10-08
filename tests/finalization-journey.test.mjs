@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {LEVEL_ONE_AREAS,LEVEL_ONE_KNOWN_ROUTE} from '../dist/level-one-layout.js';
 import {bootControls} from './app-harness.mjs';
 
 // Production app handlers + frame loop, with fake DOM/WebGL and empty render
@@ -60,9 +61,10 @@ export function journey(options={}){
   assert.equal(read('JSON.stringify(game.snapshot())'),final);
  }
  function finishLevelOneRoute(branch='direct'){
-  for(const [x,z] of [[0,2],[5,2],[5,-9.8],[-5,-9.8],[-5,-15.9],[5,-15.9],[5,-20],[0,-20],[0,-28]])walk({x,z});
-  if(branch==='refuge')for(const [x,z] of [[-5,-28],[-5,-37],[0,-37]])walk({x,z});
-  walk({x:0,z:-43},{win:true});
+  for(const [i,p] of LEVEL_ONE_KNOWN_ROUTE.slice(0,-1).entries()){walk(p);if(branch==='refuge'&&i===1)for(const q of LEVEL_ONE_AREAS[0].loops[0].safeRoute)walk(q)}
+  walk(LEVEL_ONE_KNOWN_ROUTE.at(-1),{win:true});
+  assert.equal(read('game.level1.sectors.filter(s=>s.visited).length'),6);
+  assert.equal(read('game.level1.readClues.length'),0,'clues are optional');
  }
  return {a,read,step,walk,press,release,look,until,finishManila,finishLevel1,finishLevelOneRoute,interact};
 }
@@ -152,6 +154,7 @@ test('held keyboard and pointer wall traversal cancels on release, bag, pause an
 
 test('Level 1 lighting freezes during pause, bag, hidden document and orientation block',()=>{
  const j=journey(),{a,read,step}=j;read("game.transitionZone('level1')");step();
+ j.walk({x:12.5,z:-16.5});j.walk({x:12.5,z:-29.5});j.walk({x:0,z:-40});
  j.until('game.level1.phase==="warning"',600);assert.equal(read('game.escape.monster?.active||false'),false);
  j.until('game.level1.phase==="dark"',140);
  const frozen=action=>{action();const t=read('game.level1.elapsed');for(let i=0;i<180;i++)step();assert.equal(read('game.level1.elapsed'),t);assert.equal(read('game.level1.phase'),'dark')};
@@ -159,21 +162,22 @@ test('Level 1 lighting freezes during pause, bag, hidden document and orientatio
  frozen(()=>a.element('backpack').onclick(click));a.element('inventory-close').onclick();
  frozen(()=>{read('document.hidden=true');a.dispatch('document','visibilitychange')});read('document.hidden=false');a.dispatch('document','visibilitychange');if(read('game.mode')==='paused')a.element('resume').onclick();
  frozen(()=>a.rotate(390,844));a.rotate(844,390);if(read('game.mode')==='paused')a.element('resume').onclick();
- j.until('game.level1.phase==="lit"',180);assert.equal(read('game.escape.monster?.active||false'),false);
+ // Retreat continuously while power returns.
+ j.walk({x:12.5,z:-29.5});j.walk({x:12.5,z:-16.5});j.until('game.level1.phase==="lit"',240);assert.equal(read('game.escape.monster?.active||false'),false);
 });
 
 test('Level 1 crate supplies are finite and a full bag can retry pickup after making space',()=>{
  const j=journey(),{a,read,step}=j;read("game.transitionZone('level1')");step();
- j.walk({x:-4,z:2});j.interact();assert.equal(read('game.level1.crates[0].opened'),true);assert.equal(read('game.inventory("water").length'),1);
- for(let i=0;i<5;i++)j.interact();assert.equal(read('game.items.filter(i=>i.id==="l1-crate-1-water").length'),1);
+ j.walk({x:12.5,z:-16.5});j.walk({x:12.6,z:-21});j.walk({x:10.8,z:-21});j.walk({x:10.2,z:-23});j.interact();assert.equal(read('game.level1.crates[0].opened'),true);assert.equal(read('game.inventory("water").length'),1);
+ for(let i=0;i<5;i++)j.interact();assert.equal(read('game.items.filter(i=>i.id==="l1-a1-crate-1-water").length'),1);
  // Full-bag and hunger fixture, then only production bag and interaction controls.
  read("game.food=90");
  read(`for(let y=0;y<4;y++)for(let x=0;x<4;x++)if(!game.inventory().some(i=>{const s=game.itemSize(i);return x>=i.gridX&&x<i.gridX+s.w&&y>=i.gridY&&y<i.gridY+s.h}))game.items.push({id:'fill-'+x+'-'+y,kind:'food',state:'inventory',gridX:x,gridY:y,zone:'level1'})`);
- j.walk({x:0,z:2});j.walk({x:5,z:2});j.walk({x:5,z:-6});j.interact();
- assert.equal(read('game.items.find(i=>i.id==="l1-crate-2-food").state'),'world');
- for(let i=0;i<3;i++)j.interact();assert.equal(read('game.items.filter(i=>i.id==="l1-crate-2-food").length'),1);
+ j.walk({x:10.8,z:-25});j.walk({x:12.6,z:-25});j.walk({x:12.5,z:-29.5});j.walk({x:-12.5,z:-65.5});j.walk({x:-12.6,z:-70});j.walk({x:-10.8,z:-70});j.walk({x:-10.2,z:-72});j.interact();
+ assert.equal(read('game.items.find(i=>i.id==="l1-a1-crate-2-food").state'),'world');
+ for(let i=0;i<3;i++)j.interact();assert.equal(read('game.items.filter(i=>i.id==="l1-a1-crate-2-food").length'),1);
  a.element('backpack').onclick(click);read('inventoryNodes.get("food-1").onclick({detail:0})');a.element('consume-item').onclick();a.element('inventory-close').onclick();j.interact();
- assert.equal(read('game.items.find(i=>i.id==="l1-crate-2-food").state'),'inventory');assert.equal(read('game.items.filter(i=>i.id==="l1-crate-2-food").length'),1);
+ assert.equal(read('game.items.find(i=>i.id==="l1-a1-crate-2-food").state'),'inventory');assert.equal(read('game.items.filter(i=>i.id==="l1-a1-crate-2-food").length'),1);
 });
 
 test('zone loader pending/error/retry freezes time; stale completion after restart is disposed',()=>{
@@ -182,7 +186,7 @@ test('zone loader pending/error/retry freezes time; stale completion after resta
  const elapsed=read('game.elapsed'),battery=read('game.phone("phone-1").battery'),position=read('JSON.stringify(game.player)');j.press('KeyW');j.press('KeyE');for(let i=0;i<30;i++)step();assert.equal(read('game.elapsed'),elapsed);assert.equal(read('game.phone("phone-1").battery'),battery);assert.equal(read('JSON.stringify(game.player)'),position);
  a.zoneLoads[0].reject(new Error('deliberate fixture failure'));step();assert(read('zoneLoadError'));assert(read('worldLoading'));
  assert.equal(a.element('world-loading').tabIndex,0);a.dispatch('world-loading','keydown',key('Enter'));assert.equal(a.zoneLoads.length,2);a.zoneLoads[1].resolve();assert.equal(read('keys.size'),0);step();assert(!read('worldLoading'));assert.equal(read('game.zone'),'hub');
- read("game.transitionZone('level1')");step();assert.equal(a.zoneLoads.length,3);a.element('pause').onclick();a.element('restart').onclick();a.zoneLoads[2].resolve();
+ read("game.transitionZone('level1')");step();assert.equal(a.zoneLoads.length,3);const frozenLevel=read('JSON.stringify(game.level1)');j.press('KeyW');for(let i=0;i<40;i++)step();assert.equal(read('JSON.stringify(game.level1)'),frozenLevel);a.element('pause').onclick();a.element('restart').onclick();a.zoneLoads[2].resolve();
  assert.equal(read('game.zone'),'level0');assert.equal(read('zoneVisual'),null);assert.equal(a.zoneLoads[2].group.userData.disposed,true);
 });
 
@@ -222,13 +226,13 @@ test('direct wall entry completes refuge route through production movement and s
 test('natural Level 1 capture freezes during bag, phone and pause, reports entity cause and retries without duplicating supplies',()=>{
  const j=journey(),{a,read,step}=j,w=read('({...game.abnormalWall})');
  j.walk({x:w.x+w.normalX*.75,z:w.z+w.normalZ*.75});j.press('KeyE');for(let i=0;i<41;i++)step();j.release('KeyE');
- j.walk({x:-4,z:2});j.interact();assert(read('game.level1.crates[0].opened'));
- j.walk({x:0,z:2});j.walk({x:5,z:2});j.walk({x:5,z:0});j.until('game.level1.phase==="warning"');
+ j.walk({x:12.5,z:-16.5});j.walk({x:12.6,z:-21});j.walk({x:10.8,z:-21});j.walk({x:10.2,z:-23});j.interact();assert(read('game.level1.crates[0].opened'));
+ j.walk({x:10.8,z:-25});j.walk({x:12.6,z:-25});j.walk({x:12.5,z:-29.5});j.walk({x:0,z:-40});j.until('game.level1.phase==="warning"');
  const freeze=()=>{const danger=read('JSON.stringify(game.level1.danger)'),time=read('game.level1.elapsed');for(let i=0;i<40;i++)step();assert.equal(read('game.level1.elapsed'),time);assert.equal(read('JSON.stringify(game.level1.danger)'),danger)};
  a.element('pause').onclick();freeze();a.element('resume').onclick();
  a.element('backpack').onclick(click);freeze();read('inventoryNodes.get("phone-1").onclick({detail:0})');a.element('consume-item').onclick();const battery=read('game.phone("phone-1").battery');freeze();assert(read('game.phone("phone-1").battery')<battery);a.element('phone-close').onclick();a.element('inventory-close').onclick();
  j.until('game.mode==="lost"',320);assert.equal(read('game.level1.failure'),'entity');assert.equal(a.element('ending').hidden,false);assert.match(a.element('end-title').textContent,/轮廓/);assert.match(a.element('end-copy').innerHTML,/补给不会重新生成/);assert.equal(a.element('level1-retry').hidden,false);assert.equal(read('keys.size'),0);
  const supplies=read('JSON.stringify(game.items)'),crates=read('JSON.stringify(game.level1.crates)'),checkpoint=read('JSON.stringify(game.level1.danger.checkpoint)'),elapsed=read('game.level1.elapsed');for(let i=0;i<20;i++)step();assert.equal(read('game.level1.elapsed'),elapsed);
  a.element('level1-retry').onclick();assert.equal(read('game.mode'),'playing');assert.equal(a.element('ending').hidden,true);assert.equal(read('game.level1.failure'),null);assert.equal(read('game.level1.elapsed'),0);assert.equal(read('game.level1.retries'),1);assert.equal(read('JSON.stringify(game.items)'),supplies);assert.equal(read('JSON.stringify(game.level1.crates)'),crates);assert.equal(read('JSON.stringify(game.level1.danger.checkpoint)'),checkpoint);assert(!read('game.level1.danger.active'));
- j.finishLevelOneRoute('direct');assert.equal(a.element('ending').hidden,false);assert.match(a.element('end-eyebrow').textContent,/DEMO COMPLETE/);
+ j.walk({x:10.8,z:-25});j.walk({x:12.6,z:-25});j.walk({x:12.5,z:-16.5});j.walk({x:0,z:4.5});j.finishLevelOneRoute('direct');assert.equal(a.element('ending').hidden,false);assert.match(a.element('end-eyebrow').textContent,/DEMO COMPLETE/);
 });

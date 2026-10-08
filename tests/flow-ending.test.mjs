@@ -1,10 +1,11 @@
+import {LEVEL_ONE_EXIT} from '../dist/level-one-layout.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {bootControls as boot} from './app-harness.mjs';
 
 test('same-frame exit/depletion shows only success and remains stable through blur and restart',()=>{
  const app=boot();app.element('start').onclick();app.eval("game.transitionZone('level1')");app.frame(0);
- app.eval(`game.player.x=0;game.player.z=-42.78;game.player.yaw=0;game.hydration=.0001;game.events=[];keys.add('KeyW')`);
+ app.eval(`game.player.x=0;game.player.z=${LEVEL_ONE_EXIT.z+.02};game.player.yaw=0;game.hydration=.0001;game.events=[];keys.add('KeyW')`);
  app.frame(50);
  assert.equal(app.eval('game.mode'),'won');assert.equal(app.element('ending').hidden,false);
  assert.match(app.element('end-title').textContent,/管道|Level 1/);

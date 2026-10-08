@@ -1,0 +1,129 @@
+{
+  "description": "Controlled resource endurance within an explicitly constructed 8\u201312minute active test window. Repeated sectors are intentional test load, not natural gameplay-duration evidence.",
+  "runs": [
+    {
+      "label": "Resource-endurance stress with drop/retrieve and repeated sector traversals; not pacing or human first-play evidence",
+      "movement": "walk",
+      "traveledDistanceMetres": 1271.6629503126187,
+      "activeDurationSeconds": 620.3504440270674,
+      "fixtureBeforeArrival": {
+        "food": 34,
+        "hydration": 28,
+        "consumedFoodBeforeEntry": [
+          "food-1"
+        ]
+      },
+      "arrival": {
+        "food": 62,
+        "hydration": 26,
+        "phoneBattery": 37
+      },
+      "end": {
+        "food": 81.31544378368092,
+        "hydration": 78.28860945914629,
+        "phoneBattery": 37
+      },
+      "finiteLevelOneConsumedWater": [
+        "l1-a1-crate-1-water",
+        "l1-a2-crate-1-water"
+      ],
+      "finiteLevelOneConsumedFood": [],
+      "allConsumedWater": [
+        "l1-a1-crate-1-water",
+        "l1-a2-crate-1-water"
+      ],
+      "allConsumedFood": [
+        "food-1",
+        "food-2"
+      ],
+      "consumedDuringLevelOne": {
+        "water": [
+          "l1-a1-crate-1-water",
+          "l1-a2-crate-1-water"
+        ],
+        "food": [
+          "food-2"
+        ]
+      },
+      "finiteSupplyConsumptionCounts": {
+        "water": 2,
+        "food": 0
+      },
+      "branchesVisited": 10,
+      "cratesOpened": 10,
+      "notesRead": 0,
+      "sectorsVisited": 6,
+      "droppedItemsRetrieved": 10,
+      "retries": 0,
+      "idleWaitSeconds": 0,
+      "outcome": "won",
+      "repeatedSectorTraversals": {
+        "sector0": 1
+      }
+    },
+    {
+      "label": "Resource-endurance stress with drop/retrieve and repeated sector traversals; not pacing or human first-play evidence",
+      "movement": "sprint",
+      "traveledDistanceMetres": 1745.4198956756484,
+      "activeDurationSeconds": 537.052275592491,
+      "fixtureBeforeArrival": {
+        "food": 34,
+        "hydration": 28,
+        "consumedFoodBeforeEntry": [
+          "food-1"
+        ]
+      },
+      "arrival": {
+        "food": 62,
+        "hydration": 26,
+        "phoneBattery": 37
+      },
+      "end": {
+        "food": 76.0372908347335,
+        "hydration": 98.67293760979004,
+        "phoneBattery": 37
+      },
+      "finiteLevelOneConsumedWater": [
+        "l1-a1-crate-1-water",
+        "l1-a2-crate-1-water",
+        "l1-a3-crate-1-water"
+      ],
+      "finiteLevelOneConsumedFood": [],
+      "allConsumedWater": [
+        "l1-a1-crate-1-water",
+        "l1-a2-crate-1-water",
+        "l1-a3-crate-1-water"
+      ],
+      "allConsumedFood": [
+        "food-1",
+        "food-2"
+      ],
+      "consumedDuringLevelOne": {
+        "water": [
+          "l1-a1-crate-1-water",
+          "l1-a2-crate-1-water",
+          "l1-a3-crate-1-water"
+        ],
+        "food": [
+          "food-2"
+        ]
+      },
+      "finiteSupplyConsumptionCounts": {
+        "water": 3,
+        "food": 0
+      },
+      "branchesVisited": 10,
+      "cratesOpened": 10,
+      "notesRead": 0,
+      "sectorsVisited": 6,
+      "droppedItemsRetrieved": 10,
+      "retries": 0,
+      "idleWaitSeconds": 0,
+      "outcome": "won",
+      "repeatedSectorTraversals": {
+        "sector0": 2,
+        "sector1": 1
+      }
+    }
+  ]
+}
