@@ -603,6 +603,7 @@ function syncEscapeVisual(dt=0,active=false){
 }
 
 function syncDeveloperTools(){
+ $('playtest-toggle').textContent=game.playtestEnabled?'停止本地测试记录':'开始本地测试记录';$('playtest-toggle').setAttribute('aria-pressed',String(Boolean(game.playtestEnabled)));
  const status=developerStatus(game);
  $('developer-toggle').textContent=developerEnabled?'关闭开发者工具':'启用开发者工具';$('developer-toggle').setAttribute('aria-pressed',String(developerEnabled));
  $('developer-tools').hidden=!developerEnabled;$('debug-badge').hidden=!developerEnabled;
@@ -614,11 +615,19 @@ function syncDeveloperTools(){
 }
 function runDeveloperAction(action){
  if(!developerEnabled||$('help').hidden||orientationBlocked||document.hidden)return;
+ game.playtestDebugAssisted=true;if(game.playtestRun)game.playtestRun.debugAssisted=true;
  const result=action();$('developer-status').textContent=result.reason||'';
  if(result.ok){clearInput();cancelInventoryDrag();inventorySignature='';phoneSignature='';gameAudio.stop();sync();syncEscapeVisual(0,false);selectedViewCache=null;corridorViewCache=null;requestedSelection=null;updateStreamView()}
  syncDeveloperTools();
 }
 $('developer-toggle').onclick=()=>{if($('help').hidden||orientationBlocked||document.hidden)return;developerEnabled=!developerEnabled;setDeveloperEnabled(game,developerEnabled);$('developer-status').textContent=developerEnabled?'开发者工具已启用，仅在当前页面会话保留。':'';syncDeveloperTools()};
+function playtestAction(action){if(!developerEnabled||$('help').hidden||orientationBlocked||document.hidden)return;action();syncDeveloperTools()}
+$('playtest-toggle').onclick=()=>playtestAction(()=>game.setPlaytestEnabled(!game.playtestEnabled));
+$('playtest-view').onclick=()=>playtestAction(()=>{$('playtest-stats').hidden=false;$('playtest-stats').textContent=JSON.stringify(game.playtestReport(),null,2)});
+$('playtest-export').onclick=()=>playtestAction(()=>{
+ const blob=new Blob([JSON.stringify(game.playtestReport(),null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='level-zero-rc2-playtest.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
 $('developer-item').value='food';
 $('developer-spawn').onclick=()=>runDeveloperAction(()=>spawnDeveloperItem(game,$('developer-item').value));
 $('developer-time').onclick=()=>runDeveloperAction(()=>jumpDeveloperTime(game));
@@ -679,7 +688,7 @@ window.addEventListener('keydown',e=>{
   const help=!$('help').hidden;
   if(e.code==='Escape'){e.preventDefault?.();if(!e.repeat)closeModal(help?'help':'quit-panel')}
   if(e.code==='Tab'){
-   e.preventDefault();const focusable=(help?[$('sound-toggle'),$('quality-toggle'),$('developer-toggle'),...(developerEnabled?[$('developer-item'),$('developer-spawn'),$('developer-time'),$('developer-teleport-outside'),$('developer-teleport-inside')]:[]),$('help-close')]:[$('quit-back')]).filter(n=>!n.disabled);
+   e.preventDefault();const focusable=(help?[$('sound-toggle'),$('quality-toggle'),$('developer-toggle'),...(developerEnabled?[$('playtest-toggle'),$('playtest-view'),$('playtest-export'),$('developer-item'),$('developer-spawn'),$('developer-time'),$('developer-teleport-outside'),$('developer-teleport-inside')]:[]),$('help-close')]:[$('quit-back')]).filter(n=>!n.disabled);
    const index=focusable.indexOf(document.activeElement),next=index<0?(e.shiftKey?focusable.length-1:0):(index+(e.shiftKey?-1:1)+focusable.length)%focusable.length;focusable[next]?.focus();
   }
   return;

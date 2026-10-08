@@ -34,7 +34,42 @@ export function makeMaze(seed,attempt=0){
 }
 export class Game{
 constructor(seed=1){this.reset(seed)}
-reset(seed){this.maze=makeMaze(seed);this.zone='level0';this.hub={sealed:false};this.level1={...resetLevelOneProgress(),failure:null,retries:0,danger:resetLevelOneDanger(),crates:LEVEL1.crates.map(c=>({...c,opened:false}))};this.abnormalWall=abnormalWallFor(this.maze);this.player={x:SIZE*CELL/2,z:SIZE*CELL/2,yaw:0,pitch:0};this.mode='menu';this.inventoryOpen=false;this.phoneOpenId=null;this.chargingPhoneId=null;this.elapsed=0;this.food=100;this.hydration=100;this.door=0;this.doorTarget=0;this.changed=false;this.entered=false;this.loops=0;this.foldState=0;this.foldPending=false;this.approach=0;this.noteRead=false;this.exitAnnounced=false;this.events=[];this.items=Array.from({length:4},(_,i)=>({id:`food-${i+1}`,kind:'food',state:'inventory',gridX:i%4,gridY:Math.floor(i/4),x:0,y:.005,z:0,placement:'ground',area:'maze'}));this.items.push(...Array.from({length:2},(_,i)=>({id:`water-${i+1}`,kind:'water',state:'world',gridX:null,gridY:null,x:this.maze.doorX+4.25,y:.68,z:this.maze.doorZ-.8+i*.5,placement:'table',area:'room'})));this.items.push({id:'phone-1',kind:'phone',battery:100,state:'inventory',gridX:0,gridY:1,x:0,y:.005,z:0,placement:'ground',area:'maze'});this.obstacles=[{x:this.maze.doorX+4.4,z:this.maze.doorZ+.5,w:.8,d:2.7}];this.roomWalls=[];const add=(x,z,w,d)=>this.roomWalls.push({x,z,w,d});const dx=this.maze.doorX,dz=this.maze.doorZ;add(dx,dz-1.7,.16,1.6);add(dx,dz+1.7,.16,1.6);add(dx+3,dz-2.5,6,.16);add(dx+3,dz+2.5,6,.16);add(dx+6,dz,.16,5);this.world=new ChunkWorld(seed,this.maze);this.walls=[...this.world.wallsInRect(0,0,SIZE-1,SIZE-1),...this.roomWalls];this.renderReady=null;this.pendingFold=null;this.escape=resetEscape();this.escapeViewReady=null;this.foundManila=false;for(const item of this.items)item.zone='level0';return this}
+// Optional observer: never writes gameplay state or uses wall-clock time.
+setPlaytestEnabled(enabled,source='human-unverified'){
+ if(enabled===Boolean(this.playtestEnabled))return;
+ if(!enabled)this.finishPlaytest('recording-stopped');
+ this.playtestEnabled=Boolean(enabled);this.playtestSource=source;
+ if(enabled&&this.zone==='level1')this.beginPlaytest(true);
+}
+beginPlaytest(partial=false){
+ if(!this.playtestEnabled||this.playtestRun)return;
+ this.playtestRun={seed:this.maze.seed,source:this.playtestSource,partial,debugAssisted:Boolean(this.playtestDebugAssisted),
+ activeSeconds:0,visits:[],deaths:0,retries:0,reachedPipeExit:false,outcome:'in-progress',attempts:[],
+ baseline:{elapsed:this.level1.elapsed,clueIds:[...this.level1.readClues],crateIds:this.level1.crates.filter(c=>c.opened).map(c=>c.id)},
+ clueIds:[],crateIds:[]};
+ this.playtestRun.attempts.push({activeSeconds:0,outcome:'in-progress'});this.observePlaytest();
+}
+observePlaytest(){
+ const r=this.playtestRun;if(!r||this.zone!=='level1')return;
+ const area=levelOneAreaAt(this.player.x,this.player.z).id;
+ if(r.visits.at(-1)?.area!==area)r.visits.push({area,activeSeconds:r.activeSeconds,attempt:r.attempts.length});
+ r.clueIds=[...this.level1.readClues];r.crateIds=this.level1.crates.filter(c=>c.opened).map(c=>c.id);r.sectors=this.level1.sectors.map((s,area)=>({area,visited:s.visited}));r.cluesRead=r.clueIds.length;r.cratesOpened=r.crateIds.length;
+ if(this.mode==='lost'&&r.attempts.at(-1).outcome==='in-progress'){r.deaths++;r.attempts.at(-1).outcome='lost';r.outcome='lost'}
+ if(this.mode==='won'){r.reachedPipeExit=true;r.outcome='pipe-exit';r.attempts.at(-1).outcome='pipe-exit'}
+}
+finishPlaytest(outcome){
+ if(!this.playtestRun)return;this.observePlaytest();
+ if(!this.playtestRun.reachedPipeExit)this.playtestRun.outcome=outcome;
+ const attempt=this.playtestRun.attempts.at(-1);if(attempt.outcome==='in-progress')attempt.outcome=outcome;
+ this.playtestHistory??=[];this.playtestHistory.push(this.playtestRun);this.playtestHistory=this.playtestHistory.slice(-20);this.playtestRun=null;
+}
+playtestReport(){
+ this.observePlaytest();
+ return JSON.parse(JSON.stringify({schemaVersion:1,build:'demo-v1.0-rc2',timeBasis:'Level 1 simulation-active seconds; pauses, inventory, phone, hidden/portrait/loading excluded; frame delta capped at 0.05s',
+ evidence:'Scripted timing is not human first-play evidence. Human source is unverified, not a claim of first play or mobile acceptance.',
+ enabled:Boolean(this.playtestEnabled),history:this.playtestHistory||[],current:this.playtestRun||null}));
+}
+reset(seed){this.finishPlaytest('restarted');this.playtestDebugAssisted=false;this.maze=makeMaze(seed);this.zone='level0';this.hub={sealed:false};this.level1={...resetLevelOneProgress(),failure:null,retries:0,danger:resetLevelOneDanger(),crates:LEVEL1.crates.map(c=>({...c,opened:false}))};this.abnormalWall=abnormalWallFor(this.maze);this.player={x:SIZE*CELL/2,z:SIZE*CELL/2,yaw:0,pitch:0};this.mode='menu';this.inventoryOpen=false;this.phoneOpenId=null;this.chargingPhoneId=null;this.elapsed=0;this.food=100;this.hydration=100;this.door=0;this.doorTarget=0;this.changed=false;this.entered=false;this.loops=0;this.foldState=0;this.foldPending=false;this.approach=0;this.noteRead=false;this.exitAnnounced=false;this.events=[];this.items=Array.from({length:4},(_,i)=>({id:`food-${i+1}`,kind:'food',state:'inventory',gridX:i%4,gridY:Math.floor(i/4),x:0,y:.005,z:0,placement:'ground',area:'maze'}));this.items.push(...Array.from({length:2},(_,i)=>({id:`water-${i+1}`,kind:'water',state:'world',gridX:null,gridY:null,x:this.maze.doorX+4.25,y:.68,z:this.maze.doorZ-.8+i*.5,placement:'table',area:'room'})));this.items.push({id:'phone-1',kind:'phone',battery:100,state:'inventory',gridX:0,gridY:1,x:0,y:.005,z:0,placement:'ground',area:'maze'});this.obstacles=[{x:this.maze.doorX+4.4,z:this.maze.doorZ+.5,w:.8,d:2.7}];this.roomWalls=[];const add=(x,z,w,d)=>this.roomWalls.push({x,z,w,d});const dx=this.maze.doorX,dz=this.maze.doorZ;add(dx,dz-1.7,.16,1.6);add(dx,dz+1.7,.16,1.6);add(dx+3,dz-2.5,6,.16);add(dx+3,dz+2.5,6,.16);add(dx+6,dz,.16,5);this.world=new ChunkWorld(seed,this.maze);this.walls=[...this.world.wallsInRect(0,0,SIZE-1,SIZE-1),...this.roomWalls];this.renderReady=null;this.pendingFold=null;this.escape=resetEscape();this.escapeViewReady=null;this.foundManila=false;for(const item of this.items)item.zone='level0';return this}
 start(){this.mode='playing';this.events.push('你带了食物和一部手机，却忘了水。打开背包，可以查看资料或放下路标。')}
 roomContains(x,z){const m=this.maze;return x>m.doorX&&x<m.doorX+6&&Math.abs(z-m.doorZ)<2.5}
 inRoom(x=this.player.x,z=this.player.z){return this.zone==='level0'&&this.roomContains(x,z)&&x>this.maze.doorX+RADIUS+.1}
@@ -149,6 +184,15 @@ settleFold(){
 }
 move(dx,dz){if(this.inventoryOpen||this.phoneOpenId)return;if(this.pendingFold&&(!this.renderReady||this.renderReady(this.pendingFold.x,this.pendingFold.z)))this.pendingFold=null;const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.09));for(let k=0;k<steps;k++){const p=this.player,oldX=p.x,oldZ=p.z;const x=p.x+dx/steps,z=p.z+dz/steps;if(!this.collides(x,p.z))p.x=x;if(!this.collides(p.x,z))p.z=z;this.tryFold(oldX,oldZ);this.settleFold();this.validateCharger();if(this.zone==='level0'&&this.changed&&p.x<this.maze.doorX-8.3){this.transitionZone('hub');break}if(this.zone==='hub'&&p.z+RADIUS<HUB.sealZ&&!this.hub.sealed){this.hub.sealed=true;this.events.push('身后的入口封闭了。')}if(this.zone==='level1'&&levelOneAtExit(this)){this.mode='won';this.events.push('level1-demo-end');break}}}
 update(dt,input={}){
+ const before=this.level1.elapsed;
+ this.updateSimulation(dt,input);
+ if(this.playtestEnabled&&this.zone==='level1'){
+  this.beginPlaytest(before>0);
+  const r=this.playtestRun,delta=Math.max(0,this.level1.elapsed-before);
+  if(r&&!r.reachedPipeExit){r.activeSeconds+=delta;r.attempts.at(-1).activeSeconds+=delta;this.observePlaytest()}
+ }
+}
+updateSimulation(dt,input={}){
  if(this.mode!=='playing'||this.inventoryOpen||this.phoneOpenId||!Number.isFinite(dt)||dt<=0){this.cancelInteraction();return}
  dt=Math.min(.05,dt);this.elapsed+=dt;if(this.zone==='level1'){this.level1.elapsed+=dt}if(this.zone==='level0'&&!this.foundManila&&Math.hypot(this.player.x-this.maze.doorX,this.player.z-this.maze.doorZ)<6&&this.lineClear(this.maze.doorX-.4,this.maze.doorZ))this.foundManila=true;if(this.zone==='level0')updateEscape(this,dt);this.updateInteraction(dt,input.interactHeld);
  if(this.mode!=='playing'||escapeFrozen(this))return;
@@ -171,6 +215,7 @@ transitionZone(zone){
  if(!['hub','level1'].includes(zone)||this.zone===zone)return false;
  this.cancelInteraction();this.closeInventory();this.disconnectCharger();this.pendingFold=null;
  this.zone=zone;Object.assign(this.player,zone==='hub'?HUB.spawn:LEVEL1.spawn,{pitch:0});
+ if(zone==='level1')this.beginPlaytest(false);
  if(this.escape.monster)this.escape.monster.active=false;if(this.escape.phase!=='suppressed')this.escape.phase='finished';
  this.events.push(zone==='hub'?'前方的七扇门无法打开。右侧墙上的门通往 Level 1。':'Level 1 · 六个仓库区相连。观察编号与路线标记；绿色服务间可绕行，补给有限。');return true;
 }
@@ -199,6 +244,7 @@ interactZone(){
 prepareLevelOne(){prepareLevelOneDanger(this)}
 retryLevelOne(){
  if(this.zone!=='level1'||this.mode!=='lost')return false;
+ this.observePlaytest();if(this.playtestRun){this.playtestRun.retries++;this.playtestRun.outcome='in-progress';this.playtestRun.attempts.push({activeSeconds:0,outcome:'in-progress'})}
  const checkpoint=this.level1.danger.checkpoint||LEVEL1.spawn;
  Object.assign(this.player,checkpoint,{pitch:0});
  this.level1.elapsed=0;this.level1.phase='lit';this.level1.failure=null;this.level1.retries++;this.level1.area=levelOneAreaAt(checkpoint.x,checkpoint.z).id;this.level1.sectors[this.level1.area].encounter='pending';this.level1.sectors[this.level1.area].time=0;

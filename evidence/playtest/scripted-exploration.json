@@ -1,0 +1,275 @@
+{
+  "method": "Collision-planned continuous all-notes/all-supply-branches route. Real simulation and danger, no coordinate writes after explicit arrival fixture, no idle/reading dwell, no arbitrary repeats or drop/retrieve stress. This is scripted coverage, not human first-play timing.",
+  "results": [
+    {
+      "playtest": {
+        "schemaVersion": 1,
+        "build": "demo-v1.0-rc2",
+        "timeBasis": "Level 1 simulation-active seconds; pauses, inventory, phone, hidden/portrait/loading excluded; frame delta capped at 0.05s",
+        "evidence": "Scripted timing is not human first-play evidence. Human source is unverified, not a claim of first play or mobile acceptance.",
+        "enabled": true,
+        "history": [],
+        "current": {
+          "seed": 7,
+          "source": "scripted",
+          "partial": false,
+          "debugAssisted": false,
+          "activeSeconds": 401.17559374546033,
+          "visits": [
+            {
+              "area": 0,
+              "activeSeconds": 0,
+              "attempt": 1
+            },
+            {
+              "area": 1,
+              "activeSeconds": 65.99673390032133,
+              "attempt": 1
+            },
+            {
+              "area": 2,
+              "activeSeconds": 134.70367466203393,
+              "attempt": 1
+            },
+            {
+              "area": 3,
+              "activeSeconds": 194.55625523981433,
+              "attempt": 1
+            },
+            {
+              "area": 4,
+              "activeSeconds": 263.6994681230001,
+              "attempt": 1
+            },
+            {
+              "area": 5,
+              "activeSeconds": 337.34297313841375,
+              "attempt": 1
+            }
+          ],
+          "deaths": 0,
+          "retries": 0,
+          "reachedPipeExit": true,
+          "outcome": "pipe-exit",
+          "attempts": [
+            {
+              "activeSeconds": 401.17559374546033,
+              "outcome": "pipe-exit"
+            }
+          ],
+          "baseline": {
+            "elapsed": 0,
+            "clueIds": [],
+            "crateIds": []
+          },
+          "clueIds": [
+            "l1-route-note-1",
+            "l1-route-note-2",
+            "l1-route-note-3",
+            "l1-route-note-4",
+            "l1-route-note-5",
+            "l1-route-note-6"
+          ],
+          "crateIds": [
+            "l1-a1-crate-1",
+            "l1-a1-crate-2",
+            "l1-a2-crate-1",
+            "l1-a2-crate-2",
+            "l1-a3-crate-1",
+            "l1-a4-crate-1",
+            "l1-a4-crate-2",
+            "l1-a5-crate-1",
+            "l1-a5-crate-2",
+            "l1-a6-crate-1"
+          ],
+          "sectors": [
+            {
+              "area": 0,
+              "visited": true
+            },
+            {
+              "area": 1,
+              "visited": true
+            },
+            {
+              "area": 2,
+              "visited": true
+            },
+            {
+              "area": 3,
+              "visited": true
+            },
+            {
+              "area": 4,
+              "visited": true
+            },
+            {
+              "area": 5,
+              "visited": true
+            }
+          ],
+          "cluesRead": 6,
+          "cratesOpened": 10
+        }
+      },
+      "movement": "walk",
+      "outcome": "won",
+      "blocked": false,
+      "activeSeconds": 401.17559374546033,
+      "travelledMetres": 822.354507235073,
+      "notesRead": 6,
+      "cratesOpened": 10,
+      "arrival": {
+        "food": 62,
+        "hydration": 26,
+        "battery": 37
+      },
+      "end": {
+        "food": 56.38389168760376,
+        "hydration": 87.95972921898483,
+        "battery": 37
+      },
+      "consumed": [
+        "l1-a1-crate-1-water",
+        "l1-a2-crate-1-water"
+      ],
+      "idleOrReadingDwellSeconds": 0,
+      "extraSectorRepeats": 0
+    },
+    {
+      "playtest": {
+        "schemaVersion": 1,
+        "build": "demo-v1.0-rc2",
+        "timeBasis": "Level 1 simulation-active seconds; pauses, inventory, phone, hidden/portrait/loading excluded; frame delta capped at 0.05s",
+        "evidence": "Scripted timing is not human first-play evidence. Human source is unverified, not a claim of first play or mobile acceptance.",
+        "enabled": true,
+        "history": [],
+        "current": {
+          "seed": 7,
+          "source": "scripted",
+          "partial": false,
+          "debugAssisted": false,
+          "activeSeconds": 253.02121931946272,
+          "visits": [
+            {
+              "area": 0,
+              "activeSeconds": 0,
+              "attempt": 1
+            },
+            {
+              "area": 1,
+              "activeSeconds": 41.61493849401471,
+              "attempt": 1
+            },
+            {
+              "area": 2,
+              "activeSeconds": 84.95316266677955,
+              "attempt": 1
+            },
+            {
+              "area": 3,
+              "activeSeconds": 122.70632887737237,
+              "attempt": 1
+            },
+            {
+              "area": 4,
+              "activeSeconds": 166.31974008061405,
+              "attempt": 1
+            },
+            {
+              "area": 5,
+              "activeSeconds": 212.77179709038674,
+              "attempt": 1
+            }
+          ],
+          "deaths": 0,
+          "retries": 0,
+          "reachedPipeExit": true,
+          "outcome": "pipe-exit",
+          "attempts": [
+            {
+              "activeSeconds": 253.02121931946272,
+              "outcome": "pipe-exit"
+            }
+          ],
+          "baseline": {
+            "elapsed": 0,
+            "clueIds": [],
+            "crateIds": []
+          },
+          "clueIds": [
+            "l1-route-note-1",
+            "l1-route-note-2",
+            "l1-route-note-3",
+            "l1-route-note-4",
+            "l1-route-note-5",
+            "l1-route-note-6"
+          ],
+          "crateIds": [
+            "l1-a1-crate-1",
+            "l1-a1-crate-2",
+            "l1-a2-crate-1",
+            "l1-a2-crate-2",
+            "l1-a3-crate-1",
+            "l1-a4-crate-1",
+            "l1-a4-crate-2",
+            "l1-a5-crate-1",
+            "l1-a5-crate-2",
+            "l1-a6-crate-1"
+          ],
+          "sectors": [
+            {
+              "area": 0,
+              "visited": true
+            },
+            {
+              "area": 1,
+              "visited": true
+            },
+            {
+              "area": 2,
+              "visited": true
+            },
+            {
+              "area": 3,
+              "visited": true
+            },
+            {
+              "area": 4,
+              "visited": true
+            },
+            {
+              "area": 5,
+              "visited": true
+            }
+          ],
+          "cluesRead": 6,
+          "cratesOpened": 10
+        }
+      },
+      "movement": "sprint",
+      "outcome": "won",
+      "blocked": false,
+      "activeSeconds": 253.02121931946272,
+      "travelledMetres": 822.3189627880572,
+      "notesRead": 6,
+      "cratesOpened": 10,
+      "arrival": {
+        "food": 62,
+        "hydration": 26,
+        "battery": 37
+      },
+      "end": {
+        "food": 55.42209829769235,
+        "hydration": 84.29026464762786,
+        "battery": 37
+      },
+      "consumed": [
+        "l1-a1-crate-1-water",
+        "l1-a2-crate-1-water"
+      ],
+      "idleOrReadingDwellSeconds": 0,
+      "extraSectorRepeats": 0
+    }
+  ]
+}

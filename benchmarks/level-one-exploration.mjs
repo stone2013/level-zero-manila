@@ -13,7 +13,7 @@ function path(area,from,to){
 }
 const results=[];
 for(const sprint of [false,true]){
- const g=new Game(7);g.start();g.transitionZone('level1');g.food=62;g.hydration=26;g.phone('phone-1').battery=37;let travelled=0,blocked=false;
+ const g=new Game(7);g.start();g.setPlaytestEnabled(true,'scripted');g.transitionZone('level1');g.food=62;g.hydration=26;g.phone('phone-1').battery=37;let travelled=0,blocked=false;
  function walk(area,target){for(const p of path(area,g.player,target)){let guard=0;while(g.mode==='playing'&&Math.hypot(p.x-g.player.x,p.z-g.player.z)>1e-6){if(guard++>4000){blocked=true;return}const old={...g.player},d=Math.hypot(p.x-old.x,p.z-old.z),speed=sprint&&g.hydration>15?3.25:2.05;g.player.yaw=Math.atan2(p.x-old.x,-(p.z-old.z));g.update(Math.min(.025,d/speed),{forward:1,sprint});travelled+=Math.hypot(g.player.x-old.x,g.player.z-old.z)}}}
  outer:for(const area of LEVEL_ONE_AREAS){
   walk(area,area.spawn);const c=area.clues[0];walk(area,{x:c.x,z:c.z+.8});g.interact();
@@ -26,6 +26,6 @@ for(const sprint of [false,true]){
   }
   walk(area,area.exit);if(g.mode!=='playing'||blocked)break;
  }
- results.push({movement:sprint?'sprint':'walk',outcome:g.mode,blocked,activeSeconds:g.level1.elapsed,travelledMetres:travelled,notesRead:g.level1.readClues.length,cratesOpened:g.level1.crates.filter(c=>c.opened).length,arrival:{food:62,hydration:26,battery:37},end:{food:g.food,hydration:g.hydration,battery:g.phone('phone-1').battery},consumed:g.items.filter(i=>i.state==='consumed').map(i=>i.id),idleOrReadingDwellSeconds:0,extraSectorRepeats:0});
+ results.push({playtest:g.playtestReport(),movement:sprint?'sprint':'walk',outcome:g.mode,blocked,activeSeconds:g.level1.elapsed,travelledMetres:travelled,notesRead:g.level1.readClues.length,cratesOpened:g.level1.crates.filter(c=>c.opened).length,arrival:{food:62,hydration:26,battery:37},end:{food:g.food,hydration:g.hydration,battery:g.phone('phone-1').battery},consumed:g.items.filter(i=>i.state==='consumed').map(i=>i.id),idleOrReadingDwellSeconds:0,extraSectorRepeats:0});
 }
 console.log(JSON.stringify({method:'Collision-planned continuous all-notes/all-supply-branches route. Real simulation and danger, no coordinate writes after explicit arrival fixture, no idle/reading dwell, no arbitrary repeats or drop/retrieve stress. This is scripted coverage, not human first-play timing.',results},null,2));
