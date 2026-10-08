@@ -1,3 +1,5 @@
+import {resetLevelOneProgress,updateLevelOneProgress,levelOneAtExit,nearestLevelOneClue,readLevelOneClue,levelOneObjective} from './level-one-progression.js';
+import {levelOneAreaAt} from './level-one-layout.js';
 import {resetLevelOneDanger,prepareLevelOneDanger,updateLevelOneDanger,levelOneSheltered} from './level-one-danger.js';
 import {HUB,LEVEL1,levelOneLightingAt,zoneCollides,abnormalWallFor} from './zones.js';
 import {ChunkWorld} from './world.js';
@@ -32,7 +34,7 @@ export function makeMaze(seed,attempt=0){
 }
 export class Game{
 constructor(seed=1){this.reset(seed)}
-reset(seed){this.maze=makeMaze(seed);this.zone='level0';this.hub={sealed:false};this.level1={elapsed:0,phase:'lit',failure:null,retries:0,danger:resetLevelOneDanger(),crates:LEVEL1.crates.map(c=>({...c,opened:false}))};this.abnormalWall=abnormalWallFor(this.maze);this.player={x:SIZE*CELL/2,z:SIZE*CELL/2,yaw:0,pitch:0};this.mode='menu';this.inventoryOpen=false;this.phoneOpenId=null;this.chargingPhoneId=null;this.elapsed=0;this.food=100;this.hydration=100;this.door=0;this.doorTarget=0;this.changed=false;this.entered=false;this.loops=0;this.foldState=0;this.foldPending=false;this.approach=0;this.noteRead=false;this.exitAnnounced=false;this.events=[];this.items=Array.from({length:4},(_,i)=>({id:`food-${i+1}`,kind:'food',state:'inventory',gridX:i%4,gridY:Math.floor(i/4),x:0,y:.005,z:0,placement:'ground',area:'maze'}));this.items.push(...Array.from({length:2},(_,i)=>({id:`water-${i+1}`,kind:'water',state:'world',gridX:null,gridY:null,x:this.maze.doorX+4.25,y:.68,z:this.maze.doorZ-.8+i*.5,placement:'table',area:'room'})));this.items.push({id:'phone-1',kind:'phone',battery:100,state:'inventory',gridX:0,gridY:1,x:0,y:.005,z:0,placement:'ground',area:'maze'});this.obstacles=[{x:this.maze.doorX+4.4,z:this.maze.doorZ+.5,w:.8,d:2.7}];this.roomWalls=[];const add=(x,z,w,d)=>this.roomWalls.push({x,z,w,d});const dx=this.maze.doorX,dz=this.maze.doorZ;add(dx,dz-1.7,.16,1.6);add(dx,dz+1.7,.16,1.6);add(dx+3,dz-2.5,6,.16);add(dx+3,dz+2.5,6,.16);add(dx+6,dz,.16,5);this.world=new ChunkWorld(seed,this.maze);this.walls=[...this.world.wallsInRect(0,0,SIZE-1,SIZE-1),...this.roomWalls];this.renderReady=null;this.pendingFold=null;this.escape=resetEscape();this.escapeViewReady=null;this.foundManila=false;for(const item of this.items)item.zone='level0';return this}
+reset(seed){this.maze=makeMaze(seed);this.zone='level0';this.hub={sealed:false};this.level1={...resetLevelOneProgress(),failure:null,retries:0,danger:resetLevelOneDanger(),crates:LEVEL1.crates.map(c=>({...c,opened:false}))};this.abnormalWall=abnormalWallFor(this.maze);this.player={x:SIZE*CELL/2,z:SIZE*CELL/2,yaw:0,pitch:0};this.mode='menu';this.inventoryOpen=false;this.phoneOpenId=null;this.chargingPhoneId=null;this.elapsed=0;this.food=100;this.hydration=100;this.door=0;this.doorTarget=0;this.changed=false;this.entered=false;this.loops=0;this.foldState=0;this.foldPending=false;this.approach=0;this.noteRead=false;this.exitAnnounced=false;this.events=[];this.items=Array.from({length:4},(_,i)=>({id:`food-${i+1}`,kind:'food',state:'inventory',gridX:i%4,gridY:Math.floor(i/4),x:0,y:.005,z:0,placement:'ground',area:'maze'}));this.items.push(...Array.from({length:2},(_,i)=>({id:`water-${i+1}`,kind:'water',state:'world',gridX:null,gridY:null,x:this.maze.doorX+4.25,y:.68,z:this.maze.doorZ-.8+i*.5,placement:'table',area:'room'})));this.items.push({id:'phone-1',kind:'phone',battery:100,state:'inventory',gridX:0,gridY:1,x:0,y:.005,z:0,placement:'ground',area:'maze'});this.obstacles=[{x:this.maze.doorX+4.4,z:this.maze.doorZ+.5,w:.8,d:2.7}];this.roomWalls=[];const add=(x,z,w,d)=>this.roomWalls.push({x,z,w,d});const dx=this.maze.doorX,dz=this.maze.doorZ;add(dx,dz-1.7,.16,1.6);add(dx,dz+1.7,.16,1.6);add(dx+3,dz-2.5,6,.16);add(dx+3,dz+2.5,6,.16);add(dx+6,dz,.16,5);this.world=new ChunkWorld(seed,this.maze);this.walls=[...this.world.wallsInRect(0,0,SIZE-1,SIZE-1),...this.roomWalls];this.renderReady=null;this.pendingFold=null;this.escape=resetEscape();this.escapeViewReady=null;this.foundManila=false;for(const item of this.items)item.zone='level0';return this}
 start(){this.mode='playing';this.events.push('你带了食物和一部手机，却忘了水。打开背包，可以查看资料或放下路标。')}
 roomContains(x,z){const m=this.maze;return x>m.doorX&&x<m.doorX+6&&Math.abs(z-m.doorZ)<2.5}
 inRoom(x=this.player.x,z=this.player.z){return this.zone==='level0'&&this.roomContains(x,z)&&x>this.maze.doorX+RADIUS+.1}
@@ -145,17 +147,17 @@ settleFold(){
  if(pair.some(f=>Math.hypot(p.x-f.px,p.z-f.pz)<4.5||[.35,1.15,2.1].some(z=>this.lineClear(f.px,f.z*CELL+z))))return;
  this.foldState=1;this.foldPending=false;this.events.push('身后传来一声很轻的灯管响。');
 }
-move(dx,dz){if(this.inventoryOpen||this.phoneOpenId)return;if(this.pendingFold&&(!this.renderReady||this.renderReady(this.pendingFold.x,this.pendingFold.z)))this.pendingFold=null;const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.09));for(let k=0;k<steps;k++){const p=this.player,oldX=p.x,oldZ=p.z;const x=p.x+dx/steps,z=p.z+dz/steps;if(!this.collides(x,p.z))p.x=x;if(!this.collides(p.x,z))p.z=z;this.tryFold(oldX,oldZ);this.settleFold();this.validateCharger();if(this.zone==='level0'&&this.changed&&p.x<this.maze.doorX-8.3){this.transitionZone('hub');break}if(this.zone==='hub'&&p.z+RADIUS<HUB.sealZ&&!this.hub.sealed){this.hub.sealed=true;this.events.push('身后的入口封闭了。')}if(this.zone==='level1'&&p.z<LEVEL1.endZ){this.mode='won';this.events.push('level1-demo-end');break}}}
+move(dx,dz){if(this.inventoryOpen||this.phoneOpenId)return;if(this.pendingFold&&(!this.renderReady||this.renderReady(this.pendingFold.x,this.pendingFold.z)))this.pendingFold=null;const steps=Math.max(1,Math.ceil(Math.hypot(dx,dz)/.09));for(let k=0;k<steps;k++){const p=this.player,oldX=p.x,oldZ=p.z;const x=p.x+dx/steps,z=p.z+dz/steps;if(!this.collides(x,p.z))p.x=x;if(!this.collides(p.x,z))p.z=z;this.tryFold(oldX,oldZ);this.settleFold();this.validateCharger();if(this.zone==='level0'&&this.changed&&p.x<this.maze.doorX-8.3){this.transitionZone('hub');break}if(this.zone==='hub'&&p.z+RADIUS<HUB.sealZ&&!this.hub.sealed){this.hub.sealed=true;this.events.push('身后的入口封闭了。')}if(this.zone==='level1'&&levelOneAtExit(this)){this.mode='won';this.events.push('level1-demo-end');break}}}
 update(dt,input={}){
  if(this.mode!=='playing'||this.inventoryOpen||this.phoneOpenId||!Number.isFinite(dt)||dt<=0){this.cancelInteraction();return}
- dt=Math.min(.05,dt);this.elapsed+=dt;if(this.zone==='level1'){this.level1.elapsed+=dt;this.level1.phase=levelOneLightingAt(this.level1.elapsed)}if(this.zone==='level0'&&!this.foundManila&&Math.hypot(this.player.x-this.maze.doorX,this.player.z-this.maze.doorZ)<6&&this.lineClear(this.maze.doorX-.4,this.maze.doorZ))this.foundManila=true;if(this.zone==='level0')updateEscape(this,dt);this.updateInteraction(dt,input.interactHeld);
+ dt=Math.min(.05,dt);this.elapsed+=dt;if(this.zone==='level1'){this.level1.elapsed+=dt}if(this.zone==='level0'&&!this.foundManila&&Math.hypot(this.player.x-this.maze.doorX,this.player.z-this.maze.doorZ)<6&&this.lineClear(this.maze.doorX-.4,this.maze.doorZ))this.foundManila=true;if(this.zone==='level0')updateEscape(this,dt);this.updateInteraction(dt,input.interactHeld);
  if(this.mode!=='playing'||escapeFrozen(this))return;
  const forced=escapeForced(this),moving=Math.hypot(input.forward||0,input.strafe||0)>0;
  const sprint=forced?moving:!!input.sprint,speed=forced?3.25*1.5:input.sprint&&this.hydration>15?3.25:2.05;
  let f=input.forward||0,s=input.strafe||0,n=Math.max(1,Math.hypot(f,s));f/=n;s/=n;
  this.move((Math.sin(this.player.yaw)*f+Math.cos(this.player.yaw)*s)*speed*dt,(-Math.cos(this.player.yaw)*f+Math.sin(this.player.yaw)*s)*speed*dt);
  if(this.mode!=='playing')return;
- if(this.zone==='level1'){updateLevelOneDanger(this,dt);if(this.mode!=='playing')return}
+ if(this.zone==='level1'){this.level1.sprinting=!!input.sprint&&moving&&this.hydration>15;updateLevelOneProgress(this,dt);updateLevelOneDanger(this,dt);if(this.mode!=='playing')return}
  const drain=forced&&moving?1.5:1;
  this.food=Math.max(0,this.food-dt*(sprint?.026:.014)*drain);this.hydration=Math.max(0,this.hydration-dt*(sprint?.07:.035)*drain);
  if(this.hydration<=0||this.food<=0){this.mode='lost';if(this.escape.monster)this.escape.monster.active=false;this.events.push('lost');return}
@@ -170,7 +172,7 @@ transitionZone(zone){
  this.cancelInteraction();this.closeInventory();this.disconnectCharger();this.pendingFold=null;
  this.zone=zone;Object.assign(this.player,zone==='hub'?HUB.spawn:LEVEL1.spawn,{pitch:0});
  if(this.escape.monster)this.escape.monster.active=false;if(this.escape.phase!=='suppressed')this.escape.phase='finished';
- this.events.push(zone==='hub'?'前方的七扇门无法打开。右侧墙上的门通往 Level 1。':'Level 1 · 沿标识绕过仓库隔断。停电时保持距离；绿色光区安全，左侧休息区可绕行。');return true;
+ this.events.push(zone==='hub'?'前方的七扇门无法打开。右侧墙上的门通往 Level 1。':'Level 1 · 六个仓库区相连。观察编号与路线标记；绿色服务间可绕行，补给有限。');return true;
 }
 nearAbnormalWall(){const w=this.abnormalWall;return this.zone==='level0'&&!this.changed&&!this.escape.layout&&Math.hypot(this.player.x-w.x,this.player.z-w.z)<1.35&&this.lineClear(w.x+w.normalX*.15,w.z+w.normalZ*.15)}
 cancelInteraction(){if(this.abnormalWall)this.abnormalWall.hold=0}
@@ -178,14 +180,14 @@ updateInteraction(dt,held){if(!held||!this.nearAbnormalWall()){this.cancelIntera
 zonePrompt(){
  const item=this.nearestItem();if(item)return item.kind==='phone'?'拾起手机':item.kind==='water'?'拾起饮用水':'拾起食物';
  const door=this.nearHubDoor();if(door)return door.active?'打开门 · Level 1':`${door.label} · 无法打开`;
- if(this.nearestCrate())return '打开补给箱';return '';
+ if(this.nearestCrate())return '打开补给箱';if(nearestLevelOneClue(this))return '阅读路线标记';return '';
 }
 nearHubDoor(){return this.zone==='hub'?[...HUB.doors,HUB.sideDoor].filter(d=>Math.hypot(this.player.x-d.x,this.player.z-d.z)<1.35).sort((a,b)=>Math.hypot(this.player.x-a.x,this.player.z-a.z)-Math.hypot(this.player.x-b.x,this.player.z-b.z))[0]:null}
 crateReachable(c){const dx=this.player.x-c.x,dz=this.player.z-c.z,d=Math.hypot(dx,dz);return d>0&&this.lineClear(c.x+dx/d*.62,c.z+dz/d*.62)}
 nearestCrate(){return this.zone==='level1'?this.level1.crates.filter(c=>!c.opened&&Math.hypot(this.player.x-c.x,this.player.z-c.z)<1.6&&this.crateReachable(c)).sort((a,b)=>Math.hypot(this.player.x-a.x,this.player.z-a.z)-Math.hypot(this.player.x-b.x,this.player.z-b.z))[0]:null}
 interactZone(){
  const door=this.nearHubDoor();if(door){if(door.active){this.transitionZone('level1');return 'level1'}this.events.push(`${door.label} · 这扇门无法打开。`);return 'inactive-door'}
- const crate=this.nearestCrate();if(!crate)return null;
+ const crate=this.nearestCrate();if(!crate)return readLevelOneClue(this);
  const id=`${crate.id}-${crate.kind}`,item={id,kind:crate.kind,state:'world',gridX:null,gridY:null,zone:'level1',area:'level1',x:this.player.x,z:this.player.z,y:.005,placement:'ground'};
  // Insert only for slot calculation, then commit once, or roll back completely.
  if(this.items.some(i=>i.id===id)){crate.opened=true;return null}
@@ -199,7 +201,7 @@ retryLevelOne(){
  if(this.zone!=='level1'||this.mode!=='lost')return false;
  const checkpoint=this.level1.danger.checkpoint||LEVEL1.spawn;
  Object.assign(this.player,checkpoint,{pitch:0});
- this.level1.elapsed=0;this.level1.phase='lit';this.level1.failure=null;this.level1.retries++;
+ this.level1.elapsed=0;this.level1.phase='lit';this.level1.failure=null;this.level1.retries++;this.level1.area=levelOneAreaAt(checkpoint.x,checkpoint.z).id;this.level1.sectors[this.level1.area].encounter='pending';this.level1.sectors[this.level1.area].time=0;
  this.level1.danger=resetLevelOneDanger();this.level1.danger.checkpoint={...checkpoint};
  // Retry retains stable identities, opened crates, dropped/consumed items and phone.
  // A small survival floor avoids an irreversible dry checkpoint; no item is granted.
@@ -207,6 +209,7 @@ retryLevelOne(){
  this.prepareLevelOne();this.closeInventory();this.cancelInteraction();this.mode='playing';
  this.events.push('回到最近的绿色光区。补给状态保留；体力与水分至少恢复至 25。');return true;
 }
+levelOneObjective(){return levelOneObjective(this)}
 levelOneSafe(){return this.zone==='level1'&&levelOneSheltered(this.player.x,this.player.z)}
 retryEscape(){return retryEscape(this)}
 nearDoor(){return this.zone==='level0'&&Math.hypot(this.player.x-this.maze.doorX,this.player.z-this.maze.doorZ)<2.35}
@@ -268,5 +271,5 @@ consume(kind,id){
  if(kind==='food'){this.food=Math.min(100,this.food+28);this.hydration=Math.max(0,this.hydration-2);this.events.push('吃完了一份干粮。有些口干。')}else{this.hydration=Math.min(100,this.hydration+38);this.events.push('喝完了一小瓶水。')}return item.id;
 }
 pause(){this.cancelInteraction();if(this.mode==='playing')this.mode='paused';this.closePhone()}resume(){if(this.mode==='paused'||this.mode==='note')this.mode='playing'}
-snapshot(){return{zone:this.zone,hub:{...this.hub},level1:{...this.level1,danger:JSON.parse(JSON.stringify(this.level1.danger)),crates:this.level1.crates.map(c=>({...c}))},abnormalWall:{...this.abnormalWall},seed:this.maze.seed,mode:this.mode,inventoryOpen:this.inventoryOpen,phoneOpenId:this.phoneOpenId,chargingPhoneId:this.chargingPhoneId,player:{...this.player},food:this.food,hydration:this.hydration,elapsed:this.elapsed,door:this.door,doorTarget:this.doorTarget,changed:this.changed,loops:this.loops,foldState:this.foldState,foldPending:this.foldPending,items:this.items.map(i=>({...i}))}}
+snapshot(){return{zone:this.zone,hub:{...this.hub},level1:{...this.level1,sectors:this.level1.sectors.map(s=>({...s})),readClues:[...this.level1.readClues],danger:JSON.parse(JSON.stringify(this.level1.danger)),crates:this.level1.crates.map(c=>({...c}))},abnormalWall:{...this.abnormalWall},seed:this.maze.seed,mode:this.mode,inventoryOpen:this.inventoryOpen,phoneOpenId:this.phoneOpenId,chargingPhoneId:this.chargingPhoneId,player:{...this.player},food:this.food,hydration:this.hydration,elapsed:this.elapsed,door:this.door,doorTarget:this.doorTarget,changed:this.changed,loops:this.loops,foldState:this.foldState,foldPending:this.foldPending,items:this.items.map(i=>({...i}))}}
 }
