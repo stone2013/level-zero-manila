@@ -32,7 +32,7 @@ test('developer teleport clears active chase visuals and preserves paused state,
  a.settle();a.element('help-close').onclick();a.element('resume').onclick();a.element('interact').onclick({stopPropagation(){}});for(let i=0;i<20;i++)a.frame(now+=50);assert.equal(a.eval('game.changed'),true);
 });
 test('developer controls participate in settings keyboard focus only when enabled; portrait blocks actions',()=>{
- const a=enabled();a.element('quality-toggle').focus();key(a,'Tab');assert.equal(a.context.document.activeElement,a.element('developer-toggle'));key(a,'Tab');assert.equal(a.context.document.activeElement,a.element('developer-item'));
+ const a=enabled();a.element('quality-toggle').focus();key(a,'Tab');assert.equal(a.context.document.activeElement,a.element('developer-toggle'));key(a,'Tab');assert.equal(a.context.document.activeElement,a.element('playtest-toggle'));key(a,'Tab');assert.equal(a.context.document.activeElement,a.element('playtest-view'));key(a,'Tab');assert.equal(a.context.document.activeElement,a.element('playtest-export'));key(a,'Tab');assert.equal(a.context.document.activeElement,a.element('developer-item'));
  a.element('developer-toggle').onclick();a.element('developer-toggle').focus();key(a,'Tab');assert.equal(a.context.document.activeElement,a.element('help-close'));key(a,'Tab',{shiftKey:true});assert.equal(a.context.document.activeElement,a.element('developer-toggle'));
  a.element('developer-toggle').onclick();a.rotate(390,844);const before=a.eval('game.items.length');a.element('developer-spawn').onclick();assert.equal(a.eval('game.items.length'),before);a.rotate(844,390);a.element('developer-spawn').onclick();assert.equal(a.eval('game.items.length'),before+1);
 });
