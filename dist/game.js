@@ -52,7 +52,7 @@ beginPlaytest(partial=false){
 observePlaytest(){
  const r=this.playtestRun;if(!r||this.zone!=='level1')return;
  const area=levelOneAreaAt(this.player.x,this.player.z).id;
- if(r.visits.at(-1)?.area!==area)r.visits.push({area,activeSeconds:r.activeSeconds,attempt:r.attempts.length});
+ if(r.visits.at(-1)?.area!==area||r.visits.at(-1)?.attempt!==r.attempts.length)r.visits.push({area,activeSeconds:r.activeSeconds,attempt:r.attempts.length});
  r.clueIds=[...this.level1.readClues];r.crateIds=this.level1.crates.filter(c=>c.opened).map(c=>c.id);r.sectors=this.level1.sectors.map((s,area)=>({area,visited:s.visited}));r.cluesRead=r.clueIds.length;r.cratesOpened=r.crateIds.length;
  if(this.mode==='lost'&&r.attempts.at(-1).outcome==='in-progress'){r.deaths++;r.attempts.at(-1).outcome='lost';r.outcome='lost'}
  if(this.mode==='won'){r.reachedPipeExit=true;r.outcome='pipe-exit';r.attempts.at(-1).outcome='pipe-exit'}
@@ -65,7 +65,7 @@ finishPlaytest(outcome){
 }
 playtestReport(){
  this.observePlaytest();
- return JSON.parse(JSON.stringify({schemaVersion:1,build:'demo-v1.0-rc2',timeBasis:'Level 1 simulation-active seconds; pauses, inventory, phone, hidden/portrait/loading excluded; frame delta capped at 0.05s',
+ return JSON.parse(JSON.stringify({schemaVersion:1,build:'demo-v1.0-rc2-review-20261023',timeBasis:'Level 1 simulation-active seconds; pauses, inventory, phone, hidden/portrait/loading excluded; frame delta capped at 0.05s',
  evidence:'Scripted timing is not human first-play evidence. Human source is unverified, not a claim of first play or mobile acceptance.',
  enabled:Boolean(this.playtestEnabled),history:this.playtestHistory||[],current:this.playtestRun||null}));
 }
@@ -252,7 +252,7 @@ retryLevelOne(){
  // Retry retains stable identities, opened crates, dropped/consumed items and phone.
  // A small survival floor avoids an irreversible dry checkpoint; no item is granted.
  this.food=Math.max(25,this.food);this.hydration=Math.max(25,this.hydration);
- this.prepareLevelOne();this.closeInventory();this.cancelInteraction();this.mode='playing';
+ this.prepareLevelOne();this.closeInventory();this.cancelInteraction();this.mode='playing';this.observePlaytest();
  this.events.push('回到最近的绿色光区。补给状态保留；体力与水分至少恢复至 25。');return true;
 }
 levelOneObjective(){return levelOneObjective(this)}

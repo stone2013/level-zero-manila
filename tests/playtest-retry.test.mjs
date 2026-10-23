@@ -1,0 +1,33 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {Game} from '../dist/game.js';
+
+test('same-area checkpoint retry records each attempt at its exact cumulative start without duplicating visits or supplies',()=>{
+ const g=new Game(7);g.start();g.setPlaytestEnabled(true,'scripted');g.transitionZone('level1');
+ const crate=g.level1.crates[0];Object.assign(g.player,{x:crate.x+1,z:crate.z});
+ assert.equal(g.interact(),'crate');g.food=90;assert.equal(g.consume('food','food-1'),'food-1');assert.equal(g.drop('food-2'),'food-2');g.phone('phone-1').battery=31;
+ const items=JSON.stringify(g.items),crates=JSON.stringify(g.level1.crates);
+ g.update(.05);g.hydration=0;g.update(.05);
+ assert.equal(g.mode,'lost');assert.equal(g.playtestReport().current.deaths,1);
+ assert.deepEqual(g.playtestReport().current.visits,[{area:0,activeSeconds:0,attempt:1}]);
+ const beforeRetry=g.playtestReport().current.activeSeconds;
+ assert.equal(g.retryLevelOne(),true);
+ assert.deepEqual(g.playtestRun.visits,[{area:0,activeSeconds:0,attempt:1},{area:0,activeSeconds:beforeRetry,attempt:2}],'retry records its start before any export or update');
+ const r=g.playtestReport().current;
+ assert.equal(g.level1.elapsed,0);assert.equal(r.activeSeconds,beforeRetry);assert.equal(r.retries,1);assert.equal(r.deaths,1);
+ assert.deepEqual(r.visits,[{area:0,activeSeconds:0,attempt:1},{area:0,activeSeconds:beforeRetry,attempt:2}]);
+ assert.deepEqual(r.attempts,[{activeSeconds:beforeRetry,outcome:'lost'},{activeSeconds:0,outcome:'in-progress'}]);
+ assert.equal(g.retryLevelOne(),false);
+ for(let i=0;i<3;i++)assert.deepEqual(g.playtestReport().current,r,'repeated export does not add a visit or count a retry');
+ assert.equal(JSON.stringify(g.items),items);assert.equal(JSON.stringify(g.level1.crates),crates);assert.equal(new Set(g.items.map(i=>i.id)).size,g.items.length);
+ g.update(.05);const continued=g.playtestReport().current;
+ assert.ok(Math.abs(continued.activeSeconds-beforeRetry-.05)<1e-10);assert.equal(continued.attempts[1].activeSeconds,.05);assert.deepEqual(continued.visits,r.visits);
+ g.hydration=0;g.update(.05);const secondDeath=g.playtestReport().current;
+ assert.equal(secondDeath.deaths,2);assert.equal(g.retryLevelOne(),true);assert.equal(g.retryLevelOne(),false);
+ const again=g.playtestReport().current;
+ assert.equal(again.retries,2);assert.equal(again.deaths,2);assert.equal(again.activeSeconds,secondDeath.activeSeconds);
+ assert.deepEqual(again.visits,[...r.visits,{area:0,activeSeconds:secondDeath.activeSeconds,attempt:3}]);
+ assert.equal(again.attempts[2].activeSeconds,0);assert.equal(again.attempts[2].outcome,'in-progress');
+ assert.equal(JSON.stringify(g.items),items);assert.equal(JSON.stringify(g.level1.crates),crates);
+ assert.deepEqual(g.playtestReport().current,again);
+});
