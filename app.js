@@ -603,6 +603,7 @@ function syncEscapeVisual(dt=0,active=false){
 }
 
 function syncDeveloperTools(){
+ $('playtest-toggle').textContent=game.playtestEnabled?'停止本地测试记录':'开始本地测试记录';$('playtest-toggle').setAttribute('aria-pressed',String(Boolean(game.playtestEnabled)));
  const status=developerStatus(game);
  $('developer-toggle').textContent=developerEnabled?'关闭开发者工具':'启用开发者工具';$('developer-toggle').setAttribute('aria-pressed',String(developerEnabled));
  $('developer-tools').hidden=!developerEnabled;$('debug-badge').hidden=!developerEnabled;
@@ -614,11 +615,30 @@ function syncDeveloperTools(){
 }
 function runDeveloperAction(action){
  if(!developerEnabled||$('help').hidden||orientationBlocked||document.hidden)return;
+ game.playtestDebugAssisted=true;if(game.playtestRun)game.playtestRun.debugAssisted=true;
  const result=action();$('developer-status').textContent=result.reason||'';
  if(result.ok){clearInput();cancelInventoryDrag();inventorySignature='';phoneSignature='';gameAudio.stop();sync();syncEscapeVisual(0,false);selectedViewCache=null;corridorViewCache=null;requestedSelection=null;updateStreamView()}
  syncDeveloperTools();
 }
 $('developer-toggle').onclick=()=>{if($('help').hidden||orientationBlocked||document.hidden)return;developerEnabled=!developerEnabled;setDeveloperEnabled(game,developerEnabled);$('developer-status').textContent=developerEnabled?'开发者工具已启用，仅在当前页面会话保留。':'';syncDeveloperTools()};
+function playtestAction(action){if(!developerEnabled||$('help').hidden||orientationBlocked||document.hidden)return;action();syncDeveloperTools()}
+$('playtest-toggle').onclick=()=>playtestAction(()=>game.setPlaytestEnabled(!game.playtestEnabled));
+$('playtest-view').onclick=()=>playtestAction(()=>{$('playtest-stats').hidden=false;$('playtest-stats').textContent=JSON.stringify(game.playtestReport(),null,2)});
+function exportPlaytest(statusId){
+ let url;
+ try{
+  const blob=new Blob([JSON.stringify(game.playtestReport(),null,2)],{type:'application/json'}),a=document.createElement('a');
+  url=URL.createObjectURL(blob);a.href=url;a.download='level-zero-rc2-playtest.json';a.click();
+  $(statusId).textContent='已请求下载 JSON。请确认文件已保存；未导出的记录会在关页后丢失。';
+ }catch{
+  $(statusId).textContent='未能下载 JSON，记录仍在本页。请重试，暂时不要关闭或刷新页面。';
+ }finally{if(url)setTimeout(()=>URL.revokeObjectURL(url),1000)}
+}
+$('playtest-export').onclick=()=>playtestAction(()=>exportPlaytest('developer-status'));
+$('end-playtest-export').onclick=()=>{
+ if(!game.playtestEnabled||!['won','lost'].includes(game.mode)||$('ending').hidden||modalOpen()||orientationBlocked||document.hidden)return;
+ exportPlaytest('end-playtest-status');
+};
 $('developer-item').value='food';
 $('developer-spawn').onclick=()=>runDeveloperAction(()=>spawnDeveloperItem(game,$('developer-item').value));
 $('developer-time').onclick=()=>runDeveloperAction(()=>jumpDeveloperTime(game));
@@ -640,7 +660,7 @@ function sync(){
 }
 function say(t){$('toast').textContent=t;if(game.inventoryOpen)$('inventory-status').textContent=t;$('toast').classList.add('show');toastUntil=performance.now()+6500}
 function clearInput(){if(interactPointer!==null){try{$('interact').releasePointerCapture?.(interactPointer)}catch{}}interactPointer=null;game.cancelInteraction?.();for(const [id,pointer]of [['stick',touch.move],['look',touch.look],...Array.from(touch.sprint,p=>['sprint',p])])if(pointer!==null){try{$(id).releasePointerCapture?.(pointer)}catch{}}keys.clear();touch.move=null;touch.look=null;touch.sprint.clear();input.forward=input.strafe=0;input.sprint=false;$('stick-knob').style.transform='';}
-function showState(){$('phone-panel').hidden=!game.phoneOpenId;$('inventory-panel').hidden=!game.inventoryOpen||Boolean(game.phoneOpenId);$('inventory-panel').inert=Boolean(game.phoneOpenId);$('hud').inert=game.inventoryOpen;$('backpack').setAttribute('aria-expanded',String(game.inventoryOpen));for(const id of ['menu','pause-panel','note','ending','caught-panel'])$(id).hidden=true;$('hud').hidden=['menu','won','lost','caught'].includes(game.mode);$('caught-panel').hidden=game.mode!=='caught';if(game.mode==='caught')$('escape-retry').focus();if(game.mode==='menu'){$('menu').hidden=false;$('continue').disabled=!hasRun}if(game.mode==='paused')$('pause-panel').hidden=false;if(game.mode==='note')$('note').hidden=false;if(['won','lost'].includes(game.mode)){$('ending').hidden=false;$('end-eyebrow').textContent=game.mode==='won'?'LEVEL 1 · DEMO COMPLETE':'SIGNAL LOST';$('end-title').textContent=game.mode==='won'?'管道延伸到尚未开放的深处。':(game.level1.failure==='entity'?'黑暗中的轮廓追上了你。':'你再也走不动了。');$('end-copy').innerHTML=game.mode==='won'?'你已完成 Level 1 Demo。<br>管道通道是本次演示的终点；Level 2 尚未开放。':(game.level1.failure==='entity'?'停电时保持距离；绿色光区与左侧绕行通道可以躲避。<br>可从最近的光区继续，已用补给不会重新生成。':'饥饿或脱水结束了这次探索。<br>新的迷宫还在等着你。')} $('level1-retry').hidden=game.zone!=='level1'||game.mode!=='lost';syncModalInert();if(game.mode!=='playing'||game.inventoryOpen||game.phoneOpenId||modalOpen()){clearInput();document.exitPointerLock?.();gameAudio.stop()}last=performance.now()}
+function showState(){$('end-playtest').hidden=!game.playtestEnabled||!['won','lost'].includes(game.mode);$('end-playtest-status').textContent='';$('phone-panel').hidden=!game.phoneOpenId;$('inventory-panel').hidden=!game.inventoryOpen||Boolean(game.phoneOpenId);$('inventory-panel').inert=Boolean(game.phoneOpenId);$('hud').inert=game.inventoryOpen;$('backpack').setAttribute('aria-expanded',String(game.inventoryOpen));for(const id of ['menu','pause-panel','note','ending','caught-panel'])$(id).hidden=true;$('hud').hidden=['menu','won','lost','caught'].includes(game.mode);$('caught-panel').hidden=game.mode!=='caught';if(game.mode==='caught')$('escape-retry').focus();if(game.mode==='menu'){$('menu').hidden=false;$('continue').disabled=!hasRun}if(game.mode==='paused')$('pause-panel').hidden=false;if(game.mode==='note')$('note').hidden=false;if(['won','lost'].includes(game.mode)){$('ending').hidden=false;$('end-eyebrow').textContent=game.mode==='won'?'LEVEL 1 · DEMO COMPLETE':'SIGNAL LOST';$('end-title').textContent=game.mode==='won'?'管道延伸到尚未开放的深处。':(game.level1.failure==='entity'?'黑暗中的轮廓追上了你。':'你再也走不动了。');$('end-copy').innerHTML=game.mode==='won'?'你已完成 Level 1 Demo。<br>管道通道是本次演示的终点；Level 2 尚未开放。':(game.level1.failure==='entity'?'停电时保持距离；绿色光区与左侧绕行通道可以躲避。<br>可从最近的光区继续，已用补给不会重新生成。':'饥饿或脱水结束了这次探索。<br>新的迷宫还在等着你。')} $('level1-retry').hidden=game.zone!=='level1'||game.mode!=='lost';syncModalInert();if(game.mode!=='playing'||game.inventoryOpen||game.phoneOpenId||modalOpen()){clearInput();document.exitPointerLock?.();gameAudio.stop()}last=performance.now()}
 function pause(){game.pause();cancelInventoryDrag();game.closeInventory();showState()}
 function act(a){if(!canPlay())return;if(a==='interact'){const result=game.interact();if(result==='door')gameAudio.door();if(result==='note')showState()}sync()}
 function soundStart(){gameAudio.setEnabled(soundEnabled);return gameAudio.unlock()}
@@ -679,7 +699,7 @@ window.addEventListener('keydown',e=>{
   const help=!$('help').hidden;
   if(e.code==='Escape'){e.preventDefault?.();if(!e.repeat)closeModal(help?'help':'quit-panel')}
   if(e.code==='Tab'){
-   e.preventDefault();const focusable=(help?[$('sound-toggle'),$('quality-toggle'),$('developer-toggle'),...(developerEnabled?[$('developer-item'),$('developer-spawn'),$('developer-time'),$('developer-teleport-outside'),$('developer-teleport-inside')]:[]),$('help-close')]:[$('quit-back')]).filter(n=>!n.disabled);
+   e.preventDefault();const focusable=(help?[$('sound-toggle'),$('quality-toggle'),$('developer-toggle'),...(developerEnabled?[$('playtest-toggle'),$('playtest-view'),$('playtest-export'),$('developer-item'),$('developer-spawn'),$('developer-time'),$('developer-teleport-outside'),$('developer-teleport-inside')]:[]),$('help-close')]:[$('quit-back')]).filter(n=>!n.disabled);
    const index=focusable.indexOf(document.activeElement),next=index<0?(e.shiftKey?focusable.length-1:0):(index+(e.shiftKey?-1:1)+focusable.length)%focusable.length;focusable[next]?.focus();
   }
   return;
@@ -718,3 +738,4 @@ try{renderer=new THREE.WebGLRenderer({canvas:$('world'),antialias:false,powerPre
 // Optional structured browser tools, sharing the same visible game state and actions.
 if(document.modelContext?.registerTool){const abort=new AbortController();for(const tool of [{name:'read_exploration_status',description:'Read the current visible exploration and supplies status.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:true},execute:()=>({mode:orientationBlocked?'orientation-paused':game.phoneOpenId?'phone':game.inventoryOpen?'inventory':game.mode,orientationBlocked,zone:$('zone').textContent,food:Math.ceil(game.food),hydration:Math.ceil(game.hydration),foodCount:game.inventory('food').length,waterCount:game.inventory('water').length,phones:game.inventory('phone').map(i=>({id:i.id,battery:Math.ceil(i.battery),charging:game.chargingPhoneId===i.id})),objective:$('objective').textContent})},{name:'pause_exploration',description:'Pause the current exploration, freezing survival time.',inputSchema:{type:'object',properties:{},additionalProperties:false},execute:input=>{if(input&&Object.keys(input).length)throw Error('No arguments expected');pause();return{mode:game.mode}}}]){try{Promise.resolve(document.modelContext.registerTool(tool,{signal:abort.signal})).catch(()=>{})}catch{}}window.addEventListener('pagehide',()=>abort.abort(),{once:true})}
 if('serviceWorker'in navigator){navigator.serviceWorker.register('./sw.js',{scope:'./'}).then(async reg=>{await navigator.serviceWorker.ready;$('offline-status').textContent='离线资源已就绪。已安装版本会在所有页面关闭后安全更新。';reg.addEventListener('updatefound',()=>{const worker=reg.installing;worker?.addEventListener('statechange',()=>{if(worker.state==='installed'&&navigator.serviceWorker.controller)say('新版本已缓存。结束探索并关闭所有游戏页面后更新。')})})}).catch(()=>{$('offline-status').textContent='离线缓存未完成。请保持联网，稍后重新打开。'})}else $('offline-status').textContent='此环境不支持离线缓存。请使用 HTTPS 打开。';
+
