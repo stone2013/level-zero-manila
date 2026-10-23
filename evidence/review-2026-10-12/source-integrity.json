@@ -1,0 +1,11 @@
+{
+  "baseCommit": "cf2f2e951d20c0336ffd436a86fc86d99b4a3059",
+  "verifiedUnchangedGitBlobs": 279,
+  "changedBaselineFiles": [
+    "LOCAL_PLAYTEST_REPORT.md",
+    "dist/app.js",
+    "dist/game.js",
+    "dist/index.html"
+  ],
+  "missing": []
+}
